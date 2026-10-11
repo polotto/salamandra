@@ -1,0 +1,11 @@
+[package]
+name = "salamandra-hid"
+description = "Acesso USB HID ao mouse (Windows, Linux, macOS)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+hidapi = { version = "2.6.7", features = ["macos-shared-device"] }
+salamandra-core = { path = "../salamandra-core" }

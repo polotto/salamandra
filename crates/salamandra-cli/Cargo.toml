@@ -1,0 +1,16 @@
+[package]
+name = "salamandra-cli"
+description = "CLI do Salamandra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "salamandra"
+path = "src/main.rs"
+
+[dependencies]
+salamandra-core = { path = "../salamandra-core" }
+salamandra-hid = { path = "../salamandra-hid" }
+serde_json = "1.0.154"
