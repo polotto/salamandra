@@ -3,6 +3,7 @@
   import { app } from "$lib/state.svelte";
   import { onDeviceEvent, onServiceError } from "$lib/api";
   import { i18n, t } from "$lib/i18n.svelte";
+  import ProfileEditor from "$lib/ProfileEditor.svelte";
   import "../app.css";
 
   onMount(() => {
@@ -63,9 +64,7 @@
           <button disabled={app.busy} onclick={() => app.activate(p)}>{t("Ativar")}</button>
         {/if}
       </header>
-      <section class="placeholder">
-        <pre>{JSON.stringify(app.edited[p], null, 2)}</pre>
-      </section>
+      <ProfileEditor bind:profile={app.edited[p]} />
       <footer class="bar">
         <span class="status">{app.error ?? app.message ?? ""}</span>
         <button disabled={app.busy} onclick={() => app.loadFactory(p)}>{t("Padrão de fábrica")}</button>

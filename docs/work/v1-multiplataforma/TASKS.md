@@ -34,9 +34,9 @@ Esta versão porta para Rust + Tauri e completa o que falta.
 - [ ] B.3 o mesmo no Linux (GNOME/KDE por `gsettings`/`kwriteconfig`; o resto avisa)
 
 ## Trilha C: app Tauri (depende de A.4)
-- [ ] C.1 esqueleto Tauri, lista de perfis, conexão
-- [ ] C.2 telas: Geral (polling, rolagem, ajustes do SO), DPI (link XY), Luz
-- [ ] C.3 botões com todas as funções e configurações de tiro rápido
+- [x] C.1 esqueleto Tauri, lista de perfis, conexão, avisos do mouse na tela
+- [x] C.2 telas: Geral (polling, rolagem), DPI (link XY), Luz (gravação conferida no mouse pelo app); ajustes do SO ficam na Trilha B
+- [x] C.3 botões com todas as funções e configurações de tiro rápido, com o aviso do clique esquerdo
 - [ ] C.4 gerenciador de macros: gravar teclado e mouse com tempo, editar,
   inserir atraso, repetições, repetir enquanto segura
 - [ ] C.5 salvar/carregar perfil em arquivo, restaurar perfil, resetar tudo

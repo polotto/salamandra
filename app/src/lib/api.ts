@@ -8,6 +8,7 @@ export const saveProfile = (index: number, profile: Profile) =>
 export const setActiveProfile = (index: number) => invoke<number>("set_active_profile", { index });
 export const setMacro = (index: number, events: MacroEvent[]) =>
   invoke<MacroEvent[]>("set_macro", { index, events });
+export const keyNames = () => invoke<[string, number][]>("key_names");
 export const factoryDefaults = (index: number) => invoke<Profile>("factory_defaults", { index });
 export const backup = (path: string) => invoke<void>("backup", { path });
 export const restore = (path: string) => invoke<Snapshot>("restore", { path });

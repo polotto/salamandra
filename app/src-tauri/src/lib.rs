@@ -132,6 +132,12 @@ fn restore(state: State<AppState>, path: String) -> Result<Snapshot, String> {
     Ok(snapshot)
 }
 
+/// Nomes das teclas (uso HID), a mesma tabela do CLI.
+#[tauri::command]
+fn key_names() -> Vec<(String, u8)> {
+    salamandra_core::keys::all().to_vec()
+}
+
 static STOP_SERVICE: AtomicBool = AtomicBool::new(false);
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -160,6 +166,7 @@ pub fn run() {
             set_active_profile,
             set_macro,
             factory_defaults,
+            key_names,
             backup,
             restore
         ])
