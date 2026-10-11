@@ -43,6 +43,7 @@ com Svelte 5 (app).
 - Mídia "player" do oficial ainda sem código mapeado.
 - Wayland: o serviço de atalhos usa `enigo` com X11.
 - Sem máquina Windows e Linux para teste com o mouse (I.2).
+- CI bloqueado: Actions não roda neste repo privado por faturamento da conta.
 - Menu da bandeja e erros do backend só em pt-BR.
 
 ## Como verificar
