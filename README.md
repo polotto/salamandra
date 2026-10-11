@@ -32,3 +32,7 @@ nem textos do software oficial.
 
 Use por sua conta e risco: gravar uma configuração errada pode deixar o mouse
 com comportamento inesperado. Faça backup antes de alterar.
+
+## Licença
+
+MIT. Veja [LICENSE](LICENSE).
