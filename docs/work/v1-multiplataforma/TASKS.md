@@ -48,8 +48,12 @@ Esta versão porta para Rust + Tauri e completa o que falta.
   - pronto quando: só o i18n é global e `npm run check` passa
 
 ## Trilha D: distribuição (depende de C.1)
-- [!] D.1 GitHub Actions: build e testes nos três sistemas. Workflow pronto em `.github/workflows/ci.yml`; bloqueado: a conta não roda Actions em repo privado (pagamento ou limite de gastos). Destrava com o repo público ou ajuste no faturamento
+- [x] D.1 GitHub Actions: build, testes, clippy, fmt e checagens do front em Windows, Linux e macOS (`.github/workflows/ci.yml`), verde nos três
 - [ ] D.2 instaladores: `.msi`/`.exe`, `.dmg`, `.AppImage`/`.deb`, com regra udev no Linux
+
+## Trilha E: projeto aberto
+- [x] E.1 repo público, README com lista de compatibilidade (mouses, sistemas,
+  funções), `CONTRIBUTING.md`, modelos de issue e PR, regra udev do Linux
 
 ## Integração
 - [ ] I.1 teste no mouse real no macOS (com o usuário)

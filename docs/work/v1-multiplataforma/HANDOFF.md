@@ -9,13 +9,15 @@ com Svelte 5 (app).
 
 ## Estado atual
 - branch: `main`, tudo commitado e enviado (fluxo: commit e push a cada task)
+- repo público em https://github.com/polotto/salamandra, com README de compatibilidade e CONTRIBUTING
 - concluído: Trilha 0, A.1 a A.7, C.1 a C.6
 - testado no mouse (macOS), com confirmação do usuário: leitura, escrita
   (LED, DPI, polling, botões, macro, perfil ativo, reset, restore), eventos,
   atalho "copiar" pelo serviço, gravação de macro pelo app com tempo real,
   gravação de perfil pelo app, app empacotado (`Salamandra.app`, 4,4 MB)
+- CI verde em Windows, Linux e macOS
 - falta: C.7 (arquitetura do front), Trilha B (ajustes do sistema
-  operacional), Trilha D (CI e instaladores), I.2 (Windows e Linux)
+  operacional), D.2 (instaladores), I.2 (teste com mouse em Windows e Linux)
 
 ## Decisões tomadas
 - `Mouse` no `salamandra-core`, genérica sobre `Transport`: lógica testável
@@ -33,17 +35,14 @@ com Svelte 5 (app).
 - Licença MIT.
 
 ## Próximos passos
-1. D.1: GitHub Actions com build e testes em Windows, Linux e macOS (é o
-   único jeito de saber se compila nos outros sistemas sem máquina).
-2. Trilha B: velocidade do ponteiro, aceleração e duplo clique por sistema.
-3. C.7: trocar os singletons do front por instâncias injetadas.
-4. D.2: instaladores e regra udev do Linux.
+1. Trilha B: velocidade do ponteiro, aceleração e duplo clique por sistema.
+2. C.7: trocar os singletons do front por instâncias injetadas.
+3. D.2: instaladores e regra udev do Linux.
 
 ## Bloqueios e dúvidas em aberto
 - Mídia "player" do oficial ainda sem código mapeado.
 - Wayland: o serviço de atalhos usa `enigo` com X11.
 - Sem máquina Windows e Linux para teste com o mouse (I.2).
-- CI bloqueado: Actions não roda neste repo privado por faturamento da conta.
 - Menu da bandeja e erros do backend só em pt-BR.
 
 ## Como verificar
