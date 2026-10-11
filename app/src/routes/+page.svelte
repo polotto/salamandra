@@ -4,6 +4,7 @@
   import { onDeviceEvent, onServiceError } from "$lib/api";
   import { i18n, t } from "$lib/i18n.svelte";
   import ProfileEditor from "$lib/ProfileEditor.svelte";
+  import MacrosView from "$lib/MacrosView.svelte";
   import "../app.css";
 
   onMount(() => {
@@ -73,6 +74,9 @@
           {t("Gravar no mouse")}
         </button>
       </footer>
+    {:else if app.page.kind === "macros"}
+      <header class="page-header"><h1>{t("Macros")}</h1></header>
+      <MacrosView />
     {:else}
       <div class="empty"><p class="muted">{app.page.kind}</p></div>
     {/if}

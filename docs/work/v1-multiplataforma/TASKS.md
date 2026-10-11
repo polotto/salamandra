@@ -37,8 +37,8 @@ Esta versão porta para Rust + Tauri e completa o que falta.
 - [x] C.1 esqueleto Tauri, lista de perfis, conexão, avisos do mouse na tela
 - [x] C.2 telas: Geral (polling, rolagem), DPI (link XY), Luz (gravação conferida no mouse pelo app); ajustes do SO ficam na Trilha B
 - [x] C.3 botões com todas as funções e configurações de tiro rápido, com o aviso do clique esquerdo
-- [ ] C.4 gerenciador de macros: gravar teclado e mouse com tempo, editar,
-  inserir atraso, repetições, repetir enquanto segura
+- [x] C.4 gerenciador de macros: gravar teclado e mouse com tempo, editar,
+  inserir atraso, repetições, repetir enquanto segura (gravação com tempo real conferida no mouse)
 - [ ] C.5 salvar/carregar perfil em arquivo, restaurar perfil, resetar tudo
 - [ ] C.6 ícone na bandeja e i18n pt-BR/en
 

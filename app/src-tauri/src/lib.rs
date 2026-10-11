@@ -9,7 +9,7 @@ use salamandra_core::defaults::factory_profile;
 use salamandra_core::{map, Error, MacroEvent, Mouse, Profile};
 use salamandra_hid::HidTransport;
 use serde::Serialize;
-use tauri::{Emitter, State};
+use tauri::{Emitter, Manager, State};
 
 #[derive(Default)]
 struct AppState {
@@ -132,6 +132,30 @@ fn restore(state: State<AppState>, path: String) -> Result<Snapshot, String> {
     Ok(snapshot)
 }
 
+fn macro_names_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir.join("macro-names.json"))
+}
+
+/// Nomes das macros: como no oficial, ficam só no computador.
+#[tauri::command]
+fn macro_names(app: tauri::AppHandle) -> Result<Vec<String>, String> {
+    let path = macro_names_path(&app)?;
+    let mut names: Vec<String> = std::fs::read_to_string(path)
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_default();
+    names.resize(map::MACRO_COUNT, String::new());
+    Ok(names)
+}
+
+#[tauri::command]
+fn set_macro_names(app: tauri::AppHandle, names: Vec<String>) -> Result<(), String> {
+    let json = serde_json::to_string_pretty(&names).map_err(|e| e.to_string())?;
+    std::fs::write(macro_names_path(&app)?, json).map_err(|e| e.to_string())
+}
+
 /// Nomes das teclas (uso HID), a mesma tabela do CLI.
 #[tauri::command]
 fn key_names() -> Vec<(String, u8)> {
@@ -167,6 +191,8 @@ pub fn run() {
             set_macro,
             factory_defaults,
             key_names,
+            macro_names,
+            set_macro_names,
             backup,
             restore
         ])

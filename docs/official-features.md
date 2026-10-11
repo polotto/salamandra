@@ -40,11 +40,11 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | Botões | desabilitar | mouse | núcleo pronto |
 | Botões | regra: pelo menos um clique esquerdo | PC (validação) | núcleo pronto |
 | Macros | até 15 macros, 63 ações cada | mouse `0x478 + 200i` | núcleo pronto |
-| Macros | gravar teclado com tempo real entre ações | PC (gravação) + mouse | a fazer (app) |
-| Macros | inserir atraso padrão, ou gravar sem atraso | PC + mouse | a fazer (app) |
+| Macros | gravar teclado com tempo real entre ações | PC (gravação) + mouse | pronto (app) |
+| Macros | inserir atraso padrão, ou gravar sem atraso | PC + mouse | pronto (app) |
 | Macros | ações de mouse: L, R, M (apertar e soltar) | mouse | núcleo pronto |
-| Macros | editar: novo, apagar, gravar depois, mover, copiar, recortar, colar | PC | a fazer (app) |
-| Macros | nome da macro | PC (só no computador) | a fazer (app) |
+| Macros | editar: novo, apagar, gravar depois, mover, copiar, recortar, colar | PC | pronto (app) |
+| Macros | nome da macro | PC (só no computador) | pronto (app) |
 | Bandeja | ícone na bandeja, abrir configuração, sair | PC | a fazer |
 | Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | eventos prontos no serviço; falta a tela |
 | Info | versão do software, modelo | PC | a fazer (tela Sobre) |
