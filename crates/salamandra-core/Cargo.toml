@@ -1,0 +1,9 @@
+[package]
+name = "salamandra-core"
+description = "Protocolo de configuração de mouses, sem I/O"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
