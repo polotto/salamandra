@@ -1,0 +1,16 @@
+[package]
+name = "salamandra-service"
+description = "Serviço em segundo plano: escuta o mouse e executa os atalhos no PC"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "salamandra-service"
+path = "src/main.rs"
+
+[dependencies]
+enigo = "0.6"
+salamandra-core = { path = "../salamandra-core" }
+salamandra-hid = { path = "../salamandra-hid" }

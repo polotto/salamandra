@@ -21,9 +21,10 @@ Esta versão porta para Rust + Tauri e completa o que falta.
 - [x] A.4 `salamandra-hid`: `hidapi`, `Mouse` com leitura, `update`, macros, backup, restore
   - pronto quando: `salamandra show` lê o mouse no macOS (ok: backup idêntico ao do protótipo, 159 blocos; eventos `08 02 n` recebidos)
 - [x] A.5 CLI com os mesmos comandos do protótipo
-- [ ] A.6 serviço em segundo plano: escuta os reports de entrada e executa os
+- [x] A.6 serviço em segundo plano: escuta os reports de entrada e executa os
   atalhos embutidos no PC (`01 FF <id>`), por sistema
-  - pronto quando: botão com `shortcut:copy` copia texto no macOS
+  - pronto quando: botão com `shortcut:copy` copia texto no macOS (ok, conferido pelo usuário)
+  - pendente: Wayland no Linux (o `enigo` padrão só faz X11)
 - [x] A.7 teste de escrita pelo CLI Rust no mouse real (LED, botão, macro, reset, restore): tudo conferido pelo usuário; o restore ganhou a segunda sessão para o LED
 
 ## Trilha B: ajustes do sistema operacional (paralela à A)

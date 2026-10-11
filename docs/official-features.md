@@ -28,8 +28,8 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | Botões | clique esquerdo, direito, meio, avançar, voltar | mouse | núcleo pronto |
 | Botões | tecla única | mouse | núcleo pronto |
 | Botões | combinação (Win, Ctrl, Shift, Alt + tecla) | mouse | núcleo pronto |
-| Botões | básicas: recortar, copiar, colar, selecionar tudo, buscar, novo, imprimir, salvar | PC (mouse avisa, PC executa) | a fazer: serviço em segundo plano |
-| Botões | avançadas: trocar janela, fechar janela, abrir gerenciador de arquivos, executar, mostrar mesa, bloquear, navegador (início, voltar, avançar, parar, recarregar, buscar, favoritos), e-mail | PC | a fazer: serviço em segundo plano |
+| Botões | básicas: recortar, copiar, colar, selecionar tudo, buscar, novo, imprimir, salvar | PC (mouse avisa, PC executa) | serviço pronto (`salamandra-service`); testado no macOS |
+| Botões | avançadas: trocar janela, fechar janela, abrir gerenciador de arquivos, executar, mostrar mesa, bloquear, navegador (início, voltar, avançar, parar, recarregar, buscar, favoritos), e-mail | PC | serviço pronto; Linux só X11 |
 | Botões | mídia: play/pausa, parar, anterior, próxima, volume +/-, mudo, player | mouse | núcleo pronto ("player" a mapear) |
 | Botões | macro, com repetições ou repetir enquanto segura | mouse | núcleo pronto |
 | Botões | tiro rápido: botão L/R/M ou tecla, vezes, atraso | mouse | núcleo pronto |
@@ -46,7 +46,7 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | Macros | editar: novo, apagar, gravar depois, mover, copiar, recortar, colar | PC | a fazer (app) |
 | Macros | nome da macro | PC (só no computador) | a fazer (app) |
 | Bandeja | ícone na bandeja, abrir configuração, sair | PC | a fazer |
-| Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | a fazer |
+| Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | eventos prontos no serviço; falta a tela |
 | Info | versão do software, modelo | PC | a fazer (tela Sobre) |
 
 Fora do oficial e fora da v1: atualização de firmware, versão do firmware (o

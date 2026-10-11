@@ -16,6 +16,9 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
 - `crates/salamandra-hid/`: transporte por `hidapi` (Windows `HidD_SetFeature`,
   Linux `hidraw`, macOS IOKit) e a API de alto nível `Mouse`.
 - `crates/salamandra-cli/`: CLI.
+- `crates/salamandra-service/`: serviço em segundo plano. Escuta os avisos do
+  mouse e executa os atalhos (copiar, navegador...) com `enigo`. No macOS
+  precisa da permissão de Acessibilidade.
 - `app/`: Tauri (Rust + front web). Chama o `salamandra-hid` por comandos Tauri.
 - `docs/protocol.md`: protocolo do M901-1, cada campo com a função de origem.
 - `docs/official-features.md`: matriz função oficial x onde está no protocolo
