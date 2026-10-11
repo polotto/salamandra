@@ -2,4 +2,4 @@ ignore: *.md docs/**
 unit: cargo test --workspace
 lint: cargo clippy --workspace --all-targets -- -D warnings
 fmt: cargo fmt --all --check
-front: cd app && npm run check
+front: cd app && npm run check && node scripts/check-i18n.mjs

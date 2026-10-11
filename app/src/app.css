@@ -242,3 +242,23 @@ select {
   gap: 8px;
   margin-top: 8px;
 }
+
+/* App empacotado: sem seleção nem arrasto de navegador (ver nativeFeel.ts). */
+:root.desktop body {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+:root.desktop input,
+:root.desktop textarea,
+:root.desktop [contenteditable],
+:root.desktop .selectable {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+img,
+a {
+  -webkit-user-drag: none;
+}

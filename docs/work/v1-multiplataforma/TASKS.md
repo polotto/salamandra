@@ -40,7 +40,12 @@ Esta versão porta para Rust + Tauri e completa o que falta.
 - [x] C.4 gerenciador de macros: gravar teclado e mouse com tempo, editar,
   inserir atraso, repetições, repetir enquanto segura (gravação com tempo real conferida no mouse)
 - [x] C.5 salvar/carregar perfil em arquivo, restaurar perfil, resetar tudo, backup e restore na tela
-- [ ] C.6 ícone na bandeja e i18n pt-BR/en
+- [x] C.6 ícone na bandeja (fechar só esconde; Dock reabre) e i18n pt-BR/en com checagem no `verify`
+  - [x] comportamento de app nativo no webview (sem seleção, Cmd+A, clique direito e atalhos de navegador), conferido no app empacotado
+  - pendente: menu da bandeja e mensagens de erro do backend só em pt-BR
+- [ ] C.7 arquitetura do front: trocar os singletons `app` e `keys` por instâncias
+  injetadas (contexto do Svelte), separar casos de uso do estado de tela
+  - pronto quando: só o i18n é global e `npm run check` passa
 
 ## Trilha D: distribuição (depende de C.1)
 - [ ] D.1 GitHub Actions: build e testes nos três sistemas

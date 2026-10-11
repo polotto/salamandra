@@ -5,9 +5,11 @@
   import { i18n, t } from "$lib/i18n.svelte";
   import ProfileEditor from "$lib/ProfileEditor.svelte";
   import MacrosView from "$lib/MacrosView.svelte";
+  import { installNativeFeel } from "$lib/nativeFeel";
   import "../app.css";
 
   onMount(() => {
+    installNativeFeel();
     app.connect();
     const unlisten = [onDeviceEvent((e) => app.onDeviceEvent(e)), onServiceError((m) => (app.error = m))];
     return () => unlisten.forEach((u) => u.then((f) => f()));
@@ -55,7 +57,7 @@
       <div class="empty">
         <h2>{t("Mouse não encontrado")}</h2>
         <p>{t("Conecte o Redragon M901-1 Perdition 2 por USB.")}</p>
-        {#if app.error}<p class="error">{app.error}</p>{/if}
+        {#if app.error}<p class="error selectable">{app.error}</p>{/if}
         <button class="primary" disabled={app.busy} onclick={() => app.connect()}>{t("Tentar de novo")}</button>
       </div>
     {:else if app.page.kind === "profile"}
@@ -74,7 +76,7 @@
       </header>
       <ProfileEditor bind:profile={app.edited[p]} />
       <footer class="bar">
-        <span class="status">{app.error ?? app.message ?? ""}</span>
+        <span class="status selectable">{app.error ?? app.message ?? ""}</span>
         <button disabled={app.busy} onclick={() => app.loadFactory(p)}>{t("Padrão de fábrica")}</button>
         <button disabled={!app.isDirty(p) || app.busy} onclick={() => app.discard(p)}>{t("Descartar")}</button>
         <button class="primary" disabled={!app.isDirty(p) || app.busy} onclick={() => app.save(p)}>
@@ -109,7 +111,7 @@
             onclick={() => app.resetAll(t("Voltar todos os perfis para o padrão de fábrica?"))}>{t("Resetar todos os perfis")}</button
           >
         </div>
-        <p class="status">{app.error ?? app.message ?? ""}</p>
+        <p class="status selectable">{app.error ?? app.message ?? ""}</p>
       </div>
     {/if}
   </main>

@@ -45,8 +45,8 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | Macros | ações de mouse: L, R, M (apertar e soltar) | mouse | núcleo pronto |
 | Macros | editar: novo, apagar, gravar depois, mover, copiar, recortar, colar | PC | pronto (app) |
 | Macros | nome da macro | PC (só no computador) | pronto (app) |
-| Bandeja | ícone na bandeja, abrir configuração, sair | PC | a fazer |
-| Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | eventos prontos no serviço; falta a tela |
+| Bandeja | ícone na bandeja, abrir configuração, sair | PC | pronto |
+| Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | pronto (perfil, DPI e polling; LED só aviso) |
 | Info | versão do software, modelo | PC | pronto (tela Sobre) |
 
 Fora do oficial e fora da v1: atualização de firmware, versão do firmware (o

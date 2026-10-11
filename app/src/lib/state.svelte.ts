@@ -1,6 +1,7 @@
 import * as api from "./api";
 import { ask, open, save } from "@tauri-apps/plugin-dialog";
 import type { DeviceEvent, MacroEvent, Profile } from "./types";
+import { t } from "./i18n.svelte";
 
 export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "about" };
 
@@ -28,7 +29,7 @@ class AppState {
     if (this.busy) return undefined;
     this.busy = true;
     this.error = null;
-    this.message = label;
+    this.message = t(label);
     try {
       const result = await work();
       this.message = null;
@@ -51,13 +52,13 @@ class AppState {
   }
 
   async save(p: number) {
-    const fresh = await this.run(`Gravando o perfil ${p + 1}...`, () =>
+    const fresh = await this.run("Gravando o perfil...", () =>
       api.saveProfile(p, $state.snapshot(this.edited[p])),
     );
     if (!fresh) return;
     this.loaded[p] = fresh;
     this.edited[p] = clone(fresh);
-    this.message = `Perfil ${p + 1} gravado`;
+    this.message = `${t("Perfil")} ${p + 1}: ${t("gravado")}`;
   }
 
   discard(p: number) {
@@ -71,15 +72,15 @@ class AppState {
   }
 
   async activate(p: number) {
-    const active = await this.run(`Ativando o perfil ${p + 1}...`, () => api.setActiveProfile(p));
+    const active = await this.run("Ativando o perfil...", () => api.setActiveProfile(p));
     if (active !== undefined) this.activeProfile = active;
   }
 
   async saveMacro(i: number, events: MacroEvent[]) {
-    const fresh = await this.run(`Gravando a macro ${i + 1}...`, () => api.setMacro(i, events));
+    const fresh = await this.run("Gravando a macro...", () => api.setMacro(i, events));
     if (!fresh) return false;
     this.macros[i] = fresh;
-    this.message = `Macro ${i + 1} gravada`;
+    this.message = `${t("Macro")} ${i + 1}: ${t("gravada")}`;
     return true;
   }
 
@@ -90,7 +91,7 @@ class AppState {
     });
     if (!path) return;
     if ((await this.run("Salvando...", () => api.exportProfile(path, $state.snapshot(this.edited[p])))) !== undefined)
-      this.message = "Perfil salvo em arquivo";
+      this.message = t("Perfil salvo em arquivo");
   }
 
   /** Carrega no editor; o usuário confere e grava. */
@@ -100,14 +101,14 @@ class AppState {
     const profile = await this.run("Carregando...", () => api.importProfile(path));
     if (profile) {
       this.edited[p] = profile;
-      this.message = "Perfil carregado. Confira e grave no mouse.";
+      this.message = t("Perfil carregado. Confira e grave no mouse.");
     }
   }
 
   async backup() {
     const path = await save({ defaultPath: "salamandra-backup.json", filters: [{ name: "JSON", extensions: ["json"] }] });
     if (!path) return;
-    if ((await this.run("Fazendo backup...", () => api.backup(path))) !== undefined) this.message = "Backup salvo";
+    if ((await this.run("Fazendo backup...", () => api.backup(path))) !== undefined) this.message = t("Backup salvo");
   }
 
   private applySnapshot(snap: { active_profile: number; profiles: Profile[]; macros: MacroEvent[][] }) {
@@ -123,7 +124,7 @@ class AppState {
     const snap = await this.run("Restaurando...", () => api.restore(path));
     if (snap) {
       this.applySnapshot(snap);
-      this.message = "Backup restaurado";
+      this.message = t("Backup restaurado");
     }
   }
 
@@ -132,7 +133,7 @@ class AppState {
     const snap = await this.run("Voltando ao padrão de fábrica...", api.resetAll);
     if (snap) {
       this.applySnapshot(snap);
-      this.message = "Todos os perfis voltaram ao padrão de fábrica";
+      this.message = t("Todos os perfis voltaram ao padrão de fábrica");
     }
   }
 

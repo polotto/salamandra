@@ -35,7 +35,12 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
 - Nada do software oficial entra no repo: código, binário, imagem, `.ini` ou
   texto. Valores (endereços, códigos, padrões de fábrica) são fatos e entram
   como dados nossos, citando a origem.
-- Texto de usuário em pt-BR e inglês (i18n no app).
+- Texto de usuário em pt-BR e inglês: nenhuma string fixa no front, sempre
+  `t("texto em pt-BR")` com a tradução em `app/src/lib/i18n.svelte.ts`
+  (`node app/scripts/check-i18n.mjs` falha se faltar).
+- App empacotado sem comportamento de navegador (`app/src/lib/nativeFeel.ts`):
+  nada de seleção de texto fora de campos, Cmd+A, clique direito ou atalhos de
+  navegador. Texto que o usuário precisa copiar leva a classe `selectable`.
 
 ## Fluxo de trabalho
 - Trabalho atual: `docs/work/v1-multiplataforma/TASKS.md` e `HANDOFF.md`

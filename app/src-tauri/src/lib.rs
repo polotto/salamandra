@@ -212,6 +212,51 @@ fn reset_all(state: State<AppState>) -> Result<Snapshot, String> {
     Ok(snapshot)
 }
 
+fn show_main(app: &tauri::AppHandle) {
+    if let Some(w) = app.get_webview_window("main") {
+        let _ = w.show();
+        let _ = w.unminimize();
+        let _ = w.set_focus();
+    }
+}
+
+/// Ícone na bandeja com "Abrir" e "Sair", como o software oficial.
+fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
+    use tauri::menu::{Menu, MenuItem};
+    use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+
+    let open = MenuItem::with_id(app, "open", "Abrir Salamandra", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Sair", true, None::<&str>)?;
+    let menu = Menu::with_items(app, &[&open, &quit])?;
+    let mut tray = TrayIconBuilder::new()
+        .tooltip("Salamandra")
+        .menu(&menu)
+        .show_menu_on_left_click(false)
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            "open" => show_main(app),
+            "quit" => {
+                STOP_SERVICE.store(true, std::sync::atomic::Ordering::Relaxed);
+                app.exit(0);
+            }
+            _ => {}
+        })
+        .on_tray_icon_event(|tray, event| {
+            if let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } = event
+            {
+                show_main(tray.app_handle());
+            }
+        });
+    if let Some(icon) = app.default_window_icon() {
+        tray = tray.icon(icon.clone());
+    }
+    tray.build(app)?;
+    Ok(())
+}
+
 static STOP_SERVICE: AtomicBool = AtomicBool::new(false);
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -220,6 +265,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .setup(|app| {
+            setup_tray(app)?;
             let handle = app.handle().clone();
             std::thread::spawn(move || {
                 let errors = handle.clone();
@@ -234,6 +280,13 @@ pub fn run() {
                 );
             });
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            // Como o oficial: fechar a janela só esconde; o serviço de atalhos segue.
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = window.hide();
+            }
         })
         .invoke_handler(tauri::generate_handler![
             connect,
@@ -250,8 +303,17 @@ pub fn run() {
             backup,
             restore
         ])
-        .run(tauri::generate_context!())
-        .expect("falha ao iniciar o app");
+        .build(tauri::generate_context!())
+        .expect("falha ao iniciar o app")
+        .run(|app, event| {
+            // macOS: clicar no ícone do Dock reabre a janela escondida.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen { .. } = event {
+                show_main(app);
+            }
+            #[cfg(not(target_os = "macos"))]
+            let _ = (app, event);
+        });
 }
 
 #[cfg(test)]

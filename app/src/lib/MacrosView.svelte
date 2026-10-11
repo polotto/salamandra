@@ -231,7 +231,7 @@
     </div>
 
     <footer class="bar">
-      <span class="status">{app.error ?? app.message ?? ""}</span>
+      <span class="status selectable">{app.error ?? app.message ?? ""}</span>
       <button disabled={!dirty || recording} onclick={() => select(selected)}>{t("Descartar")}</button>
       <button class="primary" disabled={!dirty || recording || app.busy} onclick={save}>{t("Gravar no mouse")}</button>
     </footer>
