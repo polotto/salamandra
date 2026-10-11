@@ -1,0 +1,22 @@
+name: Relato de teste / Test report
+description: Testei em um sistema ainda não confirmado / I tested on a not yet confirmed system
+labels: [test-report]
+body:
+  - type: input
+    id: os
+    attributes:
+      label: Sistema / Operating system
+    validations:
+      required: true
+  - type: input
+    id: mouse
+    attributes:
+      label: Mouse e código USB / Mouse and USB ID
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: O que funcionou e o que não / What worked and what did not
+    validations:
+      required: true

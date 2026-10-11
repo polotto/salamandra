@@ -1,0 +1,28 @@
+name: Suporte a um mouse / Mouse support
+description: Pedir ou ajudar a adicionar um mouse novo / Request or help add a mouse
+labels: [new-mouse]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Modelo / Model
+    validations:
+      required: true
+  - type: input
+    id: usb
+    attributes:
+      label: Código USB / USB ID (vendor:product)
+      placeholder: 04d9:fc40
+    validations:
+      required: true
+  - type: input
+    id: software
+    attributes:
+      label: Link do software oficial / Vendor software link
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Como você pode ajudar / How you can help
+      options:
+        - label: Tenho o mouse e posso testar leituras e escritas com backup / I own it and can test with a backup
+        - label: Posso ajudar a mapear o protocolo / I can help map the protocol

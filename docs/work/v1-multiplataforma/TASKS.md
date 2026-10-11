@@ -1,6 +1,6 @@
 # v1-multiplataforma: 100% do software oficial em Windows, Linux e macOS
 
-Contexto: protótipo em Swift (`~/GitHub/perdition-mac`, só local) já cobre LED,
+Contexto: um protótipo em Swift (fora deste repo) já cobria LED,
 DPI, polling, perfil ativo, botões, macros, backup e restore, testado no mouse.
 Esta versão porta para Rust + Tauri e completa o que falta.
 

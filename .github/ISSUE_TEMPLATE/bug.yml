@@ -1,0 +1,30 @@
+name: Bug
+description: Algo não funciona como deveria / Something does not work
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: O que aconteceu / What happened
+      description: Passos para reproduzir e o que você esperava.
+    validations:
+      required: true
+  - type: input
+    id: mouse
+    attributes:
+      label: Mouse e código USB / Mouse and USB ID
+      placeholder: Redragon M901-1 Perdition 2, 04d9:fc40
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Sistema / Operating system
+      placeholder: Windows 11, Ubuntu 24.04 (X11), macOS 15
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Saída de `salamandra show` ou mensagem de erro / Output or error
+      render: text
