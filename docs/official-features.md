@@ -10,9 +10,9 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | Tela | Função | Onde | Situação no Salamandra |
 | --- | --- | --- | --- |
 | Perfis | 5 perfis, trocar o ativo | mouse `0x2C` | núcleo pronto |
-| Perfis | salvar perfil em arquivo, carregar arquivo | PC | a fazer (formato próprio em JSON) |
-| Perfis | restaurar perfil atual para fábrica | mouse | núcleo pronto (`defaults.rs`) |
-| Perfis | resetar todos os perfis | mouse | núcleo pronto (`defaults.rs`) |
+| Perfis | salvar perfil em arquivo, carregar arquivo | PC | pronto (JSON próprio, validado ao carregar) |
+| Perfis | restaurar perfil atual para fábrica | mouse | pronto (app: carrega no editor e grava) |
+| Perfis | resetar todos os perfis | mouse | pronto (app, com confirmação) |
 | Geral | taxa de polling 125/250/500/1000 Hz | mouse `0x32 + 2p` | núcleo pronto |
 | Geral | velocidade de rolagem (linhas por passo) | mouse `0x20 + 2p` | núcleo pronto |
 | Geral | velocidade do ponteiro | SO | a fazer (Windows, macOS, Linux) |
@@ -47,7 +47,7 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | Macros | nome da macro | PC (só no computador) | pronto (app) |
 | Bandeja | ícone na bandeja, abrir configuração, sair | PC | a fazer |
 | Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | eventos prontos no serviço; falta a tela |
-| Info | versão do software, modelo | PC | a fazer (tela Sobre) |
+| Info | versão do software, modelo | PC | pronto (tela Sobre) |
 
 Fora do oficial e fora da v1: atualização de firmware, versão do firmware (o
 oficial mostra só a versão do programa).

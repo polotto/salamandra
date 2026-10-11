@@ -13,6 +13,10 @@
     return () => unlisten.forEach((u) => u.then((f) => f()));
   });
 
+  import { getVersion } from "@tauri-apps/api/app";
+  let version = $state("");
+  getVersion().then((v) => (version = v));
+
   const rgb = (c: [number, number, number]) => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 </script>
 
@@ -64,6 +68,9 @@
           <span class="muted">{t("Este perfil não está ativo.")}</span>
           <button disabled={app.busy} onclick={() => app.activate(p)}>{t("Ativar")}</button>
         {/if}
+        <span class="grow"></span>
+        <button disabled={app.busy} onclick={() => app.importProfile(p)}>{t("Carregar arquivo")}</button>
+        <button disabled={app.busy} onclick={() => app.exportProfile(p)}>{t("Salvar em arquivo")}</button>
       </header>
       <ProfileEditor bind:profile={app.edited[p]} />
       <footer class="bar">
@@ -78,7 +85,32 @@
       <header class="page-header"><h1>{t("Macros")}</h1></header>
       <MacrosView />
     {:else}
-      <div class="empty"><p class="muted">{app.page.kind}</p></div>
+      <header class="page-header"><h1>{t("Sobre")}</h1></header>
+      <div class="about">
+        <div class="card">
+          <h3>Salamandra {version}</h3>
+          <p>{t("Configurador aberto de mouses gamer para Windows, Linux e macOS.")}</p>
+          <p class="muted">{t("Mouse: Redragon M901-1 Perdition 2 (USB 04d9:fc40).")}</p>
+          <p class="muted">{t("Projeto independente, sem vínculo com a Redragon. Licença MIT.")}</p>
+        </div>
+        <div class="card">
+          <h3>{t("Backup do mouse")}</h3>
+          <p class="muted">{t("Salva tudo o que está no mouse: perfis, botões e macros.")}</p>
+          <div class="actions">
+            <button disabled={app.busy} onclick={() => app.backup()}>{t("Fazer backup")}</button>
+            <button disabled={app.busy} onclick={() => app.restore()}>{t("Restaurar backup")}</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>{t("Padrão de fábrica")}</h3>
+          <p class="muted">{t("Volta os 5 perfis para o padrão de fábrica. As macros não mudam.")}</p>
+          <button
+            disabled={app.busy}
+            onclick={() => app.resetAll(t("Voltar todos os perfis para o padrão de fábrica?"))}>{t("Resetar todos os perfis")}</button
+          >
+        </div>
+        <p class="status">{app.error ?? app.message ?? ""}</p>
+      </div>
     {/if}
   </main>
 </div>

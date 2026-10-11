@@ -39,7 +39,7 @@ Esta versão porta para Rust + Tauri e completa o que falta.
 - [x] C.3 botões com todas as funções e configurações de tiro rápido, com o aviso do clique esquerdo
 - [x] C.4 gerenciador de macros: gravar teclado e mouse com tempo, editar,
   inserir atraso, repetições, repetir enquanto segura (gravação com tempo real conferida no mouse)
-- [ ] C.5 salvar/carregar perfil em arquivo, restaurar perfil, resetar tudo
+- [x] C.5 salvar/carregar perfil em arquivo, restaurar perfil, resetar tudo, backup e restore na tela
 - [ ] C.6 ícone na bandeja e i18n pt-BR/en
 
 ## Trilha D: distribuição (depende de C.1)

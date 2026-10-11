@@ -162,11 +162,62 @@ fn key_names() -> Vec<(String, u8)> {
     salamandra_core::keys::all().to_vec()
 }
 
+const PROFILE_FORMAT: &str = "salamandra-profile";
+
+/// Arquivo de um perfil: formato próprio em JSON, com versão.
+#[derive(Serialize, serde::Deserialize)]
+struct ProfileFile {
+    format: String,
+    version: u32,
+    profile: Profile,
+}
+
+#[tauri::command]
+fn export_profile(path: String, profile: Profile) -> Result<(), String> {
+    let file = ProfileFile {
+        format: PROFILE_FORMAT.into(),
+        version: 1,
+        profile,
+    };
+    let json = serde_json::to_string_pretty(&file).map_err(|e| e.to_string())?;
+    std::fs::write(path, json).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn import_profile(path: String) -> Result<Profile, String> {
+    let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+    let file: ProfileFile =
+        serde_json::from_str(&text).map_err(|_| "arquivo de perfil inválido")?;
+    if file.format != PROFILE_FORMAT || file.version != 1 {
+        return Err("arquivo de perfil de outro formato ou versão".into());
+    }
+    if file.profile.buttons.len() != map::BUTTON_COUNT {
+        return Err("arquivo de perfil com número errado de botões".into());
+    }
+    file.profile.validate().map_err(|e| e.to_string())?;
+    Ok(file.profile)
+}
+
+/// "Reset all" do oficial: os 5 perfis voltam para o padrão de fábrica.
+#[tauri::command]
+fn reset_all(state: State<AppState>) -> Result<Snapshot, String> {
+    let snapshot = with_mouse(&state, |m| {
+        for p in 0..map::PROFILE_COUNT {
+            let old = m.profile(p)?;
+            m.update_profile(p, &old, &factory_profile(p))?;
+        }
+        read_all(m)
+    })?;
+    remember(&state, &snapshot);
+    Ok(snapshot)
+}
+
 static STOP_SERVICE: AtomicBool = AtomicBool::new(false);
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .setup(|app| {
             let handle = app.handle().clone();
@@ -193,9 +244,38 @@ pub fn run() {
             key_names,
             macro_names,
             set_macro_names,
+            export_profile,
+            import_profile,
+            reset_all,
             backup,
             restore
         ])
         .run(tauri::generate_context!())
         .expect("falha ao iniciar o app");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn profile_file_round_trip() {
+        let path = std::env::temp_dir().join("salamandra-perfil-teste.json");
+        let path = path.to_string_lossy().to_string();
+        let profile = factory_profile(2);
+        export_profile(path.clone(), profile.clone()).unwrap();
+        assert_eq!(import_profile(path.clone()).unwrap(), profile);
+
+        let mut broken = profile.clone();
+        broken.buttons[0] = salamandra_core::ButtonAction::Disabled;
+        export_profile(path.clone(), broken).unwrap();
+        assert!(
+            import_profile(path.clone()).is_err(),
+            "sem clique esquerdo não entra"
+        );
+
+        std::fs::write(&path, "{\"format\":\"outro\"}").unwrap();
+        assert!(import_profile(path.clone()).is_err());
+        let _ = std::fs::remove_file(path);
+    }
 }

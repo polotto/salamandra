@@ -1,4 +1,5 @@
 import * as api from "./api";
+import { ask, open, save } from "@tauri-apps/plugin-dialog";
 import type { DeviceEvent, MacroEvent, Profile } from "./types";
 
 export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "about" };
@@ -46,10 +47,7 @@ class AppState {
     const snap = await this.run("Lendo o mouse...", api.connect);
     if (!snap) return;
     this.connected = true;
-    this.activeProfile = snap.active_profile;
-    this.loaded = snap.profiles;
-    this.edited = clone(snap.profiles);
-    this.macros = snap.macros;
+    this.applySnapshot(snap);
   }
 
   async save(p: number) {
@@ -83,6 +81,59 @@ class AppState {
     this.macros[i] = fresh;
     this.message = `Macro ${i + 1} gravada`;
     return true;
+  }
+
+  async exportProfile(p: number) {
+    const path = await save({
+      defaultPath: `perfil-${p + 1}.salamandra.json`,
+      filters: [{ name: "Salamandra", extensions: ["json"] }],
+    });
+    if (!path) return;
+    if ((await this.run("Salvando...", () => api.exportProfile(path, $state.snapshot(this.edited[p])))) !== undefined)
+      this.message = "Perfil salvo em arquivo";
+  }
+
+  /** Carrega no editor; o usuário confere e grava. */
+  async importProfile(p: number) {
+    const path = await open({ filters: [{ name: "Salamandra", extensions: ["json"] }] });
+    if (!path) return;
+    const profile = await this.run("Carregando...", () => api.importProfile(path));
+    if (profile) {
+      this.edited[p] = profile;
+      this.message = "Perfil carregado. Confira e grave no mouse.";
+    }
+  }
+
+  async backup() {
+    const path = await save({ defaultPath: "salamandra-backup.json", filters: [{ name: "JSON", extensions: ["json"] }] });
+    if (!path) return;
+    if ((await this.run("Fazendo backup...", () => api.backup(path))) !== undefined) this.message = "Backup salvo";
+  }
+
+  private applySnapshot(snap: { active_profile: number; profiles: Profile[]; macros: MacroEvent[][] }) {
+    this.activeProfile = snap.active_profile;
+    this.loaded = snap.profiles;
+    this.edited = clone(snap.profiles);
+    this.macros = snap.macros;
+  }
+
+  async restore() {
+    const path = await open({ filters: [{ name: "JSON", extensions: ["json"] }] });
+    if (!path) return;
+    const snap = await this.run("Restaurando...", () => api.restore(path));
+    if (snap) {
+      this.applySnapshot(snap);
+      this.message = "Backup restaurado";
+    }
+  }
+
+  async resetAll(question: string) {
+    if (!(await ask(question, { kind: "warning" }))) return;
+    const snap = await this.run("Voltando ao padrão de fábrica...", api.resetAll);
+    if (snap) {
+      this.applySnapshot(snap);
+      this.message = "Todos os perfis voltaram ao padrão de fábrica";
+    }
   }
 
   /** Mudanças feitas pelos botões do próprio mouse. */
