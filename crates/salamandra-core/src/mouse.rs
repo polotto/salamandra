@@ -198,12 +198,16 @@ impl<T: Transport> Mouse<T> {
                 writes.push((address, parse_block(&key, hex, len)?));
             }
         }
+        // Os blocos de config_blocks() começam pelo perfil ativo.
+        let active = writes[0].1.clone();
         self.commit(&ALL_AREAS, |m| {
             for (address, bytes) in &writes {
                 m.write(*address, bytes)?;
             }
             m.transport.set_feature(&packet::apply(ApplyArea::DpiLevel))
-        })
+        })?;
+        // O LED só acompanha o perfil ativo na sessão seguinte (testado no mouse).
+        self.commit(&ALL_AREAS, |m| m.write(map::ACTIVE_PROFILE, &active))
     }
 
     // Interno

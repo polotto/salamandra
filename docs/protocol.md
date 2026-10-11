@@ -35,7 +35,7 @@ Escrita completa do oficial (`FUN_00412e90`, "SendAll2Mouse"): `F5 00`, escritas
 
 Armadilha: depois de gravar o perfil ativo (`0x2C`), o mouse passa a usar os
 botões do perfil novo na hora, mas o LED só troca na próxima sessão `F5`.
-Conferido no hardware; o `setActiveProfile` repete a sessão por isso.
+Conferido no hardware: a troca de perfil e o restore fazem uma sessão a mais por isso.
 
 ## Mapa de memória
 
@@ -109,7 +109,7 @@ O `hid.exe` escuta os reports de entrada da interface `0xFFA0` (`FUN_00410be0`).
 | `08 02 <n>` | nível de DPI mudou (n de 0 a 4; conferido no mouse: `08 02 04`, `08 02 03`) | mostra o nível |
 | `08 06 <código>` | polling mudou (`1/2/4/8`) | atualiza a tela |
 | `08 09 …` | modo do LED mudou | atualiza a tela |
-| `xx FF <id>` | botão com atalho embutido (`8E 01 FF <id>`) apertado | executa no PC (tabela abaixo) |
+| `01 FF <id>` e depois `01 00 00` | botão com atalho embutido (`8E 01 FF <id>`) apertado e solto; vem no report de consumidor (ID 1). Conferido no mouse: `01 ff 12` para copiar | executa no PC (tabela abaixo) |
 
 Atalhos executados pelo PC (`hid.exe` `FUN_00401050` em diante): `0x11`
 Ctrl+X, `0x12` Ctrl+C, `0x13` Ctrl+V, `0x14` Ctrl+A, `0x15` Ctrl+F, `0x16`

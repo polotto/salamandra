@@ -220,6 +220,20 @@ fn backup_restore_round_trip() {
 }
 
 #[test]
+fn restore_refreshes_the_led_with_a_second_session() {
+    let mut m = factory_mouse();
+    m.set_active_profile(3).unwrap();
+    let saved = m.backup().unwrap();
+    m.transport_mut().sent.clear();
+    m.restore(&saved).unwrap();
+    let fake = m.transport_mut();
+    assert_eq!(fake.sessions(), 2);
+    let last_write = (*fake.writes().last().unwrap()).clone();
+    assert_eq!(&last_write[..5], &[0x02, 0xF3, 0x2C, 0x00, 0x02]);
+    assert_eq!(last_write[8], 3);
+}
+
+#[test]
 fn restore_rejects_incomplete_backup() {
     let mut m = factory_mouse();
     let mut partial = std::collections::BTreeMap::new();

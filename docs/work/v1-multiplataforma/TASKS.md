@@ -22,9 +22,9 @@ Esta versão porta para Rust + Tauri e completa o que falta.
   - pronto quando: `salamandra show` lê o mouse no macOS (ok: backup idêntico ao do protótipo, 159 blocos; eventos `08 02 n` recebidos)
 - [x] A.5 CLI com os mesmos comandos do protótipo
 - [ ] A.6 serviço em segundo plano: escuta os reports de entrada e executa os
-  atalhos embutidos no PC (`xx FF <id>`), por sistema
+  atalhos embutidos no PC (`01 FF <id>`), por sistema
   - pronto quando: botão com `shortcut:copy` copia texto no macOS
-- [ ] A.7 teste de escrita pelo CLI Rust no mouse real (LED, botão, macro, reset, restore)
+- [x] A.7 teste de escrita pelo CLI Rust no mouse real (LED, botão, macro, reset, restore): tudo conferido pelo usuário; o restore ganhou a segunda sessão para o LED
 
 ## Trilha B: ajustes do sistema operacional (paralela à A)
 - [ ] B.1 velocidade do ponteiro, aceleração, duplo clique e linhas de rolagem
