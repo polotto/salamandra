@@ -2,6 +2,8 @@
 //! Tabela em `0x47D3D0` e `FUN_00412980` do software oficial.
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(transparent))]
 pub struct Modifiers(pub u8);
 
 impl Modifiers {
@@ -18,6 +20,8 @@ impl Modifiers {
 
 /// Alvo do tiro rápido: botão do mouse ou tecla (uso HID).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
 pub enum FireTarget {
     Left,
     Right,
@@ -47,6 +51,7 @@ impl FireTarget {
 
 /// Submenus DPI, RATE, SCROLL e PROFILE SWITCH da interface oficial.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Special {
     DpiCycle,
     DpiUp,
@@ -90,6 +95,7 @@ impl Special {
 /// Atalhos BASIC e ADVANCED (`8E 01 FF <id>`). O mouse só avisa o PC; quem
 /// executa é o programa no PC (`FUN_00410be0` do oficial). Ver `host_action`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum Shortcut {
     Cut = 0x11,
@@ -152,6 +158,8 @@ impl Shortcut {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
 pub enum ButtonAction {
     Disabled,
     LeftClick,

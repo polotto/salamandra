@@ -4,6 +4,7 @@ use crate::buttons::ButtonAction;
 use crate::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PollingRate {
     Hz125,
     Hz250,
@@ -38,6 +39,7 @@ impl PollingRate {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DpiLevel {
     pub enabled: bool,
     pub x: u32,
@@ -103,6 +105,8 @@ fn decode_dpi(byte: u8, flag: u8) -> u32 {
 /// Velocidade do efeito (respirar, piscar): 1 a 8 no firmware; o oficial usa
 /// baixo, médio e alto.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
 pub enum LedMode {
     Off,
     Steady,
@@ -141,6 +145,7 @@ impl LedMode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Led {
     pub rgb: [u8; 3],
     pub mode: LedMode,
@@ -165,6 +170,7 @@ impl Led {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Profile {
     /// `None` quando o mouse tem um código que não conhecemos.
     pub polling_rate: Option<PollingRate>,

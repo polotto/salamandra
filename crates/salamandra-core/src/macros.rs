@@ -10,6 +10,7 @@ pub const MAX_EVENTS: usize = 63;
 pub const MAX_DELAY_MS: u32 = 0xFFFF * 10;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum MouseButton {
     Left,
     Right,
@@ -41,6 +42,8 @@ impl MouseButton {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
 pub enum MacroEvent {
     KeyDown(u8),
     KeyUp(u8),

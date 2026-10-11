@@ -8,7 +8,8 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
 - testes do núcleo: `cargo test`
 - lint: `cargo clippy --all-targets -- -D warnings` e `cargo fmt --check`
 - CLI: `cargo run -p salamandra-cli -- --help`
-- app: `cd app && npm run tauri dev`
+- app: `cd app && npm install && npm run tauri dev`
+- checagem do front: `cd app && npm run check`
 
 ## Arquitetura
 - `crates/salamandra-core/`: protocolo (pacotes, mapa de memória, modelos),

@@ -5,6 +5,8 @@ use crate::buttons::Shortcut;
 use crate::model::PollingRate;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
 pub enum DeviceEvent {
     /// Perfil ativo trocado por um botão do mouse (0 a 4).
     ProfileChanged(usize),
