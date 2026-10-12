@@ -33,6 +33,25 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "category": "Utility",
+    "shortDescription": "Configurador aberto de mouses gamer",
+    "linux": {
+      "deb": {
+        "files": {
+          "/usr/lib/udev/rules.d/70-salamandra.rules": "../../packaging/linux/70-salamandra.rules"
+        },
+        "postInstallScript": "../../packaging/linux/postinst.sh"
+      },
+      "rpm": {
+        "files": {
+          "/usr/lib/udev/rules.d/70-salamandra.rules": "../../packaging/linux/70-salamandra.rules"
+        },
+        "postInstallScript": "../../packaging/linux/postinst.sh"
+      }
+    },
+    "macOS": {
+      "signingIdentity": "-"
+    }
   }
 }

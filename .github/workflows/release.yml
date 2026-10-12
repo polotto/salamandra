@@ -1,0 +1,67 @@
+name: Release
+
+# Gera os instaladores dos três sistemas e anexa numa Release em rascunho.
+# Dispara com tag vX.Y.Z, ou à mão (workflow_dispatch) escolhendo a tag como ref.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --target universal-apple-darwin --bundles dmg
+          # Fixo em 24.04: ubuntu-latest vira 26 em 19/10/2026 e as libs do Tauri mudam.
+          - os: ubuntu-24.04
+            args: --bundles deb,rpm,appimage
+          - os: windows-latest
+            args: --bundles msi,nsis
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev patchelf
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Front dependencies
+        working-directory: app
+        run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: app
+          tagName: ${{ github.ref_name }}
+          releaseName: Salamandra ${{ github.ref_name }}
+          releaseBody: Veja as instruções de instalação no README.
+          releaseDraft: true
+          prerelease: true
+          args: ${{ matrix.args }}

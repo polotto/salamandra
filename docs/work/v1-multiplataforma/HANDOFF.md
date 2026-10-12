@@ -16,8 +16,11 @@ com Svelte 5 (app).
   atalho "copiar" pelo serviço, gravação de macro pelo app com tempo real,
   gravação de perfil pelo app, app empacotado (`Salamandra.app`, 4,4 MB)
 - CI verde em Windows, Linux e macOS
+- release: `release.yml` gera `.dmg` universal, `.msi`/`.exe`, `.deb`/`.rpm`
+  (com regra udev) e AppImage numa Release em rascunho a cada tag `v*`.
+  Sem assinatura: macOS com assinatura ad-hoc, README explica o aviso.
 - falta: C.7 (arquitetura do front), Trilha B (ajustes do sistema
-  operacional), D.2 (instaladores), I.2 (teste com mouse em Windows e Linux)
+  operacional), I.2 (teste com mouse em Windows e Linux)
 
 ## Decisões tomadas
 - `Mouse` no `salamandra-core`, genérica sobre `Transport`: lógica testável
@@ -37,7 +40,8 @@ com Svelte 5 (app).
 ## Próximos passos
 1. Trilha B: velocidade do ponteiro, aceleração e duplo clique por sistema.
 2. C.7: trocar os singletons do front por instâncias injetadas.
-3. D.2: instaladores e regra udev do Linux.
+3. Nova versão: subir a versão em `Cargo.toml`, `app/package.json` e
+   `tauri.conf.json`, criar a tag `vX.Y.Z`, conferir o rascunho e publicar.
 
 ## Bloqueios e dúvidas em aberto
 - Mídia "player" do oficial ainda sem código mapeado.

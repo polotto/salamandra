@@ -49,7 +49,7 @@ Esta versão porta para Rust + Tauri e completa o que falta.
 
 ## Trilha D: distribuição (depende de C.1)
 - [x] D.1 GitHub Actions: build, testes, clippy, fmt e checagens do front em Windows, Linux e macOS (`.github/workflows/ci.yml`), verde nos três
-- [ ] D.2 instaladores: `.msi`/`.exe`, `.dmg`, `.AppImage`/`.deb`, com regra udev no Linux
+- [x] D.2 instaladores: `.msi`/`.exe`, `.dmg`, `.AppImage`/`.deb`/`.rpm`, com regra udev no Linux (`.github/workflows/release.yml`, dispara com tag `v*`)
 
 ## Trilha E: projeto aberto
 - [x] E.1 repo público, README com lista de compatibilidade (mouses, sistemas,

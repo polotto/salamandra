@@ -15,8 +15,9 @@ mouse, sem depender do software do fabricante, que só existe para Windows.
 
 ## Situação
 
-Em desenvolvimento, ainda sem versão para baixar. Para usar hoje, compile a
-partir do código (veja [Como compilar](#como-compilar)).
+Versão de teste (pré-release). Baixe o instalador do seu sistema em
+[Releases](https://github.com/polotto/salamandra/releases) e veja
+[Como instalar](#como-instalar).
 
 ## Compatibilidade
 
@@ -65,6 +66,29 @@ testou com o mouse naquele sistema. Se você testou, conte numa issue.
 A lista completa, com onde cada função fica no mouse, está em
 [docs/official-features.md](docs/official-features.md).
 
+## Como instalar
+
+Na página de [Releases](https://github.com/polotto/salamandra/releases), baixe:
+
+| Sistema | Arquivo |
+| --- | --- |
+| Windows | `Salamandra_x.y.z_x64-setup.exe` ou `Salamandra_x.y.z_x64_en-US.msi` |
+| macOS (Intel e Apple Silicon) | `Salamandra_x.y.z_universal.dmg` |
+| Linux (Debian, Ubuntu) | `Salamandra_x.y.z_amd64.deb` |
+| Linux (Fedora, openSUSE) | `Salamandra-x.y.z-1.x86_64.rpm` |
+| Linux (outros) | `Salamandra_x.y.z_amd64.AppImage` |
+
+Os instaladores não são assinados, então o sistema avisa na primeira vez:
+
+- **Windows**: no aviso do SmartScreen, clique em "Mais informações" e
+  "Executar assim mesmo".
+- **macOS**: arraste o app para Aplicativos. Na primeira vez, abra Ajustes do
+  Sistema > Privacidade e Segurança e clique em "Abrir Mesmo Assim". Se o
+  macOS disser que o app está danificado, rode
+  `xattr -dr com.apple.quarantine /Applications/Salamandra.app`.
+- **Linux**: o `.deb` e o `.rpm` já instalam a regra udev. Com o AppImage,
+  instale a regra à mão (veja abaixo) e dê permissão de execução ao arquivo.
+
 ## Como compilar
 
 Precisa de [Rust](https://rustup.rs) estável e [Node.js](https://nodejs.org) 22
@@ -91,6 +115,8 @@ cargo run -p salamandra-cli -- show
 ```
 
 ### Linux: acesso ao mouse sem root
+
+Só para o AppImage ou para quem compilou (o `.deb` e o `.rpm` já fazem isso):
 
 ```sh
 sudo cp packaging/linux/70-salamandra.rules /etc/udev/rules.d/
