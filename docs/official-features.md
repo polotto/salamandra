@@ -1,53 +1,56 @@
-# Funções do software oficial
+# Vendor software features
 
-Definição de "100%" para a v1. Fonte: textos da interface do instalador oficial
-(telas e opções), e o código de `hid.exe` (comunicação) e `ldcfg.exe`
-(interface), lidos por engenharia reversa. Cada linha diz onde a função mora.
+**English** | [Português](official-features.pt-BR.md)
 
-Onde: **mouse** = memória do mouse (`docs/protocol.md`); **PC** = executado
-pelo programa no computador; **SO** = ajuste do sistema operacional.
+Definition of "100%" for v1. Source: user interface text of the vendor
+installer (screens and options), and the code of `hid.exe` (communication) and
+`ldcfg.exe` (user interface), read by reverse engineering. Each row says where
+the feature lives.
 
-| Tela | Função | Onde | Situação no Salamandra |
+Where: **mouse** = mouse memory (`docs/protocol.md`); **PC** = run by the
+program on the computer; **OS** = operating system setting.
+
+| Screen | Feature | Where | Status in Salamandra |
 | --- | --- | --- | --- |
-| Perfis | 5 perfis, trocar o ativo | mouse `0x2C` | núcleo pronto |
-| Perfis | salvar perfil em arquivo, carregar arquivo | PC | pronto (JSON próprio, validado ao carregar) |
-| Perfis | restaurar perfil atual para fábrica | mouse | pronto (app: carrega no editor e grava) |
-| Perfis | resetar todos os perfis | mouse | pronto (app, com confirmação) |
-| Geral | taxa de polling 125/250/500/1000 Hz | mouse `0x32 + 2p` | núcleo pronto |
-| Geral | velocidade de rolagem (linhas por passo) | mouse `0x20 + 2p` | núcleo pronto |
-| Geral | velocidade do ponteiro | SO | a fazer (Windows, macOS, Linux) |
-| Geral | aceleração | SO | a fazer |
-| Geral | velocidade do duplo clique | SO | a fazer |
-| DPI | 5 níveis, ligar e desligar cada um | mouse `base + 4 + 6i` | núcleo pronto |
-| DPI | X e Y separados ("link XY") | mouse | núcleo pronto |
-| DPI | nível ativo | mouse `base + 2` | núcleo pronto |
-| Luz | fixo, respirar, piscar | mouse `0x449 + 8p` | núcleo pronto |
-| Luz | cor da paleta e cor personalizada | mouse | núcleo pronto |
-| Luz | brilho baixo, médio, alto | mouse `0x44F + 8p` | núcleo pronto |
-| Luz | velocidade de respirar e de piscar (baixa, média, alta) | mouse | núcleo pronto |
-| Botões | clique esquerdo, direito, meio, avançar, voltar | mouse | núcleo pronto |
-| Botões | tecla única | mouse | núcleo pronto |
-| Botões | combinação (Win, Ctrl, Shift, Alt + tecla) | mouse | núcleo pronto |
-| Botões | básicas: recortar, copiar, colar, selecionar tudo, buscar, novo, imprimir, salvar | PC (mouse avisa, PC executa) | serviço pronto (`salamandra-service`); testado no macOS |
-| Botões | avançadas: trocar janela, fechar janela, abrir gerenciador de arquivos, executar, mostrar mesa, bloquear, navegador (início, voltar, avançar, parar, recarregar, buscar, favoritos), e-mail | PC | serviço pronto; Linux só X11 |
-| Botões | mídia: play/pausa, parar, anterior, próxima, volume +/-, mudo, player | mouse | núcleo pronto ("player" a mapear) |
-| Botões | macro, com repetições ou repetir enquanto segura | mouse | núcleo pronto |
-| Botões | tiro rápido: botão L/R/M ou tecla, vezes, atraso | mouse | núcleo pronto |
-| Botões | DPI: ciclo, +, - | mouse | núcleo pronto |
-| Botões | trocar perfil | mouse | núcleo pronto |
-| Botões | polling +, - | mouse | núcleo pronto |
-| Botões | rolar para cima, para baixo, trocar modo do LED | mouse | núcleo pronto |
-| Botões | desabilitar | mouse | núcleo pronto |
-| Botões | regra: pelo menos um clique esquerdo | PC (validação) | núcleo pronto |
-| Macros | até 15 macros, 63 ações cada | mouse `0x478 + 200i` | núcleo pronto |
-| Macros | gravar teclado com tempo real entre ações | PC (gravação) + mouse | pronto (app) |
-| Macros | inserir atraso padrão, ou gravar sem atraso | PC + mouse | pronto (app) |
-| Macros | ações de mouse: L, R, M (apertar e soltar) | mouse | núcleo pronto |
-| Macros | editar: novo, apagar, gravar depois, mover, copiar, recortar, colar | PC | pronto (app) |
-| Macros | nome da macro | PC (só no computador) | pronto (app) |
-| Bandeja | ícone na bandeja, abrir configuração, sair | PC | pronto |
-| Bandeja | refletir na tela o que muda pelos botões do mouse (perfil, DPI, polling, LED) | PC (report `0x08`) | pronto (perfil, DPI e polling; LED só aviso) |
-| Info | versão do software, modelo | PC | pronto (tela Sobre) |
+| Profiles | 5 profiles, switch the active one | mouse `0x2C` | core done |
+| Profiles | save profile to a file, load a file | PC | done (own JSON format, validated on load) |
+| Profiles | restore current profile to factory | mouse | done (app: loads into the editor and writes) |
+| Profiles | reset all profiles | mouse | done (app, with confirmation) |
+| General | polling rate 125/250/500/1000 Hz | mouse `0x32 + 2p` | core done |
+| General | scroll speed (lines per step) | mouse `0x20 + 2p` | core done |
+| General | pointer speed | OS | to do (Windows, macOS, Linux) |
+| General | acceleration | OS | to do |
+| General | double click speed | OS | to do |
+| DPI | 5 levels, enable and disable each one | mouse `base + 4 + 6i` | core done |
+| DPI | separate X and Y ("link XY") | mouse | core done |
+| DPI | active level | mouse `base + 2` | core done |
+| Lighting | static, breathing, blinking | mouse `0x449 + 8p` | core done |
+| Lighting | palette color and custom color | mouse | core done |
+| Lighting | brightness low, medium, high | mouse `0x44F + 8p` | core done |
+| Lighting | breathing and blinking speed (low, medium, high) | mouse | core done |
+| Buttons | left, right, middle click, forward, back | mouse | core done |
+| Buttons | single key | mouse | core done |
+| Buttons | key combo (Win, Ctrl, Shift, Alt + key) | mouse | core done |
+| Buttons | basic: cut, copy, paste, select all, find, new, print, save | PC (mouse notifies, PC runs it) | service done (`salamandra-service`); tested on macOS |
+| Buttons | advanced: switch window, close window, open file manager, run, show desktop, lock, browser (home, back, forward, stop, refresh, search, favorites), e-mail | PC | service done; Linux X11 only |
+| Buttons | media: play/pause, stop, previous, next, volume +/-, mute, player | mouse | core done ("player" still to map) |
+| Buttons | macro, with repeat count or repeat while held | mouse | core done |
+| Buttons | rapid fire: L/R/M button or key, times, delay | mouse | core done |
+| Buttons | DPI: cycle, +, - | mouse | core done |
+| Buttons | switch profile | mouse | core done |
+| Buttons | polling +, - | mouse | core done |
+| Buttons | scroll up, scroll down, switch LED mode | mouse | core done |
+| Buttons | disable | mouse | core done |
+| Buttons | rule: at least one left click | PC (validation) | core done |
+| Macros | up to 15 macros, 63 actions each | mouse `0x478 + 200i` | core done |
+| Macros | record keyboard with real timing between actions | PC (recording) + mouse | done (app) |
+| Macros | insert default delay, or record without delay | PC + mouse | done (app) |
+| Macros | mouse actions: L, R, M (press and release) | mouse | core done |
+| Macros | edit: new, delete, record later, move, copy, cut, paste | PC | done (app) |
+| Macros | macro name | PC (computer only) | done (app) |
+| Tray | tray icon, open settings, quit | PC | done |
+| Tray | show on screen what changes from the mouse buttons (profile, DPI, polling, LED) | PC (report `0x08`) | done (profile, DPI and polling; LED notice only) |
+| Info | software version, model | PC | done (About screen) |
 
-Fora do oficial e fora da v1: atualização de firmware, versão do firmware (o
-oficial mostra só a versão do programa).
+Outside the vendor software and outside v1: firmware update, firmware version
+(the vendor software only shows the program version).

@@ -1,109 +1,108 @@
-# Como contribuir
+# How to contribute
 
-Obrigado pelo interesse. Este guia diz como montar o ambiente, o que conferir
-antes de abrir um pull request e como pedir ou adicionar suporte a um mouse.
+**English** | [Português](CONTRIBUTING.pt-BR.md)
 
-> **English:** issues and pull requests in English are welcome. The short
-> version: run the checks below, never write to mouse addresses that are not
-> documented in `docs/protocol.md`, never add files from the vendor software,
-> and use Conventional Commits.
+Thanks for your interest. This guide covers how to set up the environment, what
+to check before opening a pull request and how to ask for or add support for a
+mouse. Issues and pull requests in English or Portuguese are welcome.
 
-## Formas de ajudar
+## Ways to help
 
-- **Testar em Windows ou Linux** com um mouse suportado e contar o resultado
-  numa issue: o que funcionou, o que não, sistema e versão.
-- **Reportar bug**: passos para reproduzir, sistema, modelo do mouse e, se
-  possível, a saída de `salamandra show`.
-- **Pedir suporte a um mouse**: abra uma issue com o modelo, o código USB
-  (`vendor:product`) e o link do software oficial.
-- **Código**: escolha uma task aberta em
-  `docs/work/v1-multiplataforma/TASKS.md` ou uma issue, e comente antes de
-  começar algo grande.
-- **Tradução**: os textos ficam em `app/src/lib/i18n.svelte.ts`.
+- **Test on Windows or Linux** with a supported mouse and report the result in
+  an issue: what worked, what did not, system and version.
+- **Report a bug**: steps to reproduce, system, mouse model and, if possible,
+  the output of `salamandra show`.
+- **Ask for support for a mouse**: open an issue with the model, the USB ID
+  (`vendor:product`) and a link to the vendor software.
+- **Code**: pick an open task in `docs/work/v1-multiplataforma/TASKS.md` or an
+  issue, and comment before starting something big.
+- **Translation**: the texts live in `app/src/lib/i18n.svelte.ts`.
 
-## Ambiente
+## Environment
 
-Precisa de Rust estável e Node.js 22 ou mais novo. No Linux, as bibliotecas
-listadas no [README](README.md#como-compilar).
+You need stable Rust and Node.js 22 or newer. On Linux, the libraries listed in
+the [README](README.md#how-to-build).
 
 ```sh
-cargo test --workspace                                   # testes do núcleo
+cargo test --workspace                                   # core tests
 cargo clippy --workspace --all-targets -- -D warnings    # lint
-cargo fmt --all                                          # formatação
-cd app && npm install && npm run check                   # front
-node app/scripts/check-i18n.mjs                          # textos sem tradução
+cargo fmt --all                                          # formatting
+cd app && npm install && npm run check                   # front end
+node app/scripts/check-i18n.mjs                          # missing translations
 cd app && npm run tauri dev                              # app
 ```
 
-O CI roda tudo isso em Windows, Linux e macOS a cada push e pull request.
+CI runs all of this on Windows, Linux and macOS on every push and pull request.
 
-## Organização do código
+## Code layout
 
-| Pasta | O que tem |
+| Folder | Contents |
 | --- | --- |
-| `crates/salamandra-core` | protocolo, mapa de memória, modelos e a API `Mouse`. Sem I/O; testa sem mouse |
-| `crates/salamandra-hid` | transporte USB HID por `hidapi` |
-| `crates/salamandra-service` | serviço que escuta o mouse e executa os atalhos no PC |
-| `crates/salamandra-cli` | linha de comando `salamandra` |
-| `app` | app Tauri 2 com Svelte 5 |
-| `docs/protocol.md` | protocolo do M901-1, cada campo com a origem |
-| `docs/official-features.md` | funções do software oficial e situação de cada uma |
+| `crates/salamandra-core` | protocol, memory map, models and the `Mouse` API. No I/O; tested without a mouse |
+| `crates/salamandra-hid` | USB HID transport over `hidapi` |
+| `crates/salamandra-service` | service that listens to the mouse and runs the shortcuts on the PC |
+| `crates/salamandra-cli` | `salamandra` command line |
+| `app` | Tauri 2 app with Svelte 5 |
+| `docs/protocol.md` | M901-1 protocol, each field with its source |
+| `docs/official-features.md` | vendor software features and the status of each one |
 
-## Regras importantes
+## Important rules
 
-**Segurança do mouse.** Gravar no endereço errado pode deixar o mouse com
-comportamento inesperado.
+**Mouse safety.** Writing to the wrong address can leave the mouse behaving
+unexpectedly.
 
-- Só grave endereços e tamanhos documentados em `docs/protocol.md`.
-- Nunca deixe um perfil sem nenhum botão com clique esquerdo (o núcleo já
-  recusa).
-- Toda montagem de pacote é função pura no `salamandra-core` e tem teste.
-- Antes de testar escrita num mouse de verdade, faça backup:
-  `salamandra backup meu-mouse.json`.
+- Only write addresses and sizes documented in `docs/protocol.md`.
+- Never leave a profile without a button set to left click (the core already
+  refuses it).
+- Every packet builder is a pure function in `salamandra-core` and has a test.
+- Before testing a write on a real mouse, back up:
+  `salamandra backup my-mouse.json`.
 
-**Nada do software oficial entra no repositório.** Nada de código decompilado,
-binários, instaladores, imagens, ícones, arquivos `.ini` ou textos copiados.
-Fatos sobre o protocolo (endereços, códigos de comando, padrões de fábrica)
-entram como dados nossos, descritos com palavras nossas e com a origem citada.
-Por isso o projeto também não usa nomes de marca em código, pacotes ou
-binários: a marca só aparece para dizer com quais mouses ele é compatível.
+**Nothing from the vendor software goes into the repository.** No decompiled
+code, binaries, installers, images, icons, `.ini` files or copied text. Facts
+about the protocol (addresses, command codes, factory defaults) go in as our
+own data, described in our own words and with the source cited. For the same
+reason the project does not use brand names in code, packages or binaries: the
+brand only appears to say which mice it is compatible with.
 
-**Textos da interface** sempre por `t("texto em pt-BR")`, com a tradução em
-inglês no dicionário. A checagem de i18n falha se faltar.
+**User interface text** always goes through `t("text in pt-BR")`, with the
+English translation in the dictionary. The i18n check fails if one is missing.
 
-**App sem cara de página web**: nada de seleção de texto fora de campos,
-Cmd/Ctrl+A, menu de clique direito ou atalhos de navegador
+**App that does not feel like a web page**: no text selection outside input
+fields, no Cmd/Ctrl+A, no right click menu and no browser shortcuts
 (`app/src/lib/nativeFeel.ts`).
 
-## Adicionar suporte a um mouse
+## Adding support for a mouse
 
-1. **Identifique o mouse**: código USB e as interfaces HID. Em geral a de
-   configuração tem usage page de fabricante (`0xFF00` a `0xFFFF`).
-2. **Procure o que já existe**: projetos abertos do mesmo chip costumam ter o
-   protocolo, ou parte dele.
-3. **Estude o software oficial** por engenharia reversa, só para
-   interoperabilidade e só na sua máquina. Anote cada campo com a origem.
-4. **Comece só lendo**: leia os mesmos endereços que o software oficial lê e
-   confira com o que ele mostra na tela.
-5. **Documente** o protocolo em `docs/`, como o `docs/protocol.md`.
-6. **Implemente** o mapa de memória e os testes no `salamandra-core`, com
-   bytes reais lidos do mouse.
-7. **Teste a escrita** com backup feito, um campo de cada vez, conferindo o
-   efeito físico (LED, ponteiro, tecla), e restaure no fim.
+1. **Identify the mouse**: USB ID and HID interfaces. The configuration one
+   usually has a vendor usage page (`0xFF00` to `0xFFFF`).
+2. **Look for existing work**: open projects for the same chip often have the
+   protocol, or part of it.
+3. **Study the vendor software** by reverse engineering, only for
+   interoperability and only on your machine. Note the source of each field.
+4. **Start by reading only**: read the same addresses the vendor software reads
+   and compare with what it shows on screen.
+5. **Document** the protocol in `docs/`, like `docs/protocol.md`.
+6. **Implement** the memory map and the tests in `salamandra-core`, with real
+   bytes read from the mouse.
+7. **Test writing** with a backup made, one field at a time, checking the
+   physical effect (LED, pointer, key), and restore at the end.
 
-Nenhuma dessas etapas pode trazer arquivos do software oficial para o repo.
+None of these steps may bring files from the vendor software into the repo.
 
-## Commits e pull requests
+## Commits and pull requests
 
-- Commits em inglês, no padrão Conventional Commits, sem escopo:
+- Commits in English, following Conventional Commits, without scope:
   `feat: ...`, `fix: ...`, `docs: ...`, `test: ...`, `chore: ...`, `ci: ...`.
-- Um assunto por pull request, com descrição curta: o que muda, por quê e como
-  testar (com ou sem mouse).
-- O CI precisa passar.
-- Mudança que grava algo novo no mouse precisa dizer em qual mouse e sistema
-  foi testada.
+- One subject per pull request, with a short description: what changes, why
+  and how to test (with or without a mouse).
+- CI must pass.
+- A change that writes something new to the mouse must say which mouse and
+  system it was tested on.
+- Documentation changes go in both languages: each `.md` has a `.pt-BR.md`
+  counterpart.
 
-## Licença
+## License
 
-Ao contribuir, você concorda que a sua contribuição será publicada sob a
-licença MIT do projeto.
+By contributing, you agree that your contribution will be published under the
+project's MIT license.

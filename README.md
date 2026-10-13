@@ -2,97 +2,93 @@
 
 [![CI](https://github.com/polotto/salamandra/actions/workflows/ci.yml/badge.svg)](https://github.com/polotto/salamandra/actions/workflows/ci.yml)
 
-Configurador aberto de mouses gamer para Windows, Linux e macOS.
+**English** | [Português](README.pt-BR.md)
 
-Ajusta LED, DPI, taxa de polling, perfis, botões e macros direto na memória do
-mouse, sem depender do software do fabricante, que só existe para Windows.
+Open source configurator for gaming mice on Windows, Linux and macOS.
 
-> **English:** open source configurator for gaming mice on Windows, Linux and
-> macOS. It writes lighting, DPI, polling rate, profiles, buttons and macros
-> straight to the mouse memory. See the compatibility list below and
-> [CONTRIBUTING.md](CONTRIBUTING.md). Issues and pull requests in English are
-> welcome.
+It sets lighting, DPI, polling rate, profiles, buttons and macros straight in
+the mouse memory, without the vendor software, which only exists for Windows.
 
-## Situação
+## Status
 
-Versão de teste (pré-release). Baixe o instalador do seu sistema em
-[Releases](https://github.com/polotto/salamandra/releases) e veja
-[Como instalar](#como-instalar).
+Test version (pre-release). Download the installer for your system from
+[Releases](https://github.com/polotto/salamandra/releases) and see
+[How to install](#how-to-install).
 
-## Compatibilidade
+## Compatibility
 
-### Mouses
+### Mice
 
-| Mouse | USB | Situação |
+| Mouse | USB | Status |
 | --- | --- | --- |
-| Redragon M901-1 Perdition 2 | `04d9:fc40` | suportado e testado |
+| Redragon M901-1 Perdition 2 | `04d9:fc40` | supported and tested |
 
-Outros modelos ainda não são reconhecidos. Mouses com o mesmo chip podem ser
-parecidos, mas cada um precisa ser mapeado e testado antes, porque gravar no
-endereço errado pode deixar o mouse com comportamento inesperado. Tem outro
-mouse e quer ajudar? Abra uma issue com o modelo pedindo suporte (veja
+Other models are not recognized yet. Mice with the same chip may be similar,
+but each one must be mapped and tested first, because writing to the wrong
+address can leave the mouse behaving unexpectedly. Have another mouse and want
+to help? Open an issue asking for support for that model (see
 [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-Para saber o código USB do seu mouse: no Linux, `lsusb`; no macOS, Informações
-do Sistema > USB; no Windows, Gerenciador de Dispositivos > propriedades do
-mouse > Detalhes > IDs de hardware.
+To find the USB ID of your mouse: on Linux, `lsusb`; on macOS, System
+Information > USB; on Windows, Device Manager > mouse properties > Details >
+Hardware Ids.
 
-### Sistemas
+### Systems
 
-| Sistema | Configurar o mouse | Atalhos executados no PC | Testado com o mouse |
+| System | Configure the mouse | Shortcuts run on the PC | Tested with the mouse |
 | --- | --- | --- | --- |
-| macOS 13 ou mais novo | sim | sim (pede permissão de Acessibilidade) | sim (Apple Silicon) |
-| Windows 10 e 11 | sim | sim | ainda não |
-| Linux | sim (precisa da regra udev) | só em X11; Wayland ainda não | ainda não |
+| macOS 13 or newer | yes | yes (asks for Accessibility permission) | yes (Apple Silicon) |
+| Windows 10 and 11 | yes | yes | not yet |
+| Linux | yes (needs the udev rule) | X11 only; Wayland not yet | not yet |
 
-"Ainda não" quer dizer que compila e passa nos testes automáticos, mas ninguém
-testou com o mouse naquele sistema. Se você testou, conte numa issue.
+"Not yet" means it builds and passes the automated tests, but nobody has tested
+it with the mouse on that system. If you did, tell us in an issue.
 
-### Funções do software oficial
+### Vendor software features
 
-| Função | Situação |
+| Feature | Status |
 | --- | --- |
-| 5 perfis e troca do perfil ativo | pronto |
-| Taxa de polling (125, 250, 500, 1000 Hz) e velocidade de rolagem | pronto |
-| DPI: 5 níveis de 100 a 24000, X e Y separados, nível ativo | pronto |
-| Luz: fixo, respirar, piscar, desligado, cor, brilho e velocidade | pronto |
-| Botões: cliques, tecla, combinação, mídia, macro, tiro rápido, DPI, perfil, polling, rolagem, modo do LED, desabilitar | pronto |
-| Atalhos (copiar, colar, navegador, bloquear...), executados pelo PC | pronto |
-| Macros: 15, até 63 ações, gravação do teclado com tempo real, edição | pronto |
-| Salvar e carregar perfil em arquivo, backup, restaurar, padrão de fábrica | pronto |
-| Ícone na bandeja e avisos do mouse na tela (perfil, DPI, polling) | pronto |
-| Velocidade do ponteiro, aceleração e duplo clique (ajustes do sistema) | a fazer |
+| 5 profiles and active profile switch | done |
+| Polling rate (125, 250, 500, 1000 Hz) and scroll speed | done |
+| DPI: 5 levels from 100 to 24000, separate X and Y, active level | done |
+| Lighting: static, breathing, blinking, off, color, brightness and speed | done |
+| Buttons: clicks, key, key combo, media, macro, rapid fire, DPI, profile, polling, scroll, LED mode, disable | done |
+| Shortcuts (copy, paste, browser, lock...), run by the PC | done |
+| Macros: 15, up to 63 actions, keyboard recording with real timing, editing | done |
+| Save and load profile to a file, backup, restore, factory reset | done |
+| Tray icon and on screen notices from the mouse (profile, DPI, polling) | done |
+| Pointer speed, acceleration and double click (system settings) | to do |
 
-A lista completa, com onde cada função fica no mouse, está em
+The full list, with where each feature lives in the mouse, is in
 [docs/official-features.md](docs/official-features.md).
 
-## Como instalar
+## How to install
 
-Na página de [Releases](https://github.com/polotto/salamandra/releases), baixe:
+From the [Releases](https://github.com/polotto/salamandra/releases) page,
+download:
 
-| Sistema | Arquivo |
+| System | File |
 | --- | --- |
-| Windows | `Salamandra_x.y.z_x64-setup.exe` ou `Salamandra_x.y.z_x64_en-US.msi` |
-| macOS (Intel e Apple Silicon) | `Salamandra_x.y.z_universal.dmg` |
+| Windows | `Salamandra_x.y.z_x64-setup.exe` or `Salamandra_x.y.z_x64_en-US.msi` |
+| macOS (Intel and Apple Silicon) | `Salamandra_x.y.z_universal.dmg` |
 | Linux (Debian, Ubuntu) | `Salamandra_x.y.z_amd64.deb` |
 | Linux (Fedora, openSUSE) | `Salamandra-x.y.z-1.x86_64.rpm` |
-| Linux (outros) | `Salamandra_x.y.z_amd64.AppImage` |
+| Linux (others) | `Salamandra_x.y.z_amd64.AppImage` |
 
-Os instaladores não são assinados, então o sistema avisa na primeira vez:
+The installers are not signed, so the system warns you the first time:
 
-- **Windows**: no aviso do SmartScreen, clique em "Mais informações" e
-  "Executar assim mesmo".
-- **macOS**: arraste o app para Aplicativos. Na primeira vez, abra Ajustes do
-  Sistema > Privacidade e Segurança e clique em "Abrir Mesmo Assim". Se o
-  macOS disser que o app está danificado, rode
+- **Windows**: on the SmartScreen warning, click "More info" and "Run anyway".
+- **macOS**: drag the app to Applications. The first time, open System
+  Settings > Privacy & Security and click "Open Anyway". If macOS says the app
+  is damaged, run
   `xattr -dr com.apple.quarantine /Applications/Salamandra.app`.
-- **Linux**: o `.deb` e o `.rpm` já instalam a regra udev. Com o AppImage,
-  instale a regra à mão (veja abaixo) e dê permissão de execução ao arquivo.
+- **Linux**: the `.deb` and `.rpm` already install the udev rule. With the
+  AppImage, install the rule by hand (see below) and make the file executable.
 
-## Como compilar
+## How to build
 
-Precisa de [Rust](https://rustup.rs) estável e [Node.js](https://nodejs.org) 22
-ou mais novo. No Linux, também das bibliotecas do Tauri e do hidapi:
+You need stable [Rust](https://rustup.rs) and [Node.js](https://nodejs.org) 22
+or newer. On Linux, also the Tauri and hidapi libraries:
 
 ```sh
 sudo apt-get install libudev-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
@@ -103,70 +99,70 @@ App:
 ```sh
 cd app
 npm install
-npm run tauri dev                  # para testar
-npm run tauri build                # instalador do seu sistema
+npm run tauri dev                  # to try it
+npm run tauri build                # installer for your system
 ```
 
-Linha de comando:
+Command line:
 
 ```sh
 cargo run -p salamandra-cli -- --help
 cargo run -p salamandra-cli -- show
 ```
 
-### Linux: acesso ao mouse sem root
+### Linux: mouse access without root
 
-Só para o AppImage ou para quem compilou (o `.deb` e o `.rpm` já fazem isso):
+Only for the AppImage or a local build (the `.deb` and `.rpm` already do this):
 
 ```sh
 sudo cp packaging/linux/70-salamandra.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
-Depois tire e coloque o mouse de novo.
+Then unplug the mouse and plug it back in.
 
-### macOS: atalhos
+### macOS: shortcuts
 
-Para os atalhos (copiar, colar, navegador) funcionarem, dê ao Salamandra a
-permissão em Ajustes do Sistema > Privacidade e Segurança > Acessibilidade.
-Configurar o mouse não precisa de permissão.
+For the shortcuts (copy, paste, browser) to work, give Salamandra permission in
+System Settings > Privacy & Security > Accessibility. Configuring the mouse
+needs no permission.
 
-## Antes de mexer: faça backup
+## Before you change anything: back up
 
-Na tela Sobre do app, ou pela linha de comando:
+From the About screen of the app, or from the command line:
 
 ```sh
-cargo run -p salamandra-cli -- backup meu-mouse.json
-cargo run -p salamandra-cli -- restore meu-mouse.json
+cargo run -p salamandra-cli -- backup my-mouse.json
+cargo run -p salamandra-cli -- restore my-mouse.json
 ```
 
-## Por que "Salamandra"
+## Why "Salamandra"
 
-Nas lendas europeias, a salamandra é a criatura que vive no fogo. Plínio, o
-Velho, escreveu que ela atravessava as chamas sem se queimar, e Paracelso a pôs
-como o espírito elemental do fogo. É um ser de fogo, vermelho como brasa, da
-mesma família de lendas que os dragões, mas pequeno e sem dono.
+In European legends, the salamander is the creature that lives in fire. Pliny
+the Elder wrote that it walked through flames without burning, and Paracelsus
+made it the elemental spirit of fire. A fire being, red as embers, from the
+same family of legends as dragons, but small and with no owner.
 
-O nome lembra o mundo dos dragões vermelhos sem usar a marca de ninguém.
+The name recalls the world of red dragons without using anyone's brand.
 
-## Contribuir
+## Contributing
 
-Correções, testes em outros sistemas e suporte a novos mouses são bem-vindos.
-Leia [CONTRIBUTING.md](CONTRIBUTING.md) antes.
+Fixes, tests on other systems and support for new mice are welcome. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) first.
 
-## Aviso
+## Disclaimer
 
-Projeto independente, sem vínculo com a Redragon nem com nenhum fabricante.
-Os nomes de marcas e produtos citados pertencem aos seus donos e aparecem só
-para dizer com quais mouses o projeto é compatível.
+Independent project, not affiliated with Redragon or any manufacturer. Brand
+and product names belong to their owners and appear only to say which mice the
+project is compatible with.
 
-O protocolo de configuração foi documentado por engenharia reversa, para fins
-de interoperabilidade. Este repositório não contém código, binários, imagens
-nem textos do software oficial.
+The configuration protocol was documented by reverse engineering, for
+interoperability. This repository has no code, binaries, images or text from
+the vendor software.
 
-Use por sua conta e risco: gravar uma configuração errada pode deixar o mouse
-com comportamento inesperado. Faça backup antes de alterar.
+Use at your own risk: writing a wrong configuration can leave the mouse
+behaving unexpectedly. Back up before making changes.
 
-## Licença
+## License
 
-MIT. Veja [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
