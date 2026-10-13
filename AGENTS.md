@@ -24,9 +24,9 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
 - `docs/protocol.md`: protocolo do M901-1, cada campo com a função de origem.
 - `docs/official-features.md`: matriz função oficial x onde está no protocolo
   x situação. É a definição de "100%".
-- Docs públicas em pt-BR e inglês: `README`, `CONTRIBUTING`, `docs/protocol` e
-  `docs/official-features` têm o par `.en.md`. Mudou um, muda o outro no mesmo
-  commit. `docs/work/` fica só em pt-BR.
+- Docs públicas em inglês (`.md`, padrão no GitHub) e pt-BR (`.pt-BR.md`):
+  `README`, `CONTRIBUTING`, `docs/protocol` e `docs/official-features`. Mudou
+  um, muda o outro no mesmo commit. `docs/work/` fica só em pt-BR.
 
 ## Regras do código
 - IMPORTANT: escrever no mouse só nos endereços e tamanhos que o software
