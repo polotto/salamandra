@@ -1,12 +1,9 @@
 # Como contribuir
 
+[English](CONTRIBUTING.en.md) | **Português**
+
 Obrigado pelo interesse. Este guia diz como montar o ambiente, o que conferir
 antes de abrir um pull request e como pedir ou adicionar suporte a um mouse.
-
-> **English:** issues and pull requests in English are welcome. The short
-> version: run the checks below, never write to mouse addresses that are not
-> documented in `docs/protocol.md`, never add files from the vendor software,
-> and use Conventional Commits.
 
 ## Formas de ajudar
 
@@ -102,6 +99,7 @@ Nenhuma dessas etapas pode trazer arquivos do software oficial para o repo.
 - O CI precisa passar.
 - Mudança que grava algo novo no mouse precisa dizer em qual mouse e sistema
   foi testada.
+- Documentação muda nos dois idiomas: cada `.md` tem o par `.en.md`.
 
 ## Licença
 

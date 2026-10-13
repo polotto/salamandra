@@ -2,16 +2,13 @@
 
 [![CI](https://github.com/polotto/salamandra/actions/workflows/ci.yml/badge.svg)](https://github.com/polotto/salamandra/actions/workflows/ci.yml)
 
+[English](README.en.md) | **Português**
+
 Configurador aberto de mouses gamer para Windows, Linux e macOS.
 
 Ajusta LED, DPI, taxa de polling, perfis, botões e macros direto na memória do
 mouse, sem depender do software do fabricante, que só existe para Windows.
 
-> **English:** open source configurator for gaming mice on Windows, Linux and
-> macOS. It writes lighting, DPI, polling rate, profiles, buttons and macros
-> straight to the mouse memory. See the compatibility list below and
-> [CONTRIBUTING.md](CONTRIBUTING.md). Issues and pull requests in English are
-> welcome.
 
 ## Situação
 

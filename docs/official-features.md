@@ -1,5 +1,7 @@
 # Funções do software oficial
 
+[English](official-features.en.md) | **Português**
+
 Definição de "100%" para a v1. Fonte: textos da interface do instalador oficial
 (telas e opções), e o código de `hid.exe` (comunicação) e `ldcfg.exe`
 (interface), lidos por engenharia reversa. Cada linha diz onde a função mora.

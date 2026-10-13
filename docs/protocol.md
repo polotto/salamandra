@@ -1,5 +1,7 @@
 # Protocolo do M901-1 Perdition 2 (`04d9:fc40`)
 
+[English](protocol.en.md) | **Português**
+
 Fonte: engenharia reversa, para interoperabilidade, do software oficial:
 `hid.exe` (comunicação com o mouse) e `ldcfg.exe` (interface), com REA 6.4 e
 Ghidra 12.1.4. Cada linha cita a função de origem. Conferido por leitura no
