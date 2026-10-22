@@ -1,6 +1,15 @@
 [workspace]
 resolver = "2"
 members = ["crates/*", "app/src-tauri"]
+# `cargo build` e `cargo test` na raiz cobrem só o que não precisa de Tauri nem de
+# libxdo: o CLI e o servidor MCP (e o que eles usam). O app e o serviço de atalhos
+# entram com `--workspace` ou `-p`.
+default-members = [
+    "crates/salamandra-core",
+    "crates/salamandra-hid",
+    "crates/salamandra-cli",
+    "crates/salamandra-mcp",
+]
 
 [workspace.package]
 version = "0.1.0"

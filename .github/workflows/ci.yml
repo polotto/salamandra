@@ -54,3 +54,44 @@ jobs:
 
       - name: Tests
         run: cargo test --workspace
+
+  # O CLI e o servidor MCP não usam Tauri: compilam sem WebKit, libxdo nem Node.
+  # No Linux só precisam do libudev (hidapi).
+  cli:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build without Tauri
+        run: cargo build --locked --release -p salamandra-cli -p salamandra-mcp
+
+      - name: Tests
+        run: cargo test --locked -p salamandra-core -p salamandra-cli -p salamandra-mcp
+
+      - name: No Tauri in the dependency tree
+        shell: bash
+        run: |
+          if cargo tree -p salamandra-cli -p salamandra-mcp -e normal | grep -iE 'tauri|wry|webkit|enigo'; then
+            echo "o CLI ou o MCP passou a depender do Tauri"; exit 1
+          fi
+
+      - name: MCP smoke test
+        shell: bash
+        run: |
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | target/release/salamandra-mcp | tee out.json
+          grep -q '"mouse_show"' out.json
