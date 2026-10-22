@@ -2660,6 +2660,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "salamandra-mcp"
+version = "0.1.0"
+dependencies = [
+ "salamandra-cli",
+ "salamandra-core",
+ "serde_json",
+]
+
+[[package]]
 name = "salamandra-service"
 version = "0.1.0"
 dependencies = [

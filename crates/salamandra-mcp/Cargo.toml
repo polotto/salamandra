@@ -1,0 +1,20 @@
+[package]
+name = "salamandra-mcp"
+description = "Servidor MCP do Salamandra: deixa um agente configurar o mouse"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "salamandra_mcp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "salamandra-mcp"
+path = "src/main.rs"
+
+[dependencies]
+salamandra-cli = { path = "../salamandra-cli" }
+salamandra-core = { path = "../salamandra-core" }
+serde_json = "1.0.154"

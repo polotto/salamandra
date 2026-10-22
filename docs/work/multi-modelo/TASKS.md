@@ -103,23 +103,24 @@ nem se o protocolo é o mesmo.
 - [x] K.1 `salamandra-cli` vira biblioteca (comandos devolvem texto) mais binário
   fino; sem mudança de comportamento
   - pronto quando: testes atuais passam e `salamandra show` sai igual
-- [ ] K.2 `default-members` do workspace sem o app: `cargo build` e `cargo test`
+- [x] K.2 `default-members` do workspace sem o app: `cargo build` e `cargo test`
   na raiz não compilam o Tauri; `./run.sh cli` gera `salamandra` e
   `salamandra-mcp` em release
   - pronto quando: `cargo tree -p salamandra-cli` não tem tauri, wry, tao nem webkit
-- [ ] K.3 job `cli` no CI (Linux só com `libudev-dev`, Windows e macOS sem nada)
+- [x] K.3 job `cli` no CI (Linux só com `libudev-dev`, Windows e macOS sem nada)
 - [ ] K.4 binários do CLI e do MCP anexados à Release por tag, por sistema
 
 ## Trilha N: servidor MCP (depende de K.1)
-- [ ] N.1 crate `salamandra-mcp`: JSON-RPC por stdio escrito à mão (só `serde_json`),
+- [x] N.1 crate `salamandra-mcp`: JSON-RPC por stdio escrito à mão (só `serde_json`),
   ferramentas que chamam a biblioteca do CLI: ler (`show`, `macro_get`,
   `backup`) e gravar (`set_led`, `set_dpi`, `set_rate`, `set_scroll`,
   `set_button`, `set_macro`, `set_profile`, `reset`, `restore`)
   - pronto quando: teste de protocolo (`initialize`, `tools/list`, `tools/call`)
     passa sem mouse, usando um transporte falso
-- [ ] N.2 anotações das ferramentas (`readOnlyHint`, `destructiveHint` para
-  `reset` e `restore`) e aviso de modelo não testado na resposta de gravação
-- [ ] N.3 README (en e pt-BR): como registrar o servidor no Claude Code e em
+- [ ] N.2 anotações das ferramentas (feito: `readOnlyHint`, `destructiveHint` para
+  `reset` e `restore`); falta o aviso de modelo não testado na resposta de gravação
+  (depende da trilha S)
+- [x] N.3 README (en e pt-BR): como registrar o servidor no Claude Code e em
   outros clientes MCP
 
 ## Fora do escopo

@@ -7,6 +7,8 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
 ## Comandos
 - testes do núcleo: `cargo test`
 - lint: `cargo clippy --all-targets -- -D warnings` e `cargo fmt --check`
+- CLI e MCP sem Tauri: `./run.sh cli` (binários em `target/release/`); `cargo build` e
+  `cargo test` na raiz já cobrem só eles e o núcleo (`default-members`)
 - CLI: `cargo run -p salamandra-cli -- --help`
 - app: `cd app && npm install && npm run tauri dev`
 - checagem do front: `cd app && npm run check`
@@ -16,7 +18,10 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
   sem I/O. Tudo testável sem mouse.
 - `crates/salamandra-hid/`: transporte por `hidapi` (Windows `HidD_SetFeature`,
   Linux `hidraw`, macOS IOKit) e a API de alto nível `Mouse`.
-- `crates/salamandra-cli/`: CLI.
+- `crates/salamandra-cli/`: CLI. Biblioteca (`run`, `execute`: cada comando devolve o
+  texto) mais um binário fino. Não pode depender de Tauri nem de `enigo` (o CI confere).
+- `crates/salamandra-mcp/`: servidor MCP por stdio, escrito à mão. Cada ferramenta vira
+  um comando do CLI; os testes usam `salamandra_core::fake::MemoryTransport`.
 - `crates/salamandra-service/`: serviço em segundo plano. Escuta os avisos do
   mouse e executa os atalhos (copiar, navegador...) com `enigo`. No macOS
   precisa da permissão de Acessibilidade.

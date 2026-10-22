@@ -103,12 +103,33 @@ npm run tauri dev                  # to try it
 npm run tauri build                # installer for your system
 ```
 
-Command line:
+Command line and MCP server, with no Tauri, Node.js, WebKit or libxdo (on
+Linux only `libudev-dev`):
 
 ```sh
-cargo run -p salamandra-cli -- --help
-cargo run -p salamandra-cli -- show
+./run.sh cli                       # target/release/salamandra and salamandra-mcp
+target/release/salamandra --help
+target/release/salamandra show
 ```
+
+### MCP server
+
+`salamandra-mcp` lets an agent read and set the mouse. It speaks the Model
+Context Protocol over stdio, one JSON message per line. Register it in Claude
+Code with:
+
+```sh
+claude mcp add salamandra -- /full/path/to/salamandra-mcp
+```
+
+Tools: `mouse_show`, `mouse_macro_get`, `mouse_backup`, `mouse_set_profile`,
+`mouse_set_led`, `mouse_set_dpi`, `mouse_set_active_dpi_level`,
+`mouse_set_polling_rate`, `mouse_set_scroll`, `mouse_set_button`,
+`mouse_set_macro`, `mouse_reset` and `mouse_restore`. Everything except the two
+reads writes to the mouse memory; `mouse_reset` and `mouse_restore` replace the
+whole configuration and are marked as destructive, so clients ask before
+running them. The server uses the same checks as the CLI, so it also refuses to
+leave a profile without a left click. Make a `mouse_backup` first.
 
 ### Linux: mouse access without root
 
