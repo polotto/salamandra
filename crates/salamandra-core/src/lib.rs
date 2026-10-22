@@ -4,6 +4,7 @@
 pub mod buttons;
 pub mod defaults;
 pub mod events;
+pub mod fake;
 pub mod keys;
 pub mod macros;
 pub mod map;

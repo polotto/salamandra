@@ -100,7 +100,7 @@ nem se o protocolo é o mesmo.
   como foi feito no M901-1 (decisão do Angelo, trabalho grande)
 
 ## Trilha K: CLI sem Tauri (independente)
-- [ ] K.1 `salamandra-cli` vira biblioteca (comandos devolvem texto) mais binário
+- [x] K.1 `salamandra-cli` vira biblioteca (comandos devolvem texto) mais binário
   fino; sem mudança de comportamento
   - pronto quando: testes atuais passam e `salamandra show` sai igual
 - [ ] K.2 `default-members` do workspace sem o app: `cargo build` e `cargo test`
