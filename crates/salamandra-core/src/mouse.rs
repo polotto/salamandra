@@ -10,6 +10,7 @@ use crate::macros::{self, MacroEvent};
 use crate::map;
 use crate::model::{DpiLevel, Led, PollingRate, Profile};
 use crate::packet::{self, ApplyArea};
+use crate::spec::{self, DeviceSpec};
 use crate::Error;
 
 /// Canal de Feature Reports. O byte 0 do buffer é o report ID.
@@ -28,16 +29,27 @@ const ALL_AREAS: [ApplyArea; 4] = [
 
 pub struct Mouse<T: Transport> {
     transport: T,
+    spec: &'static DeviceSpec,
     /// Pausa depois de `F5`, como o oficial (`FUN_0040f1f0`, Sleep(100)).
     pub session_delay: Duration,
 }
 
 impl<T: Transport> Mouse<T> {
+    /// Mouse com o modelo padrão (M901-1).
     pub fn new(transport: T) -> Self {
+        Self::with_spec(transport, &spec::M901_1)
+    }
+
+    pub fn with_spec(transport: T, spec: &'static DeviceSpec) -> Self {
         Self {
             transport,
+            spec,
             session_delay: Duration::from_millis(100),
         }
+    }
+
+    pub fn spec(&self) -> &'static DeviceSpec {
+        self.spec
     }
 
     pub fn transport_mut(&mut self) -> &mut T {
@@ -63,12 +75,14 @@ impl<T: Transport> Mouse<T> {
         let scroll = self.read(map::scroll_speed(p), 1)?[0];
         // FUN_0040fc50: 0x20 bytes a partir de base+2 trazem o nível ativo e os 5 níveis.
         let dpi = self.read(map::active_dpi_level(p), 0x20)?;
+        let codec = self.spec.dpi;
         let levels: [DpiLevel; 5] =
-            std::array::from_fn(|i| DpiLevel::decode(&dpi[2 + 6 * i..2 + 6 * i + 5]));
+            std::array::from_fn(|i| DpiLevel::decode_with(&dpi[2 + 6 * i..2 + 6 * i + 5], codec));
         let led = Led::decode(&self.read(map::led(p), 7)?);
-        let mut buttons = Vec::with_capacity(map::BUTTON_COUNT);
-        for b in 0..map::BUTTON_COUNT {
-            buttons.push(ButtonAction::decode(&self.read(map::button(p, b), 4)?));
+        // Botão que o modelo não tem fica como zeros e nunca é gravado.
+        let mut buttons = vec![ButtonAction::decode(&[0; 4]); map::BUTTON_COUNT];
+        for &b in self.spec.buttons {
+            buttons[b] = ButtonAction::decode(&self.read(map::button(p, b), 4)?);
         }
         Ok(Profile {
             polling_rate: PollingRate::from_code(rate),
@@ -102,7 +116,7 @@ impl<T: Transport> Mouse<T> {
     /// Grava numa sessão só o que mudou de `old` para `new` no perfil `p`.
     pub fn update_profile(&mut self, p: usize, old: &Profile, new: &Profile) -> Result<(), Error> {
         check_profile(p)?;
-        new.validate()?;
+        new.validate_for(self.spec)?;
         let mut writes: Vec<(u16, Vec<u8>)> = Vec::new();
         if new.led != old.led {
             writes.push((map::led(p), new.led.color_and_mode().to_vec()));
@@ -130,7 +144,7 @@ impl<T: Transport> Mouse<T> {
         let mut dpi_changed = false;
         for i in 0..map::DPI_LEVEL_COUNT {
             if new.dpi_levels[i] != old.dpi_levels[i] {
-                writes.push((map::dpi_level(p, i), new.dpi_levels[i].encode()?.to_vec()));
+                writes.push((map::dpi_level(p, i), new.dpi_levels[i].encode_with(self.spec.dpi)?.to_vec()));
                 dpi_changed = true;
             }
         }
@@ -141,7 +155,7 @@ impl<T: Transport> Mouse<T> {
             ));
             dpi_changed = true;
         }
-        for b in 0..map::BUTTON_COUNT {
+        for &b in self.spec.buttons {
             if new.buttons[b] != old.buttons[b] {
                 writes.push((map::button(p, b), new.buttons[b].encode().to_vec()));
             }

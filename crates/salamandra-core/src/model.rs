@@ -1,6 +1,7 @@
 //! Configuração de um perfil e a codificação de cada campo.
 
 use crate::buttons::ButtonAction;
+use crate::spec::{DeviceSpec, DpiCodec};
 use crate::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -67,39 +68,28 @@ impl DpiLevel {
         }
     }
 
-    /// `ativo, x, xf, y, yf` (`FUN_0040ff40`).
+    /// `ativo, x, xf, y, yf` (`FUN_0040ff40`), com a codificação do M901-1.
     pub fn encode(&self) -> Result<[u8; 5], Error> {
-        let (xb, xf) = encode_dpi(self.x)?;
-        let (yb, yf) = encode_dpi(self.y)?;
-        Ok([self.enabled as u8, xb, xf, yb, yf])
+        self.encode_with(DpiCodec::Sensor3360)
     }
 
     pub fn decode(b: &[u8]) -> Self {
+        Self::decode_with(b, DpiCodec::Sensor3360)
+    }
+
+    pub fn encode_with(&self, codec: DpiCodec) -> Result<[u8; 5], Error> {
+        let (xb, xf) = codec.encode(self.x)?;
+        let (yb, yf) = codec.encode(self.y)?;
+        Ok([self.enabled as u8, xb, xf, yb, yf])
+    }
+
+    pub fn decode_with(b: &[u8], codec: DpiCodec) -> Self {
         Self {
             enabled: b[0] != 0,
-            x: decode_dpi(b[1], b[2]),
-            y: decode_dpi(b[3], b[4]),
+            x: codec.decode(b[1], b[2]),
+            y: codec.decode(b[3], b[4]),
         }
     }
-}
-
-/// `índice = DPI / 100`. Até `0x79`: `índice - 1`, flag 0. Acima: `índice - 0x3D`, flag 1.
-fn encode_dpi(dpi: u32) -> Result<(u8, u8), Error> {
-    if !(DpiLevel::MIN..=DpiLevel::MAX).contains(&dpi) || !dpi.is_multiple_of(DpiLevel::STEP) {
-        return Err(Error::Invalid(format!(
-            "DPI {dpi} fora de 100..24000 em passos de 100"
-        )));
-    }
-    let index = dpi / 100;
-    Ok(if index <= 0x79 {
-        ((index - 1) as u8, 0)
-    } else {
-        ((index - 0x3D) as u8, 1)
-    })
-}
-
-fn decode_dpi(byte: u8, flag: u8) -> u32 {
-    (byte as u32 + if flag == 0 { 1 } else { 0x3D }) * 100
 }
 
 /// Velocidade do efeito (respirar, piscar): 1 a 8 no firmware; o oficial usa
@@ -185,7 +175,15 @@ pub struct Profile {
 impl Profile {
     /// Regra do oficial: "at least one click function to be retained".
     pub fn validate(&self) -> Result<(), Error> {
-        if !self.buttons.contains(&ButtonAction::LeftClick) {
+        self.validate_for(&crate::spec::M901_1)
+    }
+
+    pub fn validate_for(&self, spec: &DeviceSpec) -> Result<(), Error> {
+        let has_left_click = spec
+            .buttons
+            .iter()
+            .any(|&b| self.buttons.get(b) == Some(&ButtonAction::LeftClick));
+        if !has_left_click {
             return Err(Error::Invalid(
                 "pelo menos um botão precisa ficar com o clique esquerdo".into(),
             ));
@@ -207,7 +205,7 @@ impl Profile {
             ));
         }
         for level in &self.dpi_levels {
-            level.encode()?;
+            level.encode_with(spec.dpi)?;
         }
         Ok(())
     }

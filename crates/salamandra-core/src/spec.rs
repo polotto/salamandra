@@ -1,0 +1,251 @@
+//! Descrição de cada modelo suportado. O protocolo é o mesmo (enquadramento
+//! `02 F3 addr len`, `F1`, `F5`); o que muda por modelo fica aqui como dado.
+//! Origem de cada campo em `docs/models/` e `docs/work/multi-modelo/RE-FINDINGS.md`.
+
+use crate::Error;
+
+/// Se o modelo já foi comprovado no mouse físico.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "lowercase"))]
+pub enum Status {
+    /// Testado no mouse físico pelo autor.
+    Tested,
+    /// Mapeado a partir do software oficial e de documentação pública, nunca
+    /// comprovado no mouse físico.
+    Untested,
+}
+
+/// Codificação do DPI. O oficial escolhe pelo sensor (`FUN_00457b30`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DpiCodec {
+    /// Sensor 3360 (M901-1): 100 a 24000 em passos de 100.
+    Sensor3360,
+    /// Sensor 3325 (M711 Cobra): 100 a 5000 em passos de 100 e 5200 a 10000
+    /// em passos de 200.
+    Sensor3325,
+}
+
+/// Códigos do sensor 3325 para o índice 0..=50 (`DAT_004ba29f` do oficial).
+/// Acima de 50 o oficial lê a mesma tabela em `índice - 25`, com a flag ligada.
+const TABLE_3325: [u8; 51] = [
+    0, 2, 4, 6, 8, 11, 13, 15, 18, 20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 43, 46, 48, 50, 52, 55,
+    57, 59, 62, 64, 66, 69, 71, 73, 76, 78, 80, 83, 85, 87, 90, 92, 94, 97, 99, 101, 104, 106, 108,
+    111, 113, 115,
+];
+
+impl DpiCodec {
+    pub const fn min(self) -> u32 {
+        100
+    }
+
+    pub const fn max(self) -> u32 {
+        match self {
+            Self::Sensor3360 => 24000,
+            Self::Sensor3325 => 10000,
+        }
+    }
+
+    /// Passo válido a partir de `dpi`.
+    pub const fn step_at(self, dpi: u32) -> u32 {
+        match self {
+            Self::Sensor3360 => 100,
+            Self::Sensor3325 => {
+                if dpi < 5000 {
+                    100
+                } else {
+                    200
+                }
+            }
+        }
+    }
+
+    pub fn is_valid(self, dpi: u32) -> bool {
+        if !(self.min()..=self.max()).contains(&dpi) {
+            return false;
+        }
+        match self {
+            Self::Sensor3360 => dpi % 100 == 0,
+            Self::Sensor3325 => {
+                if dpi <= 5000 {
+                    dpi % 100 == 0
+                } else {
+                    (dpi - 5000) % 200 == 0
+                }
+            }
+        }
+    }
+
+    pub fn describe(self) -> &'static str {
+        match self {
+            Self::Sensor3360 => "100 a 24000 em passos de 100",
+            Self::Sensor3325 => "100 a 5000 em passos de 100 e 5200 a 10000 em passos de 200",
+        }
+    }
+
+    /// `(byte, flag)` de um eixo.
+    pub fn encode(self, dpi: u32) -> Result<(u8, u8), Error> {
+        if !self.is_valid(dpi) {
+            return Err(Error::Invalid(format!(
+                "DPI {dpi} fora do permitido: {}",
+                self.describe()
+            )));
+        }
+        Ok(match self {
+            Self::Sensor3360 => {
+                // `índice = DPI / 100`. Até 0x79: `índice - 1`, flag 0. Acima: `índice - 0x3D`, flag 1.
+                let index = dpi / 100;
+                if index <= 0x79 {
+                    ((index - 1) as u8, 0)
+                } else {
+                    ((index - 0x3D) as u8, 1)
+                }
+            }
+            Self::Sensor3325 => {
+                let index = if dpi <= 5000 {
+                    dpi / 100
+                } else {
+                    50 + (dpi - 5000) / 200
+                } as usize;
+                if index < TABLE_3325.len() {
+                    (TABLE_3325[index], 0)
+                } else {
+                    (TABLE_3325[index - 25], 1)
+                }
+            }
+        })
+    }
+
+    /// Inverso de [`encode`](Self::encode). Código desconhecido vira 0.
+    pub fn decode(self, byte: u8, flag: u8) -> u32 {
+        match self {
+            Self::Sensor3360 => (byte as u32 + if flag == 0 { 1 } else { 0x3D }) * 100,
+            Self::Sensor3325 => (1..=75)
+                .map(|index: usize| (index, if index <= 50 { 100 * index as u32 } else { 5000 + 200 * (index as u32 - 50) }))
+                .find(|(index, _)| {
+                    let code = if *index < TABLE_3325.len() {
+                        (TABLE_3325[*index], 0)
+                    } else {
+                        (TABLE_3325[*index - 25], 1)
+                    };
+                    code == (byte, flag.min(1))
+                })
+                .map_or(0, |(_, dpi)| dpi),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DeviceSpec {
+    pub id: &'static str,
+    pub name: &'static str,
+    pub vendor_id: u16,
+    pub product_id: u16,
+    /// Família do oficial (`FUN_00431a30`).
+    pub family: u8,
+    /// Modelo do sensor (`FUN_004314d0`).
+    pub sensor: u16,
+    pub status: Status,
+    /// De onde vieram os dados deste modelo.
+    pub source: &'static str,
+    /// Índices de botão que existem no mouse, no espaço de 0 a 19 do M901-1.
+    pub buttons: &'static [usize],
+    pub dpi: DpiCodec,
+}
+
+pub const M901_1: DeviceSpec = DeviceSpec {
+    id: "m901-1",
+    name: "Redragon M901-1 Perdition 2",
+    vendor_id: 0x04D9,
+    product_id: 0xFC40,
+    family: 0,
+    sensor: 3360,
+    status: Status::Tested,
+    source: "software oficial (engenharia reversa) e teste no mouse físico",
+    buttons: &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    dpi: DpiCodec::Sensor3360,
+};
+
+pub const M711_COBRA: DeviceSpec = DeviceSpec {
+    id: "m711-cobra",
+    name: "Redragon M711 Cobra",
+    vendor_id: 0x04D9,
+    product_id: 0xFC30,
+    family: 0,
+    sensor: 3325,
+    status: Status::Untested,
+    source: "software oficial (RDCfg.exe, família 0, sensor 3325) e captura do mouse_m908",
+    buttons: &[0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
+    dpi: DpiCodec::Sensor3325,
+};
+
+/// Modelos conhecidos. O primeiro é o padrão.
+pub const MODELS: &[DeviceSpec] = &[M901_1, M711_COBRA];
+
+pub fn by_product_id(vendor_id: u16, product_id: u16) -> Option<&'static DeviceSpec> {
+    MODELS
+        .iter()
+        .find(|m| m.vendor_id == vendor_id && m.product_id == product_id)
+}
+
+pub fn by_id(id: &str) -> Option<&'static DeviceSpec> {
+    MODELS.iter().find(|m| m.id.eq_ignore_ascii_case(id))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Pares (DPI, byte, flag) do sensor 3325 conferidos em duas fontes: a
+    /// tabela do oficial e a captura do mouse_m908.
+    #[test]
+    fn sensor_3325_known_codes() {
+        let c = DpiCodec::Sensor3325;
+        assert_eq!(c.encode(100).unwrap(), (0x02, 0));
+        assert_eq!(c.encode(800).unwrap(), (0x12, 0));
+        assert_eq!(c.encode(1000).unwrap(), (0x16, 0));
+        assert_eq!(c.encode(5000).unwrap(), (0x73, 0));
+        assert_eq!(c.encode(5200).unwrap(), (59, 1));
+        assert_eq!(c.encode(10000).unwrap(), (115, 1));
+    }
+
+    #[test]
+    fn sensor_3325_round_trip_and_limits() {
+        let c = DpiCodec::Sensor3325;
+        let mut valid = 0;
+        for dpi in (100..=10000).step_by(100) {
+            if c.is_valid(dpi) {
+                valid += 1;
+                let (b, f) = c.encode(dpi).unwrap();
+                assert_eq!(c.decode(b, f), dpi);
+            } else {
+                assert!(c.encode(dpi).is_err());
+            }
+        }
+        assert_eq!(valid, 75);
+        assert!(c.encode(5100).is_err());
+        assert!(c.encode(10200).is_err());
+        assert!(c.encode(50).is_err());
+    }
+
+    #[test]
+    fn sensor_3360_keeps_old_rule() {
+        let c = DpiCodec::Sensor3360;
+        assert_eq!(c.encode(1000).unwrap(), (0x09, 0));
+        assert_eq!(c.encode(12200).unwrap().1, 1);
+        assert!(c.encode(24100).is_err());
+        assert_eq!(c.decode(0x50, 1), 14100);
+    }
+
+    #[test]
+    fn models_are_unique() {
+        for (i, a) in MODELS.iter().enumerate() {
+            for b in &MODELS[i + 1..] {
+                assert_ne!(a.id, b.id);
+                assert_ne!((a.vendor_id, a.product_id), (b.vendor_id, b.product_id));
+            }
+        }
+        assert_eq!(by_product_id(0x04D9, 0xFC30).unwrap().id, "m711-cobra");
+        assert!(M711_COBRA.buttons.contains(&0));
+    }
+}

@@ -11,11 +11,13 @@ pub mod map;
 pub mod model;
 pub mod mouse;
 pub mod packet;
+pub mod spec;
 
 pub use buttons::{ButtonAction, FireTarget, Modifiers, Shortcut, Special};
 pub use macros::MacroEvent;
 pub use model::{DpiLevel, Led, LedMode, PollingRate, Profile};
 pub use mouse::{Mouse, Transport};
+pub use spec::{DeviceSpec, DpiCodec, Status};
 
 pub const VENDOR_ID: u16 = 0x04D9;
 pub const PRODUCT_ID: u16 = 0xFC40;

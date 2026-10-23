@@ -259,3 +259,61 @@ fn rejects_invalid_input() {
     assert!(m.update_profile(0, &old, &bad).is_err());
     assert!(nothing_written(&mut m));
 }
+
+fn cobra() -> Mouse<Fake> {
+    let mut m = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M711_COBRA);
+    m.session_delay = Duration::ZERO;
+    m
+}
+
+/// Os endereços e os bytes batem com a captura do M711 no mouse_m908 (DPI de
+/// 800 em `0x44`, botões a partir de `0x82`, sem os slots 8 e 9).
+#[test]
+fn cobra_writes_dpi_and_buttons_like_the_capture() {
+    let mut m = cobra();
+    let old = blank_profile(0);
+    let mut new = factory_profile(0);
+    new.dpi_levels[0] = DpiLevel::new(800);
+    new.dpi_levels[4] = DpiLevel::new(9000);
+    m.update_profile(0, &old, &new).unwrap();
+    let mem = &m.transport_mut().memory;
+    assert_eq!(&mem[0x44..0x49], &[1, 0x12, 0, 0x12, 0]);
+    assert_eq!(&mem[0x44 + 24..0x44 + 29], &[1, 0x68, 1, 0x68, 1]);
+    assert_eq!(mem[0x82], 0x81);
+    let written: Vec<u16> = m
+        .transport_mut()
+        .writes()
+        .iter()
+        .map(|p| p[2] as u16 | (p[3] as u16) << 8)
+        .collect();
+    for slot in [8usize, 9, 12, 19] {
+        assert!(!written.contains(&map::button(0, slot)), "slot {slot}");
+    }
+    assert!(written.contains(&map::button(0, 11)));
+}
+
+#[test]
+fn cobra_rejects_dpi_the_sensor_cannot_do() {
+    let mut m = cobra();
+    let old = blank_profile(0);
+    let mut new = factory_profile(0);
+    new.dpi_levels[1] = DpiLevel::new(5100);
+    assert!(m.update_profile(0, &old, &new).is_err());
+    new.dpi_levels[1] = DpiLevel::new(12000);
+    assert!(m.update_profile(0, &old, &new).is_err());
+    assert!(m.transport_mut().sent.is_empty());
+}
+
+#[test]
+fn cobra_reads_back_what_it_wrote() {
+    let mut m = cobra();
+    let old = blank_profile(0);
+    let mut new = factory_profile(0);
+    new.dpi_levels = [800, 1600, 5000, 5200, 10000].map(DpiLevel::new);
+    m.update_profile(0, &old, &new).unwrap();
+    let back = m.profile(0).unwrap();
+    assert_eq!(back.dpi_levels, new.dpi_levels);
+    for &b in salamandra_core::spec::M711_COBRA.buttons {
+        assert_eq!(back.buttons[b], new.buttons[b]);
+    }
+}
