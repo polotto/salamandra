@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use std::fmt::Write;
 
 use salamandra_core::buttons::{FireTarget, Modifiers, Shortcut, Special};
-use salamandra_core::defaults::factory_profile;
+use salamandra_core::defaults::factory_profile_for;
 use salamandra_core::{
     keys, macros, map, ButtonAction, DpiLevel, Error, LedMode, Mouse, PollingRate, Transport,
 };
@@ -14,6 +14,7 @@ use salamandra_hid::HidTransport;
 pub const USAGE: &str = "\
 uso: salamandra <comando>
 
+  --model <id>                         escolhe o modelo quando há mais de um mouse (ou SALAMANDRA_MODEL)
   show [perfil]                        mostra a configuração (todos os perfis sem argumento)
   profile <1-5>                        troca o perfil ativo
   led <perfil> <RRGGBB> [modo] [vel]   modo: steady, breathing, flash, off; vel 1-8
@@ -319,8 +320,8 @@ fn show<T: Transport>(
             if l.enabled { "" } else { " (desligado)" }
         );
     }
-    for (i, b) in prof.buttons.iter().enumerate() {
-        say!(out, "  botão {:2}: {}", i + 1, describe(b));
+    for &i in mouse.spec().buttons {
+        say!(out, "  botão {:2}: {}", i + 1, describe(&prof.buttons[i]));
     }
     Ok(())
 }
@@ -351,6 +352,11 @@ pub fn watch_events() -> Result<(), Error> {
 /// Abre o mouse e executa um comando, devolvendo o texto da resposta.
 /// `events` não passa por aqui: é um fluxo sem fim (ver [`watch_events`]).
 pub fn run(args: &[String]) -> Result<String, Error> {
+    let env_model = std::env::var("SALAMANDRA_MODEL").ok();
+    let (model, args) = match args {
+        [flag, id, rest @ ..] if flag == "--model" => (Some(id.clone()), rest),
+        _ => (None, args),
+    };
     let Some(cmd) = args.first() else {
         return Ok(USAGE.to_string());
     };
@@ -361,12 +367,21 @@ pub fn run(args: &[String]) -> Result<String, Error> {
     if cmd == "events" {
         return Err(invalid("events só funciona no terminal"));
     }
-    let mut mouse = salamandra_hid::open()?;
+    let mut mouse = salamandra_hid::open_model(model.as_deref().or(env_model.as_deref()))?;
     execute(&mut mouse, cmd, &a)
 }
 
 /// Executa um comando num mouse já aberto (os testes usam um transporte falso).
 pub fn execute<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Result<String, Error> {
+    let writes = !matches!(cmd, "show" | "backup") && !(cmd == "macro" && a.len() == 1);
+    let text = run_command(mouse, cmd, a)?;
+    match mouse.spec().warning() {
+        Some(w) if writes => Ok(format!("{w}\n{text}")),
+        _ => Ok(text),
+    }
+}
+
+fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Result<String, Error> {
     let mut out = String::new();
     match (cmd, a) {
         ("show", rest) if rest.len() <= 1 => {
@@ -375,6 +390,17 @@ pub fn execute<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
                 Some(p) => vec![profile_arg(p)?],
                 None => (0..map::PROFILE_COUNT).collect(),
             };
+            let spec = mouse.spec();
+            say!(
+                out,
+                "Modelo: {} ({:04x}:{:04x})",
+                spec.name,
+                spec.vendor_id,
+                spec.product_id
+            );
+            if let Some(w) = spec.warning() {
+                say!(out, "{w}");
+            }
             for p in list {
                 show(&mut out, mouse, p, active)?;
             }
@@ -461,8 +487,17 @@ pub fn execute<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
         }
         ("button", [p, b, action]) => {
             let b: usize = number(b, "botão")?;
-            if !(1..=map::BUTTON_COUNT).contains(&b) {
-                return Err(invalid("botão deve ser 1 a 20"));
+            if b == 0 || !mouse.spec().buttons.contains(&(b - 1)) {
+                let list: Vec<String> = mouse
+                    .spec()
+                    .buttons
+                    .iter()
+                    .map(|i| (i + 1).to_string())
+                    .collect();
+                return Err(invalid(format!(
+                    "este modelo não tem o botão {b}. Botões: {}",
+                    list.join(", ")
+                )));
             }
             let action = parse_action(action)?;
             edit(mouse, profile_arg(p)?, |prof| {
@@ -499,7 +534,8 @@ pub fn execute<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
             };
             for p in list {
                 let old = mouse.profile(p)?;
-                mouse.update_profile(p, &old, &factory_profile(p))?;
+                let spec = mouse.spec();
+                mouse.update_profile(p, &old, &factory_profile_for(spec, p))?;
             }
         }
         ("backup", [file]) => {
@@ -583,6 +619,48 @@ mod tests {
         execute(&mut m, "reset", &["all"]).unwrap();
         m.transport_mut().sent.clear();
         m
+    }
+
+    fn cobra() -> Mouse<salamandra_core::fake::MemoryTransport> {
+        let mut m = Mouse::with_spec(
+            salamandra_core::fake::MemoryTransport::default(),
+            &salamandra_core::spec::M711_COBRA,
+        );
+        m.session_delay = std::time::Duration::ZERO;
+        execute(&mut m, "reset", &["all"]).unwrap();
+        m.transport_mut().sent.clear();
+        m
+    }
+
+    #[test]
+    fn untested_model_warns_on_show_and_on_writes_only() {
+        let mut m = cobra();
+        let shown = cmd(&mut m, "show 1");
+        assert!(shown.contains("Modelo: Redragon M711 Cobra (04d9:fc30)"));
+        assert!(shown.contains("AVISO"));
+        assert!(!shown.contains("botão  9"));
+        assert!(shown.contains("botão 12"));
+        let written = cmd(&mut m, "dpi 1 1 5200");
+        assert!(written.starts_with("AVISO"));
+        assert!(cmd(&mut m, "show 1").contains("5200"));
+        assert!(!cmd(&mut m, "macro 1").contains("AVISO"));
+        let mut tested = fake();
+        assert!(!cmd(&mut tested, "show 1").contains("AVISO"));
+        assert!(!cmd(&mut tested, "dpi 1 1 800").contains("AVISO"));
+    }
+
+    #[test]
+    fn cobra_refuses_what_the_hardware_does_not_have() {
+        let mut m = cobra();
+        let try_cmd = |m: &mut Mouse<_>, line: &str| {
+            let a: Vec<&str> = line.split_whitespace().collect();
+            execute(m, a[0], &a[1..])
+        };
+        assert!(try_cmd(&mut m, "dpi 1 1 5100").is_err());
+        assert!(try_cmd(&mut m, "dpi 1 1 12000").is_err());
+        assert!(try_cmd(&mut m, "button 1 9 left").is_err());
+        assert!(try_cmd(&mut m, "button 1 20 left").is_err());
+        assert!(m.transport_mut().sent.iter().all(|p| p[1] != 0xF3));
     }
 
     fn cmd(m: &mut Mouse<salamandra_core::fake::MemoryTransport>, line: &str) -> String {

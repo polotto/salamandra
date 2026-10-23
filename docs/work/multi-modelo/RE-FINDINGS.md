@@ -70,3 +70,18 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
 - macros por família (`FUN_00458f90`);
 - de onde sai o nome do modelo (provavelmente lido do mouse) e a tabela
   VID/PID para nome.
+
+## Sensor 3325 (M711 Cobra, INVADER), 23/10/2026
+- `FUN_00457b30`, ramo `0xCFD`: nível de DPI gravado em `base+4+6n`, 5 bytes
+  (ativo, X, flag X, Y, flag Y). Índice = DPI/100 até 5000 e `50 + (DPI-5000)/200`
+  acima. Índice < 51: código `T[índice]`, flag 0. Índice >= 51: `T[índice-25]`,
+  flag 1. Tabela `T` (51 bytes em `DAT_004ba29f`): 0, 2, 4, 6, 8, 11, 13, 15,
+  18, 20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 43, 46, 48, 50, 52, 55, 57, 59,
+  62, 64, 66, 69, 71, 73, 76, 78, 80, 83, 85, 87, 90, 92, 94, 97, 99, 101,
+  104, 106, 108, 111, 113, 115.
+- Conferido contra a captura do M711 no mouse_m908: os 75 pares batem.
+- A captura do M711 mostra 10 botões nas posições 0 a 7, 10 e 11 (`0x82 + 4n`).
+- Ramos de outros sensores já lidos: `0xCFF` (3327), `0xD20` (3360, o do M901-1),
+  `0xD3D`, `0xD47`, `0xD43`, `0xC8C` (3212, Griffin), `0xC20`, `0xD05`, `0xD07`.
+  Falta extrair as tabelas do `0xCFF` (`DAT_004ba0cc`, `DAT_004ba120`,
+  `DAT_004ba19c`) e do `0xC8C` para o Impact e o Griffin.

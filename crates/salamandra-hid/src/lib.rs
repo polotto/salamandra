@@ -2,25 +2,58 @@
 //! (`hidraw`) e macOS (IOKit, aberto sem exclusividade).
 
 use hidapi::{HidApi, HidDevice};
-use salamandra_core::{Error, Mouse, Transport, PRODUCT_ID, USAGE_PAGE, VENDOR_ID};
+use salamandra_core::spec::{self, DeviceSpec, MODELS};
+use salamandra_core::{Error, Mouse, Transport, USAGE_PAGE};
 
 pub struct HidTransport {
     device: HidDevice,
 }
 
 impl HidTransport {
-    /// Abre a interface de configuração (usage page `0xFFA0`) do primeiro
-    /// M901-1 conectado.
+    /// Abre o primeiro mouse suportado conectado.
     pub fn open() -> Result<Self, Error> {
+        Ok(Self::open_model(None)?.0)
+    }
+
+    /// Abre a interface de configuração (usage page `0xFFA0`) de um mouse da
+    /// tabela de modelos. Com mais de um conectado, `prefer` (id do modelo)
+    /// escolhe qual; sem ele, o erro lista os encontrados.
+    pub fn open_model(prefer: Option<&str>) -> Result<(Self, &'static DeviceSpec), Error> {
         let api = HidApi::new().map_err(io)?;
-        let info = api
-            .device_list()
-            .find(|d| {
-                d.vendor_id() == VENDOR_ID
-                    && d.product_id() == PRODUCT_ID
-                    && d.usage_page() == USAGE_PAGE
-            })
-            .ok_or(Error::NotFound)?;
+        let mut found: Vec<(&'static DeviceSpec, &hidapi::DeviceInfo)> = Vec::new();
+        for info in api.device_list() {
+            if info.usage_page() != USAGE_PAGE {
+                continue;
+            }
+            if let Some(model) = spec::by_product_id(info.vendor_id(), info.product_id()) {
+                if !found.iter().any(|(m, _)| m.id == model.id) {
+                    found.push((model, info));
+                }
+            }
+        }
+        let (model, info) =
+            match (prefer, found.as_slice()) {
+                (_, []) => return Err(Error::NotFound),
+                (Some(id), list) => *list
+                    .iter()
+                    .find(|(m, _)| m.id.eq_ignore_ascii_case(id))
+                    .ok_or_else(|| {
+                        Error::Invalid(format!(
+                            "modelo {id} não está conectado. Conectados: {}",
+                            list.iter()
+                                .map(|(m, _)| m.id)
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        ))
+                    })?,
+                (None, [only]) => *only,
+                (None, list) => {
+                    return Err(Error::Invalid(format!(
+                    "mais de um mouse conectado ({}). Escolha com --model <id> ou SALAMANDRA_MODEL",
+                    list.iter().map(|(m, _)| m.id).collect::<Vec<_>>().join(", ")
+                )))
+                }
+            };
         let device = info.open_device(&api).map_err(|e| {
             Error::Io(format!(
                 "não deu para abrir o mouse ({e}).{}",
@@ -31,7 +64,7 @@ impl HidTransport {
                 }
             ))
         })?;
-        Ok(Self { device })
+        Ok((Self { device }, model))
     }
 
     /// Espera até `timeout_ms` por um report de entrada da interface de
@@ -58,7 +91,17 @@ impl Transport for HidTransport {
 }
 
 pub fn open() -> Result<Mouse<HidTransport>, Error> {
-    Ok(Mouse::new(HidTransport::open()?))
+    open_model(std::env::var("SALAMANDRA_MODEL").ok().as_deref())
+}
+
+pub fn open_model(prefer: Option<&str>) -> Result<Mouse<HidTransport>, Error> {
+    let (transport, model) = HidTransport::open_model(prefer)?;
+    Ok(Mouse::with_spec(transport, model))
+}
+
+/// Modelos que o Salamandra conhece, para listar na interface.
+pub fn known_models() -> &'static [DeviceSpec] {
+    MODELS
 }
 
 fn io(e: hidapi::HidError) -> Error {

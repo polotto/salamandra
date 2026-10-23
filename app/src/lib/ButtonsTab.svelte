@@ -3,6 +3,7 @@
   import type { ButtonAction, FireTarget, Shortcut, Special } from "./types";
   import { t } from "./i18n.svelte";
   import { keys } from "./keys.svelte";
+  import { app } from "./state.svelte";
 
   let { buttons = $bindable() }: { buttons: ButtonAction[] } = $props();
 
@@ -116,7 +117,8 @@
     a.value.target = kind === "Key" ? { type: "Key", value: 0x04 } : ({ type: kind } as FireTarget);
   }
 
-  const hasLeftClick = $derived(buttons.some((b) => b.type === "LeftClick"));
+  const present = $derived(app.model?.buttons ?? buttons.map((_, i) => i));
+  const hasLeftClick = $derived(buttons.some((b, i) => present.includes(i) && b.type === "LeftClick"));
 </script>
 
 {#if !hasLeftClick}
@@ -125,6 +127,7 @@
 
 <div class="card">
   {#each buttons as action, i}
+   {#if present.includes(i)}
     <div class="button-row">
       <span class="name">{t(names[i])}</span>
       <select
@@ -202,6 +205,7 @@
         <code class="muted">{action.value.map((b) => b.toString(16).padStart(2, "0")).join(" ")}</code>
       {/if}
     </div>
+   {/if}
   {/each}
 </div>
 

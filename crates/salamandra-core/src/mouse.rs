@@ -144,7 +144,10 @@ impl<T: Transport> Mouse<T> {
         let mut dpi_changed = false;
         for i in 0..map::DPI_LEVEL_COUNT {
             if new.dpi_levels[i] != old.dpi_levels[i] {
-                writes.push((map::dpi_level(p, i), new.dpi_levels[i].encode_with(self.spec.dpi)?.to_vec()));
+                writes.push((
+                    map::dpi_level(p, i),
+                    new.dpi_levels[i].encode_with(self.spec.dpi)?.to_vec(),
+                ));
                 dpi_changed = true;
             }
         }

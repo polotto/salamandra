@@ -34,28 +34,28 @@ O que a fonte mostra (base das tasks):
   Angelo pedir (imagem em card está fora do escopo do blog)
 
 ## Trilha M: núcleo multi-modelo (base das trilhas P e S)
-- [ ] M.1 `DeviceSpec` em `salamandra-core` (família 0 a 4 e sensor, como no oficial, ver `RE-FINDINGS.md`): id, nome, VID/PID, `status`
+- [x] M.1 `DeviceSpec` em `salamandra-core` (família 0 a 4 e sensor, como no oficial, ver `RE-FINDINGS.md`): id, nome, VID/PID, `status`
   (`Tested` ou `Untested`), fonte, perfis, níveis e faixa de DPI, X/Y
   separado, botões por perfil, slots de macro, modos de LED aceitos e mapa
   de endereços. O M901-1 vira a primeira spec sem mudar nenhum byte
   - pronto quando: todos os testes atuais passam sem alteração de expectativa
-- [ ] M.2 o `Mouse` e o `model.rs` passam a receber a spec; codificação de DPI
+- [x] M.2 o `Mouse` e o `model.rs` passam a receber a spec; codificação de DPI
   por estratégia (`DpiCodec`) em vez de função fixa
   - pronto quando: teste de bytes do M901-1 idêntico ao de hoje
-- [ ] M.3 detecção: `salamandra-hid` enumera todos os PIDs da tabela; com mais
+- [x] M.3 detecção (feito: `--model`/`SALAMANDRA_MODEL` escolhem entre vários; app usa o primeiro): `salamandra-hid` enumera todos os PIDs da tabela; com mais
   de um mouse ligado o app e o CLI pedem qual usar; `Error::NotFound` e o
   texto "mouse 04d9:fc40 não encontrado" deixam de citar um modelo fixo
-- [ ] M.4 `docs/models/<slug>.md` (en e pt-BR) por modelo: origem de cada campo,
+- [ ] M.4 (feito para o M711 Cobra) `docs/models/<slug>.md` (en e pt-BR) por modelo: origem de cada campo,
   diferença para o M901-1, o que falta confirmar
 
 ## Trilha S: sinalização de "não testado" (depende de M.1)
-- [ ] S.1 backend expõe `tested: bool` e `source` do modelo conectado
-- [ ] S.2 app: banner fixo "Modelo não testado no mouse físico. Pode se
+- [x] S.1 backend expõe `tested: bool` e `source` do modelo conectado
+- [x] S.2 app: banner fixo "Modelo não testado no mouse físico. Pode se
   comportar de forma inesperada" em todas as telas, com link para a issue de
   teste; texto em pt-BR e en no i18n
-- [ ] S.3 CLI: aviso antes de qualquer comando que grava (`write`, `set`,
-  `reset`, `restore`), com `--yes` para scripts
-- [ ] S.4 README (en e pt-BR): tabela de mouses com coluna Status
+- [x] S.3 CLI: aviso em qualquer comando que grava; sem confirmação, porque a
+  decisão foi gravar direto (o MCP herda o aviso, o que fecha o N.2)
+- [ ] S.4 README (feito: coluna e explicação; falta template de issue de teste) (en e pt-BR): tabela de mouses com coluna Status
   (`tested`, `untested: mapped from public docs`) e como relatar teste;
   template de issue "testei o modelo X" com o que anexar (saída de `show`,
   efeito físico de LED, DPI e botão)
@@ -66,7 +66,7 @@ O que a fonte mostra (base das tasks):
 Cada modelo só vira PR/commit quando tem spec, teste de montagem de pacote
 contra os bytes de captura da fonte, `docs/models/` e linha na tabela do
 README como `untested`.
-- [ ] P.1 M711 Cobra `04d9:fc30` (família 0, sensor 3325: reaproveita o M901-1, muda a tabela de DPI)
+- [x] P.1 M711 Cobra `04d9:fc30` (família 0, sensor 3325: reaproveita o M901-1, muda a tabela de DPI)
 - [ ] P.2 M908 Impact `04d9:fc4d` (20 botões por perfil, LED com ondas e reativo)
 - [ ] P.3 M719 Invader `04d9:fc4f` (1 macro, escala de DPI própria)
 - [ ] P.4 M607 Griffin `04d9:fc38` (a fonte diz que a leitura não funciona
@@ -117,7 +117,7 @@ nem se o protocolo é o mesmo.
   `set_button`, `set_macro`, `set_profile`, `reset`, `restore`)
   - pronto quando: teste de protocolo (`initialize`, `tools/list`, `tools/call`)
     passa sem mouse, usando um transporte falso
-- [ ] N.2 anotações das ferramentas (feito: `readOnlyHint`, `destructiveHint` para
+- [x] N.2 anotações das ferramentas (feito: `readOnlyHint`, `destructiveHint` para
   `reset` e `restore`); falta o aviso de modelo não testado na resposta de gravação
   (depende da trilha S)
 - [x] N.3 README (en e pt-BR): como registrar o servidor no Claude Code e em

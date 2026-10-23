@@ -2,6 +2,7 @@
   import type { LedMode, PollingRate, Profile } from "./types";
   import { t } from "./i18n.svelte";
   import ButtonsTab from "./ButtonsTab.svelte";
+  import { app } from "./state.svelte";
 
   let { profile = $bindable() }: { profile: Profile } = $props();
   let tab = $state<"general" | "dpi" | "light" | "buttons">("general");
@@ -51,7 +52,17 @@
     if (m.type === "Breathing" || m.type === "Flash") profile.led.mode = { type: m.type, value: { speed } };
   }
 
-  const clampDpi = (v: number) => Math.min(24000, Math.max(100, Math.round(v / 100) * 100));
+  /** Valores que o sensor do modelo aceita. */
+  const dpiValues = $derived(app.model?.dpi_values ?? []);
+  const dpiMin = $derived(dpiValues[0] ?? 100);
+  const dpiMax = $derived(dpiValues[dpiValues.length - 1] ?? 24000);
+  const clampDpi = (v: number) =>
+    dpiValues.reduce((best, c) => (Math.abs(c - v) < Math.abs(best - v) ? c : best), dpiValues[0] ?? 100);
+  const dpiIndex = (v: number) => Math.max(0, dpiValues.indexOf(clampDpi(v)));
+  const dpiStepAt = (v: number) => {
+    const i = dpiIndex(v);
+    return (dpiValues[i + 1] ?? v + 100) - dpiValues[i];
+  };
 
   function setX(i: number, v: number) {
     const l = profile.dpi_levels[i];
@@ -91,7 +102,7 @@
   {:else if tab === "dpi"}
     <div class="card">
       <h3>{t("Níveis de DPI")}</h3>
-      <p class="hint">{t("100 a 24000, em passos de 100. Os botões DPI + e DPI - percorrem só os níveis ligados.")}</p>
+      <p class="hint">{dpiMin} {t("a")} {dpiMax}. {t("Os botões DPI + e DPI - percorrem só os níveis ligados.")}</p>
       {#each profile.dpi_levels as level, i}
         {@const linked = level.x === level.y}
         <div class="dpi-row" class:active={profile.active_dpi_level === i}>
@@ -109,18 +120,18 @@
           </label>
           <input
             type="range"
-            min="100"
-            max="24000"
-            step="100"
-            value={level.x}
-            oninput={(e) => setX(i, +e.currentTarget.value)}
+            min="0"
+            max={dpiValues.length - 1}
+            step="1"
+            value={dpiIndex(level.x)}
+            oninput={(e) => setX(i, dpiValues[+e.currentTarget.value])}
           />
           <input
             class="num"
             type="number"
-            min="100"
-            max="24000"
-            step="100"
+            min={dpiMin}
+            max={dpiMax}
+            step={dpiStepAt(level.x)}
             value={level.x}
             onchange={(e) => setX(i, +e.currentTarget.value)}
           />
@@ -129,9 +140,9 @@
             <input
               class="num"
               type="number"
-              min="100"
-              max="24000"
-              step="100"
+              min={dpiMin}
+              max={dpiMax}
+              step={dpiStepAt(level.y)}
               value={level.y}
               onchange={(e) => (level.y = clampDpi(+e.currentTarget.value))}
             />
@@ -140,7 +151,7 @@
             <input
               type="checkbox"
               checked={linked}
-              onchange={(e) => (level.y = e.currentTarget.checked ? level.x : clampDpi(level.x + 100))}
+              onchange={(e) => (level.y = e.currentTarget.checked ? level.x : clampDpi(level.x + dpiStepAt(level.x)))}
             />
             {t("X/Y iguais")}
           </label>

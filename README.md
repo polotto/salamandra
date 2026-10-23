@@ -22,10 +22,14 @@ Test version (pre-release). Download the installer for your system from
 | Mouse | USB | Status |
 | --- | --- | --- |
 | Redragon M901-1 Perdition 2 | `04d9:fc40` | supported and tested |
+| Redragon M711 Cobra | `04d9:fc30` | untested: mapped from the official software and public docs ([details](docs/models/m711-cobra.md)) |
 
-Other models are not recognized yet. Mice with the same chip may be similar,
-but each one must be mapped and tested first, because writing to the wrong
-address can leave the mouse behaving unexpectedly. Have another mouse and want
+**Untested** means the model was never checked on the physical mouse. The app
+shows a banner and the command line prints a warning before every write. It
+writes anyway, so back up first (`salamandra backup`) and report what happened
+with the "Mouse support" issue form. Other models are not recognized yet: each
+one must be mapped first, because writing to the wrong address can leave the
+mouse behaving unexpectedly. Have another mouse and want
 to help? Open an issue asking for support for that model (see
 [CONTRIBUTING.md](CONTRIBUTING.md)).
 

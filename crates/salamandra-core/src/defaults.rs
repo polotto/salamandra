@@ -3,6 +3,7 @@
 
 use crate::buttons::{ButtonAction, FireTarget, Special};
 use crate::model::{DpiLevel, Led, LedMode, PollingRate, Profile};
+use crate::spec::DeviceSpec;
 
 /// Cor de cada perfil: vermelho, azul, verde, magenta, amarelo.
 const COLORS: [[u8; 3]; 5] = [
@@ -12,6 +13,15 @@ const COLORS: [[u8; 3]; 5] = [
     [0xFF, 0, 0xFF],
     [0xFF, 0xFF, 0],
 ];
+
+/// Padrão de fábrica ajustado ao modelo: o DPI nunca passa do que o sensor faz.
+pub fn factory_profile_for(spec: &DeviceSpec, p: usize) -> Profile {
+    let mut profile = factory_profile(p);
+    for level in &mut profile.dpi_levels {
+        *level = DpiLevel::new(level.x.min(spec.dpi.max()));
+    }
+    profile
+}
 
 pub fn factory_profile(p: usize) -> Profile {
     let mut buttons = vec![

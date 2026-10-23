@@ -262,3 +262,17 @@ img,
 a {
   -webkit-user-drag: none;
 }
+
+.untested {
+  margin: 0;
+  padding: 8px 24px;
+  background: var(--warn-bg, rgba(255, 170, 0, 0.14));
+  border-bottom: 1px solid var(--warn, #d98e00);
+  font-size: 13px;
+}
+
+.untested a {
+  margin-left: 8px;
+  color: inherit;
+  text-decoration: underline;
+}

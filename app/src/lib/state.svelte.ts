@@ -1,6 +1,6 @@
 import * as api from "./api";
 import { ask, open, save } from "@tauri-apps/plugin-dialog";
-import type { DeviceEvent, MacroEvent, Profile } from "./types";
+import type { DeviceEvent, MacroEvent, ModelInfo, Profile } from "./types";
 import { t } from "./i18n.svelte";
 
 export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "about" };
@@ -10,6 +10,8 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 
 class AppState {
   connected = $state(false);
+  /** Modelo do mouse conectado. */
+  model = $state<ModelInfo | null>(null);
   busy = $state(false);
   message = $state<string | null>(null);
   error = $state<string | null>(null);
@@ -111,7 +113,8 @@ class AppState {
     if ((await this.run("Fazendo backup...", () => api.backup(path))) !== undefined) this.message = t("Backup salvo");
   }
 
-  private applySnapshot(snap: { active_profile: number; profiles: Profile[]; macros: MacroEvent[][] }) {
+  private applySnapshot(snap: { model: ModelInfo; active_profile: number; profiles: Profile[]; macros: MacroEvent[][] }) {
+    this.model = snap.model;
     this.activeProfile = snap.active_profile;
     this.loaded = snap.profiles;
     this.edited = clone(snap.profiles);

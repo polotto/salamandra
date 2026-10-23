@@ -53,10 +53,17 @@
   </nav>
 
   <main class="content">
+    {#if app.connected && app.model && !app.model.tested}
+      <div class="untested" role="alert">
+        <strong>{t("Modelo não testado no mouse físico.")}</strong>
+        {t("Os valores vêm do software oficial e de documentação pública. Faça um backup antes de gravar e relate o resultado.")}
+        <a href="https://github.com/polotto/salamandra/issues/new?template=new-mouse.yml" target="_blank" rel="noreferrer">{t("Relatar teste")}</a>
+      </div>
+    {/if}
     {#if !app.connected}
       <div class="empty">
         <h2>{t("Mouse não encontrado")}</h2>
-        <p>{t("Conecte o Redragon M901-1 Perdition 2 por USB.")}</p>
+        <p>{t("Conecte um mouse Redragon suportado por USB.")}</p>
         {#if app.error}<p class="error selectable">{app.error}</p>{/if}
         <button class="primary" disabled={app.busy} onclick={() => app.connect()}>{t("Tentar de novo")}</button>
       </div>
@@ -92,7 +99,11 @@
         <div class="card">
           <h3>Salamandra {version}</h3>
           <p>{t("Configurador aberto de mouses gamer para Windows, Linux e macOS.")}</p>
-          <p class="muted">{t("Mouse: Redragon M901-1 Perdition 2 (USB 04d9:fc40).")}</p>
+          {#if app.model}
+            <p class="muted">
+              {t("Mouse")}: {app.model.name} (USB {app.model.vendor_id.toString(16).padStart(4, "0")}:{app.model.product_id.toString(16).padStart(4, "0")}).
+            </p>
+          {/if}
           <p class="muted">{t("Projeto independente, sem vínculo com a Redragon. Licença MIT.")}</p>
         </div>
         <div class="card">

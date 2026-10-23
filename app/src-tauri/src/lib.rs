@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use std::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 
-use salamandra_core::defaults::factory_profile;
+use salamandra_core::defaults::factory_profile_for;
 use salamandra_core::{map, Error, MacroEvent, Mouse, Profile};
 use salamandra_hid::HidTransport;
 use serde::Serialize;
@@ -18,8 +18,37 @@ struct AppState {
     loaded: Mutex<Vec<Profile>>,
 }
 
+/// O modelo conectado, para a tela adaptar DPI, botões e o aviso de "não testado".
+#[derive(Serialize)]
+struct ModelInfo {
+    id: &'static str,
+    name: &'static str,
+    vendor_id: u16,
+    product_id: u16,
+    tested: bool,
+    source: &'static str,
+    buttons: Vec<usize>,
+    dpi_values: Vec<u32>,
+}
+
+impl ModelInfo {
+    fn of(spec: &salamandra_core::DeviceSpec) -> Self {
+        Self {
+            id: spec.id,
+            name: spec.name,
+            vendor_id: spec.vendor_id,
+            product_id: spec.product_id,
+            tested: spec.is_tested(),
+            source: spec.source,
+            buttons: spec.buttons.to_vec(),
+            dpi_values: spec.dpi.values(),
+        }
+    }
+}
+
 #[derive(Serialize)]
 struct Snapshot {
+    model: ModelInfo,
     active_profile: usize,
     profiles: Vec<Profile>,
     macros: Vec<Vec<MacroEvent>>,
@@ -44,6 +73,7 @@ fn with_mouse<R>(
 
 fn read_all(mouse: &mut Mouse<HidTransport>) -> Result<Snapshot, Error> {
     Ok(Snapshot {
+        model: ModelInfo::of(mouse.spec()),
         active_profile: mouse.active_profile()?,
         profiles: (0..map::PROFILE_COUNT)
             .map(|p| mouse.profile(p))
@@ -105,11 +135,11 @@ fn set_macro(
 }
 
 #[tauri::command]
-fn factory_defaults(index: usize) -> Result<Profile, String> {
+fn factory_defaults(state: State<AppState>, index: usize) -> Result<Profile, String> {
     if index >= map::PROFILE_COUNT {
         return Err("perfil inválido".into());
     }
-    Ok(factory_profile(index))
+    with_mouse(&state, |m| Ok(factory_profile_for(m.spec(), index)))
 }
 
 #[tauri::command]
@@ -183,8 +213,7 @@ fn export_profile(path: String, profile: Profile) -> Result<(), String> {
     std::fs::write(path, json).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
-fn import_profile(path: String) -> Result<Profile, String> {
+fn read_profile_file(path: &str, spec: &salamandra_core::DeviceSpec) -> Result<Profile, String> {
     let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
     let file: ProfileFile =
         serde_json::from_str(&text).map_err(|_| "arquivo de perfil inválido")?;
@@ -194,8 +223,14 @@ fn import_profile(path: String) -> Result<Profile, String> {
     if file.profile.buttons.len() != map::BUTTON_COUNT {
         return Err("arquivo de perfil com número errado de botões".into());
     }
-    file.profile.validate().map_err(|e| e.to_string())?;
+    file.profile.validate_for(spec).map_err(|e| e.to_string())?;
     Ok(file.profile)
+}
+
+#[tauri::command]
+fn import_profile(state: State<AppState>, path: String) -> Result<Profile, String> {
+    let spec = with_mouse(&state, |m| Ok(m.spec()))?;
+    read_profile_file(&path, spec)
 }
 
 /// "Reset all" do oficial: os 5 perfis voltam para o padrão de fábrica.
@@ -204,7 +239,8 @@ fn reset_all(state: State<AppState>) -> Result<Snapshot, String> {
     let snapshot = with_mouse(&state, |m| {
         for p in 0..map::PROFILE_COUNT {
             let old = m.profile(p)?;
-            m.update_profile(p, &old, &factory_profile(p))?;
+            let spec = m.spec();
+            m.update_profile(p, &old, &factory_profile_for(spec, p))?;
         }
         read_all(m)
     })?;
@@ -324,20 +360,21 @@ mod tests {
     fn profile_file_round_trip() {
         let path = std::env::temp_dir().join("salamandra-perfil-teste.json");
         let path = path.to_string_lossy().to_string();
-        let profile = factory_profile(2);
+        let profile = salamandra_core::defaults::factory_profile(2);
         export_profile(path.clone(), profile.clone()).unwrap();
-        assert_eq!(import_profile(path.clone()).unwrap(), profile);
+        let spec = &salamandra_core::spec::M901_1;
+        assert_eq!(read_profile_file(&path, spec).unwrap(), profile);
 
         let mut broken = profile.clone();
         broken.buttons[0] = salamandra_core::ButtonAction::Disabled;
         export_profile(path.clone(), broken).unwrap();
         assert!(
-            import_profile(path.clone()).is_err(),
+            read_profile_file(&path, spec).is_err(),
             "sem clique esquerdo não entra"
         );
 
         std::fs::write(&path, "{\"format\":\"outro\"}").unwrap();
-        assert!(import_profile(path.clone()).is_err());
+        assert!(read_profile_file(&path, spec).is_err());
         let _ = std::fs::remove_file(path);
     }
 }

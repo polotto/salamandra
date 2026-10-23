@@ -1,4 +1,5 @@
-//! Protocolo de configuração do Redragon M901-1 Perdition 2 (`04d9:fc40`).
+//! Protocolo de configuração dos mouses Redragon com chip Holtek (M901-1 `04d9:fc40`,
+//! M711 Cobra `04d9:fc30`...). O que muda por modelo está em [`spec`].
 //! Sem I/O: o transporte entra pelo trait [`Transport`].
 
 pub mod buttons;
@@ -20,7 +21,6 @@ pub use mouse::{Mouse, Transport};
 pub use spec::{DeviceSpec, DpiCodec, Status};
 
 pub const VENDOR_ID: u16 = 0x04D9;
-pub const PRODUCT_ID: u16 = 0xFC40;
 /// Interface de configuração (vendor).
 pub const USAGE_PAGE: u16 = 0xFFA0;
 
@@ -35,7 +35,7 @@ pub enum Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NotFound => write!(f, "mouse 04d9:fc40 não encontrado"),
+            Self::NotFound => write!(f, "mouse Redragon suportado não encontrado"),
             Self::Io(msg) => write!(f, "falha de comunicação: {msg}"),
             Self::BadResponse(r) => write!(f, "resposta inesperada: {}", packet::hex(r)),
             Self::Invalid(msg) => write!(f, "{msg}"),

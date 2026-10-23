@@ -65,12 +65,12 @@ impl DpiCodec {
             return false;
         }
         match self {
-            Self::Sensor3360 => dpi % 100 == 0,
+            Self::Sensor3360 => dpi.is_multiple_of(100),
             Self::Sensor3325 => {
                 if dpi <= 5000 {
-                    dpi % 100 == 0
+                    dpi.is_multiple_of(100)
                 } else {
-                    (dpi - 5000) % 200 == 0
+                    (dpi - 5000).is_multiple_of(200)
                 }
             }
         }
@@ -81,6 +81,17 @@ impl DpiCodec {
             Self::Sensor3360 => "100 a 24000 em passos de 100",
             Self::Sensor3325 => "100 a 5000 em passos de 100 e 5200 a 10000 em passos de 200",
         }
+    }
+
+    /// Todos os valores de DPI que o sensor aceita, em ordem.
+    pub fn values(self) -> Vec<u32> {
+        let mut out = Vec::new();
+        let mut dpi = self.min();
+        while dpi <= self.max() {
+            out.push(dpi);
+            dpi += self.step_at(dpi);
+        }
+        out
     }
 
     /// `(byte, flag)` de um eixo.
@@ -121,7 +132,16 @@ impl DpiCodec {
         match self {
             Self::Sensor3360 => (byte as u32 + if flag == 0 { 1 } else { 0x3D }) * 100,
             Self::Sensor3325 => (1..=75)
-                .map(|index: usize| (index, if index <= 50 { 100 * index as u32 } else { 5000 + 200 * (index as u32 - 50) }))
+                .map(|index: usize| {
+                    (
+                        index,
+                        if index <= 50 {
+                            100 * index as u32
+                        } else {
+                            5000 + 200 * (index as u32 - 50)
+                        },
+                    )
+                })
                 .find(|(index, _)| {
                     let code = if *index < TABLE_3325.len() {
                         (TABLE_3325[*index], 0)
@@ -153,6 +173,22 @@ pub struct DeviceSpec {
     pub dpi: DpiCodec,
 }
 
+impl DeviceSpec {
+    pub fn is_tested(&self) -> bool {
+        self.status == Status::Tested
+    }
+
+    /// Aviso para mostrar antes de gravar num modelo nunca testado no físico.
+    pub fn warning(&self) -> Option<String> {
+        (!self.is_tested()).then(|| {
+            format!(
+                "AVISO: {} nunca foi testado no mouse físico. Os valores vêm do software oficial e de documentação pública. Faça um backup antes (salamandra backup) e relate o resultado.",
+                self.name
+            )
+        })
+    }
+}
+
 pub const M901_1: DeviceSpec = DeviceSpec {
     id: "m901-1",
     name: "Redragon M901-1 Perdition 2",
@@ -162,7 +198,9 @@ pub const M901_1: DeviceSpec = DeviceSpec {
     sensor: 3360,
     status: Status::Tested,
     source: "software oficial (engenharia reversa) e teste no mouse físico",
-    buttons: &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    buttons: &[
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    ],
     dpi: DpiCodec::Sensor3360,
 };
 
@@ -211,6 +249,8 @@ mod tests {
 
     #[test]
     fn sensor_3325_round_trip_and_limits() {
+        assert_eq!(DpiCodec::Sensor3325.values().len(), 75);
+        assert_eq!(DpiCodec::Sensor3360.values().len(), 240);
         let c = DpiCodec::Sensor3325;
         let mut valid = 0;
         for dpi in (100..=10000).step_by(100) {

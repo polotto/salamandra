@@ -23,10 +23,14 @@ Versão de teste (pré-release). Baixe o instalador do seu sistema em
 | Mouse | USB | Situação |
 | --- | --- | --- |
 | Redragon M901-1 Perdition 2 | `04d9:fc40` | suportado e testado |
+| Redragon M711 Cobra | `04d9:fc30` | não testado: mapeado do software oficial e de documentação pública ([detalhes](docs/models/m711-cobra.pt-BR.md)) |
 
-Outros modelos ainda não são reconhecidos. Mouses com o mesmo chip podem ser
-parecidos, mas cada um precisa ser mapeado e testado antes, porque gravar no
-endereço errado pode deixar o mouse com comportamento inesperado. Tem outro
+**Não testado** quer dizer que o modelo nunca foi conferido no mouse físico. O
+app mostra um aviso fixo e a linha de comando avisa antes de cada gravação. Ele
+grava mesmo assim, então faça backup antes (`salamandra backup`) e conte o que
+aconteceu pelo formulário "Suporte a um mouse". Outros modelos ainda não são
+reconhecidos: cada um precisa ser mapeado antes, porque gravar no endereço
+errado pode deixar o mouse com comportamento inesperado. Tem outro
 mouse e quer ajudar? Abra uma issue com o modelo pedindo suporte (veja
 [CONTRIBUTING.pt-BR.md](CONTRIBUTING.pt-BR.md)).
 

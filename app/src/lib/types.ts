@@ -78,7 +78,21 @@ export type MacroEvent =
   | { type: "MouseUp"; value: MouseButton }
   | { type: "Delay"; value: number };
 
+export interface ModelInfo {
+  id: string;
+  name: string;
+  vendor_id: number;
+  product_id: number;
+  tested: boolean;
+  source: string;
+  /** Índices de botão (0 a 19) que o mouse tem. */
+  buttons: number[];
+  /** Todos os DPI que o sensor aceita, em ordem. */
+  dpi_values: number[];
+}
+
 export interface Snapshot {
+  model: ModelInfo;
   active_profile: number;
   profiles: Profile[];
   macros: MacroEvent[][];
