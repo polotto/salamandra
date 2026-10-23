@@ -1,6 +1,7 @@
 name: Release
 
-# Gera os instaladores dos três sistemas e anexa numa Release em rascunho.
+# Gera os instaladores dos três sistemas e anexa numa Release em rascunho. Depois
+# anexa o CLI e o servidor MCP (sem Tauri) na mesma Release.
 # Dispara com tag vX.Y.Z, ou à mão (workflow_dispatch) escolhendo a tag como ref.
 
 on:
@@ -65,3 +66,72 @@ jobs:
           releaseDraft: true
           prerelease: true
           args: ${{ matrix.args }}
+
+  # Roda depois do `build`, quando o rascunho da Release já existe, para não
+  # disputar com o tauri-action a criação dele.
+  cli:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            name: macos-universal
+          - os: ubuntu-24.04
+            name: linux-x86_64
+          - os: windows-latest
+            name: windows-x86_64
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then
+            for target in aarch64-apple-darwin x86_64-apple-darwin; do
+              cargo build --release --locked --target "$target" -p salamandra-cli -p salamandra-mcp
+            done
+            mkdir -p dist
+            for bin in salamandra salamandra-mcp; do
+              lipo -create -output "dist/$bin" \
+                "target/aarch64-apple-darwin/release/$bin" "target/x86_64-apple-darwin/release/$bin"
+            done
+          else
+            cargo build --release --locked -p salamandra-cli -p salamandra-mcp
+            mkdir -p dist
+            for bin in salamandra salamandra-mcp; do
+              cp "target/release/$bin${{ runner.os == 'Windows' && '.exe' || '' }}" dist/
+            done
+          fi
+
+      - name: Package
+        run: |
+          pack="salamandra-cli-${{ github.ref_name }}-${{ matrix.name }}"
+          cp LICENSE README.md dist/
+          if [ "$RUNNER_OS" = Windows ]; then
+            (cd dist && 7z a "../$pack.zip" . > /dev/null)
+            echo "ASSET=$pack.zip" >> "$GITHUB_ENV"
+          else
+            tar -C dist -czf "$pack.tar.gz" .
+            echo "ASSET=$pack.tar.gz" >> "$GITHUB_ENV"
+          fi
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" "$ASSET" --clobber --repo "${{ github.repository }}"

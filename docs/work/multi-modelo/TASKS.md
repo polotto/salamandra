@@ -108,7 +108,9 @@ nem se o protocolo é o mesmo.
   `salamandra-mcp` em release
   - pronto quando: `cargo tree -p salamandra-cli` não tem tauri, wry, tao nem webkit
 - [x] K.3 job `cli` no CI (Linux só com `libudev-dev`, Windows e macOS sem nada)
-- [ ] K.4 binários do CLI e do MCP anexados à Release por tag, por sistema
+- [x] K.4 binários do CLI e do MCP anexados à Release por tag, por sistema (job `cli` do
+  `release.yml`, depois do `build`; o `gh release upload` em rascunho só será
+  provado na próxima tag)
 
 ## Trilha N: servidor MCP (depende de K.1)
 - [x] N.1 crate `salamandra-mcp`: JSON-RPC por stdio escrito à mão (só `serde_json`),

@@ -112,6 +112,9 @@ npm run tauri build                # installer for your system
 Command line and MCP server, with no Tauri, Node.js, WebKit or libxdo (on
 Linux only `libudev-dev`):
 
+Each [release](https://github.com/polotto/salamandra/releases) also has these two
+binaries ready to download (`salamandra-cli-<version>-<system>`), or build them:
+
 ```sh
 ./run.sh cli                       # target/release/salamandra and salamandra-mcp
 target/release/salamandra --help
