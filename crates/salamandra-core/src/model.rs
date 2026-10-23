@@ -1,7 +1,7 @@
 //! Configuração de um perfil e a codificação de cada campo.
 
 use crate::buttons::ButtonAction;
-use crate::spec::{DeviceSpec, DpiCodec};
+use crate::spec::{DeviceSpec, DpiCodec, LedCodec};
 use crate::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -112,7 +112,16 @@ pub enum LedMode {
 
 impl LedMode {
     /// `modo velocidade sub` (`FUN_0040e9f0`).
-    fn bytes(self) -> [u8; 3] {
+    fn bytes(self, codec: LedCodec) -> [u8; 3] {
+        if codec == LedCodec::Family3 {
+            return match self {
+                Self::Off => [0x00, 0, 0x00],
+                Self::Steady => [0x01, 8, 0x02],
+                Self::Breathing { speed } => [0x01, speed.min(8), 0x04],
+                Self::Flash { speed } => [0x01, speed.min(8), 0x10],
+                Self::Cycle => [0x03, 0, 0x00],
+            };
+        }
         match self {
             Self::Off => [0x00, 0, 0],
             Self::Steady => [0x01, 0, 0],
@@ -123,7 +132,16 @@ impl LedMode {
     }
 
     /// Mesma regra de `FUN_0040fa00`: o que não reconhece vira fixo.
-    fn from_bytes(mode: u8, speed: u8, sub: u8) -> Self {
+    fn from_bytes(mode: u8, speed: u8, sub: u8, codec: LedCodec) -> Self {
+        if codec == LedCodec::Family3 {
+            return match (mode, sub) {
+                (0x00, _) => Self::Off,
+                (0x01, 0x04) => Self::Breathing { speed },
+                (0x01, 0x10) => Self::Flash { speed },
+                (0x03, 0x00) => Self::Cycle,
+                _ => Self::Steady,
+            };
+        }
         match (mode, sub) {
             (0x02, 0) => Self::Breathing { speed },
             (0x04, 0) => Self::Flash { speed },
@@ -146,15 +164,23 @@ pub struct Led {
 impl Led {
     /// Os 7 bytes a partir de `0x449 + 8p`; o 7º é o brilho (`0x44F + 8p`).
     pub fn decode(b: &[u8]) -> Self {
+        Self::decode_with(b, LedCodec::Family0)
+    }
+
+    pub fn decode_with(b: &[u8], codec: LedCodec) -> Self {
         Self {
             rgb: [b[0], b[1], b[2]],
-            mode: LedMode::from_bytes(b[3], b[4], b[5]),
+            mode: LedMode::from_bytes(b[3], b[4], b[5], codec),
             brightness: b[6],
         }
     }
 
     pub fn color_and_mode(&self) -> [u8; 6] {
-        let m = self.mode.bytes();
+        self.color_and_mode_with(LedCodec::Family0)
+    }
+
+    pub fn color_and_mode_with(&self, codec: LedCodec) -> [u8; 6] {
+        let m = self.mode.bytes(codec);
         [self.rgb[0], self.rgb[1], self.rgb[2], m[0], m[1], m[2]]
     }
 }

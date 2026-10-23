@@ -24,6 +24,21 @@ pub enum DpiCodec {
     /// Sensor 3325 (M711 Cobra): 100 a 5000 em passos de 100 e 5200 a 10000
     /// em passos de 200.
     Sensor3325,
+    /// Sensor 3327 (M908 Impact): 100 a 6200 em passos de 100 e 6400 a 12400
+    /// em passos de 200.
+    Sensor3327,
+}
+
+/// Codificação do modo de LED (`FUN_00456d90`, por família).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LedCodec {
+    /// Família 0 (M901-1, M711 Cobra): `modo velocidade sub`, com modo 1 fixo,
+    /// 2 respirar e 4 piscar.
+    Family0,
+    /// Família 3 (M908 Impact): modo 1 com `sub` 2 fixo, 4 respirar e 0x10
+    /// piscar; modo 0 apagado. Os valores de `sub` batem com o oficial
+    /// (4, 8, 2, 0 e 1) e com a captura do mouse_m908.
+    Family3,
 }
 
 /// Códigos do sensor 3325 para o índice 0..=50 (`DAT_004ba29f` do oficial).
@@ -32,6 +47,17 @@ const TABLE_3325: [u8; 51] = [
     0, 2, 4, 6, 8, 11, 13, 15, 18, 20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 43, 46, 48, 50, 52, 55,
     57, 59, 62, 64, 66, 69, 71, 73, 76, 78, 80, 83, 85, 87, 90, 92, 94, 97, 99, 101, 104, 106, 108,
     111, 113, 115,
+];
+
+/// Códigos do sensor 3327 para o índice 0..=92 (`DAT_004ba19c` e `DAT_004ba120`
+/// do oficial). Índice 0..=61: flag 0; 62..=92: flag 1. Do índice 1 em diante
+/// bate com a captura do mouse_m908.
+const TABLE_3327: [u8; 93] = [
+    0, 4, 6, 9, 11, 13, 15, 18, 20, 22, 24, 27, 29, 31, 33, 36, 38, 40, 43, 45, 47, 49, 52, 54, 56,
+    58, 61, 63, 65, 67, 70, 72, 74, 77, 79, 81, 83, 86, 88, 90, 92, 95, 97, 99, 102, 104, 106, 108,
+    111, 113, 115, 117, 120, 122, 124, 127, 129, 131, 133, 135, 138, 140, 72, 74, 77, 79, 81, 83,
+    86, 88, 90, 92, 95, 97, 99, 102, 104, 106, 108, 111, 113, 115, 117, 120, 122, 124, 127, 129,
+    131, 133, 135, 138, 140,
 ];
 
 impl DpiCodec {
@@ -43,6 +69,7 @@ impl DpiCodec {
         match self {
             Self::Sensor3360 => 24000,
             Self::Sensor3325 => 10000,
+            Self::Sensor3327 => 12400,
         }
     }
 
@@ -52,6 +79,13 @@ impl DpiCodec {
             Self::Sensor3360 => 100,
             Self::Sensor3325 => {
                 if dpi < 5000 {
+                    100
+                } else {
+                    200
+                }
+            }
+            Self::Sensor3327 => {
+                if dpi < 6200 {
                     100
                 } else {
                     200
@@ -73,6 +107,13 @@ impl DpiCodec {
                     (dpi - 5000).is_multiple_of(200)
                 }
             }
+            Self::Sensor3327 => {
+                if dpi <= 6200 {
+                    dpi.is_multiple_of(100)
+                } else {
+                    (dpi - 6200).is_multiple_of(200)
+                }
+            }
         }
     }
 
@@ -80,6 +121,7 @@ impl DpiCodec {
         match self {
             Self::Sensor3360 => "100 a 24000 em passos de 100",
             Self::Sensor3325 => "100 a 5000 em passos de 100 e 5200 a 10000 em passos de 200",
+            Self::Sensor3327 => "100 a 6200 em passos de 100 e 6400 a 12400 em passos de 200",
         }
     }
 
@@ -124,34 +166,26 @@ impl DpiCodec {
                     (TABLE_3325[index - 25], 1)
                 }
             }
+            Self::Sensor3327 => {
+                let index = if dpi <= 6200 {
+                    dpi / 100 - 1
+                } else {
+                    62 + (dpi - 6400) / 200
+                } as usize;
+                (TABLE_3327[index], (index >= 62) as u8)
+            }
         })
     }
 
     /// Inverso de [`encode`](Self::encode). Código desconhecido vira 0.
     pub fn decode(self, byte: u8, flag: u8) -> u32 {
-        match self {
-            Self::Sensor3360 => (byte as u32 + if flag == 0 { 1 } else { 0x3D }) * 100,
-            Self::Sensor3325 => (1..=75)
-                .map(|index: usize| {
-                    (
-                        index,
-                        if index <= 50 {
-                            100 * index as u32
-                        } else {
-                            5000 + 200 * (index as u32 - 50)
-                        },
-                    )
-                })
-                .find(|(index, _)| {
-                    let code = if *index < TABLE_3325.len() {
-                        (TABLE_3325[*index], 0)
-                    } else {
-                        (TABLE_3325[*index - 25], 1)
-                    };
-                    code == (byte, flag.min(1))
-                })
-                .map_or(0, |(_, dpi)| dpi),
+        if self == Self::Sensor3360 {
+            return (byte as u32 + if flag == 0 { 1 } else { 0x3D }) * 100;
         }
+        self.values()
+            .into_iter()
+            .find(|&dpi| self.encode(dpi) == Ok((byte, flag.min(1))))
+            .unwrap_or(0)
     }
 }
 
@@ -171,6 +205,7 @@ pub struct DeviceSpec {
     /// Índices de botão que existem no mouse, no espaço de 0 a 19 do M901-1.
     pub buttons: &'static [usize],
     pub dpi: DpiCodec,
+    pub led: LedCodec,
 }
 
 impl DeviceSpec {
@@ -202,6 +237,7 @@ pub const M901_1: DeviceSpec = DeviceSpec {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     ],
     dpi: DpiCodec::Sensor3360,
+    led: LedCodec::Family0,
 };
 
 pub const M711_COBRA: DeviceSpec = DeviceSpec {
@@ -215,10 +251,27 @@ pub const M711_COBRA: DeviceSpec = DeviceSpec {
     source: "software oficial (RDCfg.exe, família 0, sensor 3325) e captura do mouse_m908",
     buttons: &[0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
     dpi: DpiCodec::Sensor3325,
+    led: LedCodec::Family0,
+};
+
+pub const M908_IMPACT: DeviceSpec = DeviceSpec {
+    id: "m908-impact",
+    name: "Redragon M908 Impact",
+    vendor_id: 0x04D9,
+    product_id: 0xFC4D,
+    family: 3,
+    sensor: 3327,
+    status: Status::Untested,
+    source: "software oficial (RDCfg.exe, família 3, sensor 3327) e captura do mouse_m908",
+    buttons: &[
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    ],
+    dpi: DpiCodec::Sensor3327,
+    led: LedCodec::Family3,
 };
 
 /// Modelos conhecidos. O primeiro é o padrão.
-pub const MODELS: &[DeviceSpec] = &[M901_1, M711_COBRA];
+pub const MODELS: &[DeviceSpec] = &[M901_1, M711_COBRA, M908_IMPACT];
 
 pub fn by_product_id(vendor_id: u16, product_id: u16) -> Option<&'static DeviceSpec> {
     MODELS
@@ -275,6 +328,23 @@ mod tests {
         assert_eq!(c.encode(12200).unwrap().1, 1);
         assert!(c.encode(24100).is_err());
         assert_eq!(c.decode(0x50, 1), 14100);
+    }
+
+    #[test]
+    fn sensor_3327_known_codes() {
+        let c = DpiCodec::Sensor3327;
+        assert_eq!(c.encode(100).unwrap(), (0, 0));
+        assert_eq!(c.encode(200).unwrap(), (4, 0));
+        assert_eq!(c.encode(6200).unwrap(), (140, 0));
+        assert_eq!(c.encode(6400).unwrap(), (72, 1));
+        assert_eq!(c.encode(12400).unwrap(), (140, 1));
+        assert_eq!(c.values().len(), 93);
+        for dpi in c.values() {
+            let (b, f) = c.encode(dpi).unwrap();
+            assert_eq!(c.decode(b, f), dpi);
+        }
+        assert!(c.encode(6300).is_err());
+        assert!(c.encode(12600).is_err());
     }
 
     #[test]

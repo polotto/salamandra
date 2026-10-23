@@ -67,7 +67,7 @@ Cada modelo só vira PR/commit quando tem spec, teste de montagem de pacote
 contra os bytes de captura da fonte, `docs/models/` e linha na tabela do
 README como `untested`.
 - [x] P.1 M711 Cobra `04d9:fc30` (família 0, sensor 3325: reaproveita o M901-1, muda a tabela de DPI)
-- [ ] P.2 M908 Impact `04d9:fc4d` (20 botões por perfil, LED com ondas e reativo)
+- [x] P.2 M908 Impact (feito: DPI, 20 botões, LED família 3 básico; falta `0x446` e os modos extras de LED) `04d9:fc4d` (20 botões por perfil, LED com ondas e reativo)
 - [ ] P.3 M719 Invader `04d9:fc4f` (1 macro, escala de DPI própria)
 - [ ] P.4 M607 Griffin `04d9:fc38` (a fonte diz que a leitura não funciona
   direito: gravar com aviso extra, leitura tratada como melhor esforço)

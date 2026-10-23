@@ -317,3 +317,50 @@ fn cobra_reads_back_what_it_wrote() {
         assert_eq!(back.buttons[b], new.buttons[b]);
     }
 }
+
+fn impact() -> Mouse<Fake> {
+    let mut m = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M908_IMPACT);
+    m.session_delay = Duration::ZERO;
+    m
+}
+
+/// Bytes do DPI e do LED como na captura do M908 no mouse_m908.
+#[test]
+fn impact_writes_dpi_and_led_like_the_capture() {
+    let mut m = impact();
+    let old = blank_profile(0);
+    let mut new = factory_profile(0);
+    new.dpi_levels = [800, 1000, 6400, 12400, 200].map(DpiLevel::new);
+    new.led.rgb = [0xFF, 0, 0];
+    new.led.mode = LedMode::Breathing { speed: 3 };
+    new.led.brightness = 2;
+    m.update_profile(0, &old, &new).unwrap();
+    let mem = &m.transport_mut().memory;
+    assert_eq!(&mem[0x44..0x49], &[1, 0x12, 0, 0x12, 0]);
+    assert_eq!(&mem[0x44 + 6..0x44 + 11], &[1, 0x16, 0, 0x16, 0]);
+    assert_eq!(&mem[0x44 + 12..0x44 + 17], &[1, 72, 1, 72, 1]);
+    assert_eq!(&mem[0x44 + 18..0x44 + 23], &[1, 140, 1, 140, 1]);
+    assert_eq!(&mem[0x449..0x44F], &[0xFF, 0, 0, 1, 3, 4]);
+    assert_eq!(mem[0x44F], 2);
+    assert_eq!(m.profile(0).unwrap().led, new.led);
+    assert_eq!(m.profile(0).unwrap().dpi_levels, new.dpi_levels);
+}
+
+#[test]
+fn impact_has_all_twenty_buttons_and_rejects_dpi_above_its_sensor() {
+    let mut m = impact();
+    let old = blank_profile(0);
+    let mut new = factory_profile(0);
+    m.update_profile(0, &old, &new).unwrap();
+    let written: Vec<u16> = m
+        .transport_mut()
+        .writes()
+        .iter()
+        .map(|p| p[2] as u16 | (p[3] as u16) << 8)
+        .collect();
+    for b in 0..map::BUTTON_COUNT {
+        assert!(written.contains(&map::button(0, b)), "botão {b}");
+    }
+    new.dpi_levels[0] = DpiLevel::new(12600);
+    assert!(m.update_profile(0, &old, &new).is_err());
+}

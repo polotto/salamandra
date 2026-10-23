@@ -78,7 +78,7 @@ impl<T: Transport> Mouse<T> {
         let codec = self.spec.dpi;
         let levels: [DpiLevel; 5] =
             std::array::from_fn(|i| DpiLevel::decode_with(&dpi[2 + 6 * i..2 + 6 * i + 5], codec));
-        let led = Led::decode(&self.read(map::led(p), 7)?);
+        let led = Led::decode_with(&self.read(map::led(p), 7)?, self.spec.led);
         // Botão que o modelo não tem fica como zeros e nunca é gravado.
         let mut buttons = vec![ButtonAction::decode(&[0; 4]); map::BUTTON_COUNT];
         for &b in self.spec.buttons {
@@ -119,7 +119,10 @@ impl<T: Transport> Mouse<T> {
         new.validate_for(self.spec)?;
         let mut writes: Vec<(u16, Vec<u8>)> = Vec::new();
         if new.led != old.led {
-            writes.push((map::led(p), new.led.color_and_mode().to_vec()));
+            writes.push((
+                map::led(p),
+                new.led.color_and_mode_with(self.spec.led).to_vec(),
+            ));
             writes.push((map::led_brightness(p), vec![new.led.brightness]));
         }
         if new.polling_rate != old.polling_rate {

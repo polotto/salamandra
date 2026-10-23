@@ -85,3 +85,19 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
   `0xD3D`, `0xD47`, `0xD43`, `0xC8C` (3212, Griffin), `0xC20`, `0xD05`, `0xD07`.
   Falta extrair as tabelas do `0xCFF` (`DAT_004ba0cc`, `DAT_004ba120`,
   `DAT_004ba19c`) e do `0xC8C` para o Impact e o Griffin.
+
+## Sensor 3327 (M908 Impact), 23/10/2026
+- `FUN_00457b30`, ramo `0xCFF`: índice 0..61 usa `DAT_004ba19c` (flag 0), 62..92 usa
+  `DAT_004ba120` (flag 1). DPI do índice: `(i+1)*100` até 6200 (i=61), depois
+  `6400 + 200*(i-62)` até 12400 (i=92). Os 92 códigos de 200 a 12400 batem com a
+  captura do mouse_m908; o índice 0 (100 DPI, código 0) só existe no oficial.
+- Depois do índice 92 o oficial lê mais 21 entradas (`DAT_004ba0cc`) que repetem
+  códigos já usados; fora do que sabemos explicar, não usadas.
+- O Impact usa o mesmo mapa de botões do M901-1 (20 posições, mesmos endereços),
+  conforme a captura do mouse_m908.
+- LED família 3 (`FUN_00456d90`): grava antes 2 bytes em `0x446` que dependem do
+  grupo do modo; depois `0x449 + 8p` com `sub` 4, 8, 2, 0 ou 1. A captura do
+  mouse_m908 dá o par `(modo, sub)`: apagado `00 00`, fixo `01 02`, respirar
+  `01 04`, arco-íris `01 08`, piscar `01 10`, respirar arco-íris `01 01`, onda
+  `02 00`, reativo ao botão `03 00`, aleatório `04 00`, alternado `06 00`,
+  reativo `07 00`. Byte de velocidade entre os dois.

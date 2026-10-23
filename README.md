@@ -22,6 +22,7 @@ Test version (pre-release). Download the installer for your system from
 | Mouse | USB | Status |
 | --- | --- | --- |
 | Redragon M901-1 Perdition 2 | `04d9:fc40` | supported and tested |
+| Redragon M908 Impact | `04d9:fc4d` | untested: mapped from the official software and public docs ([details](docs/models/m908-impact.md)) |
 | Redragon M711 Cobra | `04d9:fc30` | untested: mapped from the official software and public docs ([details](docs/models/m711-cobra.md)) |
 
 **Untested** means the model was never checked on the physical mouse. The app
