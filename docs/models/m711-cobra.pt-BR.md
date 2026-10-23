@@ -19,6 +19,7 @@ funciona como no M901-1, então o app e o CLI gravam direto, com aviso.
 ## Ainda sem confirmar
 - O nome de cada um dos 10 botões na carcaça.
 - Modos de LED: o app mostra os do M901-1. A família 0 tem o mesmo layout no código oficial, mas não foi conferido no mouse.
+- A captura do `mouse_m908` usa para este modelo uma codificação de LED diferente da do oficial. Seguimos o oficial (família 0), a mesma testada no M901-1.
 - O oficial atual grava 5 bytes por nível de DPI, a captura antiga 4. Gravamos 5, como o oficial atual.
 
 ## Como ajudar

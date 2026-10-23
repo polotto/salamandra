@@ -68,8 +68,8 @@ contra os bytes de captura da fonte, `docs/models/` e linha na tabela do
 README como `untested`.
 - [x] P.1 M711 Cobra `04d9:fc30` (família 0, sensor 3325: reaproveita o M901-1, muda a tabela de DPI)
 - [x] P.2 M908 Impact (feito: DPI, 20 botões, LED família 3 básico; falta `0x446` e os modos extras de LED) `04d9:fc4d` (20 botões por perfil, LED com ondas e reativo)
-- [ ] P.3 M719 Invader `04d9:fc4f` (1 macro, escala de DPI própria)
-- [ ] P.4 M607 Griffin `04d9:fc38` (a fonte diz que a leitura não funciona
+- [x] P.3 M719 Invader `04d9:fc4f` (1 macro; a escala de DPI é a mesma do sensor 3325, conferida contra a captura)
+- [ ] P.4 (bloqueado: o oficial e o mouse_m908 divergem na tabela de DPI do sensor 3212, ver RE-FINDINGS) M607 Griffin `04d9:fc38` (a fonte diz que a leitura não funciona
   direito: gravar com aviso extra, leitura tratada como melhor esforço)
 
 ## Trilha R: engenharia reversa com o REA (alimenta a trilha P)

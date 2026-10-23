@@ -206,6 +206,8 @@ pub struct DeviceSpec {
     pub buttons: &'static [usize],
     pub dpi: DpiCodec,
     pub led: LedCodec,
+    /// Posições de macro que o modelo tem (de 1 a [`crate::map::MACRO_COUNT`]).
+    pub macro_slots: usize,
 }
 
 impl DeviceSpec {
@@ -238,6 +240,7 @@ pub const M901_1: DeviceSpec = DeviceSpec {
     ],
     dpi: DpiCodec::Sensor3360,
     led: LedCodec::Family0,
+    macro_slots: 15,
 };
 
 pub const M711_COBRA: DeviceSpec = DeviceSpec {
@@ -252,6 +255,23 @@ pub const M711_COBRA: DeviceSpec = DeviceSpec {
     buttons: &[0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
     dpi: DpiCodec::Sensor3325,
     led: LedCodec::Family0,
+    macro_slots: 15,
+};
+
+pub const M719_INVADER: DeviceSpec = DeviceSpec {
+    id: "m719-invader",
+    name: "Redragon M719 Invader",
+    vendor_id: 0x04D9,
+    product_id: 0xFC4F,
+    family: 2,
+    sensor: 3325,
+    status: Status::Untested,
+    source: "software oficial (RDCfg.exe, família 2, sensor 3325) e captura do mouse_m908",
+    buttons: &[0, 1, 2, 3, 4, 5, 6, 7, 10, 11],
+    dpi: DpiCodec::Sensor3325,
+    led: LedCodec::Family0,
+    // O mouse_m908 só conseguiu gravar uma macro neste modelo.
+    macro_slots: 1,
 };
 
 pub const M908_IMPACT: DeviceSpec = DeviceSpec {
@@ -268,10 +288,11 @@ pub const M908_IMPACT: DeviceSpec = DeviceSpec {
     ],
     dpi: DpiCodec::Sensor3327,
     led: LedCodec::Family3,
+    macro_slots: 15,
 };
 
 /// Modelos conhecidos. O primeiro é o padrão.
-pub const MODELS: &[DeviceSpec] = &[M901_1, M711_COBRA, M908_IMPACT];
+pub const MODELS: &[DeviceSpec] = &[M901_1, M711_COBRA, M719_INVADER, M908_IMPACT];
 
 pub fn by_product_id(vendor_id: u16, product_id: u16) -> Option<&'static DeviceSpec> {
     MODELS

@@ -95,7 +95,7 @@ impl<T: Transport> Mouse<T> {
     }
 
     pub fn macro_events(&mut self, i: usize) -> Result<Vec<MacroEvent>, Error> {
-        check_macro(i)?;
+        check_macro(self.spec, i)?;
         Ok(macros::decode(
             &self.read(map::macro_slot(i), map::MACRO_SIZE)?,
         ))
@@ -183,7 +183,7 @@ impl<T: Transport> Mouse<T> {
 
     /// `FUN_004125b0`: os 200 bytes entre `F5 00` e `F5 01`, sem `F1`.
     pub fn set_macro(&mut self, i: usize, events: &[MacroEvent]) -> Result<(), Error> {
-        check_macro(i)?;
+        check_macro(self.spec, i)?;
         let bytes = macros::encode(events)?;
         self.commit(&[], |m| m.write(map::macro_slot(i), &bytes))
     }
@@ -193,7 +193,10 @@ impl<T: Transport> Mouse<T> {
     /// Endereço em hex -> bytes em hex, para gravar em JSON. Inclui as macros.
     pub fn backup(&mut self) -> Result<BTreeMap<String, String>, Error> {
         let mut out = BTreeMap::new();
-        for (address, len) in map::config_blocks().into_iter().chain(map::macro_blocks()) {
+        for (address, len) in map::config_blocks()
+            .into_iter()
+            .chain(map::macro_blocks().into_iter().take(self.spec.macro_slots))
+        {
             out.insert(
                 format!("0x{address:04x}"),
                 packet::hex(&self.read(address, len)?),
@@ -212,7 +215,7 @@ impl<T: Transport> Mouse<T> {
                 .ok_or_else(|| Error::Invalid(format!("backup sem o bloco {key}")))?;
             writes.push((address, parse_block(&key, hex, len)?));
         }
-        for (address, len) in map::macro_blocks() {
+        for (address, len) in map::macro_blocks().into_iter().take(self.spec.macro_slots) {
             let key = format!("0x{address:04x}");
             if let Some(hex) = backup.get(&key) {
                 writes.push((address, parse_block(&key, hex, len)?));
@@ -277,11 +280,11 @@ fn check_profile(p: usize) -> Result<(), Error> {
     Ok(())
 }
 
-fn check_macro(i: usize) -> Result<(), Error> {
-    if i >= map::MACRO_COUNT {
+fn check_macro(spec: &DeviceSpec, i: usize) -> Result<(), Error> {
+    if i >= spec.macro_slots {
         return Err(Error::Invalid(format!(
-            "macro deve ser 1 a {}",
-            map::MACRO_COUNT
+            "este modelo tem {} macro(s): use 1 a {}",
+            spec.macro_slots, spec.macro_slots
         )));
     }
     Ok(())

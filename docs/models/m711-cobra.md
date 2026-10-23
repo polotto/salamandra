@@ -19,6 +19,7 @@ same way as on the M901-1, so the app and the CLI write directly, with a warning
 ## Still unconfirmed
 - What each of the 10 buttons is called on the shell.
 - LED modes: the app shows the M901-1 modes. Family 0 is the same layout in the official code, but this was not checked on the mouse.
+- The `mouse_m908` capture uses a different LED coding for this model than the official software. We follow the official one (family 0), the same one tested on the M901-1.
 - The official software writes 5 bytes per DPI level, the old capture 4. We write 5, like the current official software.
 
 ## How to help

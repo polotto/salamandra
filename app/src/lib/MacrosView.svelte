@@ -146,7 +146,7 @@
 
 <div class="layout">
   <aside class="list">
-    {#each Array(15) as _, i}
+    {#each Array(app.model?.macro_slots ?? 15) as _, i}
       <button class="macro" class:selected={selected === i} onclick={() => select(i)}>
         <span class="n">{i + 1}</span>
         <span class="label">{names[i] || t("Macro") + " " + (i + 1)}</span>

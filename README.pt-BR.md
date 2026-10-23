@@ -24,6 +24,7 @@ Versão de teste (pré-release). Baixe o instalador do seu sistema em
 | --- | --- | --- |
 | Redragon M901-1 Perdition 2 | `04d9:fc40` | suportado e testado |
 | Redragon M908 Impact | `04d9:fc4d` | não testado: mapeado do software oficial e de documentação pública ([detalhes](docs/models/m908-impact.pt-BR.md)) |
+| Redragon M719 Invader | `04d9:fc4f` | não testado: mapeado do software oficial e de documentação pública ([detalhes](docs/models/m719-invader.pt-BR.md)) |
 | Redragon M711 Cobra | `04d9:fc30` | não testado: mapeado do software oficial e de documentação pública ([detalhes](docs/models/m711-cobra.pt-BR.md)) |
 
 **Não testado** quer dizer que o modelo nunca foi conferido no mouse físico. O

@@ -173,7 +173,7 @@
         </select>
       {:else if action.type === "Macro"}
         <select bind:value={action.value.index}>
-          {#each Array(15) as _, m}<option value={m}>{t("Macro")} {m + 1}</option>{/each}
+          {#each Array(app.model?.macro_slots ?? 15) as _, m}<option value={m}>{t("Macro")} {m + 1}</option>{/each}
         </select>
         <label class="mod">
           <input type="checkbox" bind:checked={action.value.repeat_while_held} />

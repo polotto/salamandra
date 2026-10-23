@@ -507,8 +507,9 @@ fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
         }
         ("macro", [n, rest @ ..]) => {
             let n: usize = number(n, "macro")?;
-            if !(1..=map::MACRO_COUNT).contains(&n) {
-                return Err(invalid(format!("macro deve ser 1 a {}", map::MACRO_COUNT)));
+            let slots = mouse.spec().macro_slots;
+            if !(1..=slots).contains(&n) {
+                return Err(invalid(format!("macro deve ser 1 a {slots}")));
             }
             match rest {
                 [] => {
@@ -523,7 +524,7 @@ fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
                 ["set", events @ ..] if !events.is_empty() => {
                     mouse.set_macro(n - 1, &macros::parse(&events.join(" "))?)?
                 }
-                _ => return Err(invalid("uso: macro <1-15> [clear | set <evento>...]")),
+                _ => return Err(invalid("uso: macro <número> [clear | set <evento>...]")),
             }
         }
         ("reset", [which]) => {

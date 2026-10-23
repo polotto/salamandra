@@ -89,6 +89,8 @@ export interface ModelInfo {
   buttons: number[];
   /** Todos os DPI que o sensor aceita, em ordem. */
   dpi_values: number[];
+  /** Quantas macros o mouse tem. */
+  macro_slots: number;
 }
 
 export interface Snapshot {

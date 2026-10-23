@@ -101,3 +101,15 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
   `01 04`, arco-íris `01 08`, piscar `01 10`, respirar arco-íris `01 01`, onda
   `02 00`, reativo ao botão `03 00`, aleatório `04 00`, alternado `06 00`,
   reativo `07 00`. Byte de velocidade entre os dois.
+
+## M719 Invader e M607 Griffin, 23/10/2026
+- Invader (família 2, sensor 3325): os 75 códigos de DPI da captura do mouse_m908
+  são exatamente os do sensor 3325 do oficial. Botões nas posições 0 a 7, 10 e 11,
+  como no Cobra. O autor do mouse_m908 só conseguiu 1 macro.
+- Griffin (sensor 3212, ramo `0xC8C`): o oficial usa aritmética (código = índice
+  abaixo de 0x40, `índice - 0x20` com flag 1 de 0x40 a 0x5E, `índice - 0x3F` com
+  flag 2 acima), mas a captura do mouse_m908 dá códigos iguais aos do sensor 3325
+  (100 -> 2, 900 -> 20, 6400 -> 73 flag 1, máximo 7200). Divergência: **dúvida em
+  aberto**, o Griffin não entra até alguém com o mouse resolver.
+- A captura do mouse_m908 codifica o LED do Cobra e do Invader diferente do
+  oficial (par modo/sub genérico). Seguimos o oficial, que no M901-1 foi testado.

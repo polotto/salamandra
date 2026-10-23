@@ -364,3 +364,21 @@ fn impact_has_all_twenty_buttons_and_rejects_dpi_above_its_sensor() {
     new.dpi_levels[0] = DpiLevel::new(12600);
     assert!(m.update_profile(0, &old, &new).is_err());
 }
+
+#[test]
+fn invader_has_one_macro_and_the_cobra_dpi_scale() {
+    let mut m = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M719_INVADER);
+    m.session_delay = Duration::ZERO;
+    assert!(m.set_macro(0, &[]).is_ok());
+    assert!(m.set_macro(1, &[]).is_err());
+    assert!(m.macro_events(1).is_err());
+    let old = blank_profile(0);
+    let mut new =
+        salamandra_core::defaults::factory_profile_for(&salamandra_core::spec::M719_INVADER, 0);
+    new.dpi_levels[0] = DpiLevel::new(10000);
+    m.update_profile(0, &old, &new).unwrap();
+    assert_eq!(&m.transport_mut().memory[0x44..0x49], &[1, 115, 1, 115, 1]);
+    let backup = m.backup().unwrap();
+    assert!(backup.contains_key("0x0478"));
+    assert!(!backup.contains_key("0x0540"));
+}

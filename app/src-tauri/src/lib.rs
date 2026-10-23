@@ -29,6 +29,7 @@ struct ModelInfo {
     source: &'static str,
     buttons: Vec<usize>,
     dpi_values: Vec<u32>,
+    macro_slots: usize,
 }
 
 impl ModelInfo {
@@ -42,6 +43,7 @@ impl ModelInfo {
             source: spec.source,
             buttons: spec.buttons.to_vec(),
             dpi_values: spec.dpi.values(),
+            macro_slots: spec.macro_slots,
         }
     }
 }
@@ -78,8 +80,15 @@ fn read_all(mouse: &mut Mouse<HidTransport>) -> Result<Snapshot, Error> {
         profiles: (0..map::PROFILE_COUNT)
             .map(|p| mouse.profile(p))
             .collect::<Result<_, _>>()?,
+        // Posição que o modelo não tem fica vazia, sem ler.
         macros: (0..map::MACRO_COUNT)
-            .map(|i| mouse.macro_events(i))
+            .map(|i| {
+                if i < mouse.spec().macro_slots {
+                    mouse.macro_events(i)
+                } else {
+                    Ok(Vec::new())
+                }
+            })
             .collect::<Result<_, _>>()?,
     })
 }
