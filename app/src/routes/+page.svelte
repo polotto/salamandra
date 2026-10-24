@@ -24,7 +24,7 @@
 
 <div class="shell">
   <nav class="sidebar">
-    <div class="brand">Salamandra</div>
+    <div class="brand"><img src="/logo.svg" alt="" width="24" height="24" />Salamandra</div>
     <div class="section">{t("Perfis")}</div>
     {#each app.edited as profile, p}
       <button

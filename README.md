@@ -1,8 +1,14 @@
-# Salamandra
+<p align="center">
+  <img src="assets/logo/salamandra.svg" alt="Salamandra logo" width="128" height="128">
+</p>
 
-[![CI](https://github.com/polotto/salamandra/actions/workflows/ci.yml/badge.svg)](https://github.com/polotto/salamandra/actions/workflows/ci.yml)
+<h1 align="center">Salamandra</h1>
 
-**English** | [Português](README.pt-BR.md)
+<p align="center">
+  [![CI](https://github.com/polotto/salamandra/actions/workflows/ci.yml/badge.svg)](https://github.com/polotto/salamandra/actions/workflows/ci.yml)
+  <br>
+  **English** | [Português](README.pt-BR.md)
+</p>
 
 Open source configurator for gaming mice on Windows, Linux and macOS.
 
