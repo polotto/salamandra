@@ -90,6 +90,20 @@ fields, no Cmd/Ctrl+A, no right click menu and no browser shortcuts
 
 None of these steps may bring files from the vendor software into the repo.
 
+## Promoting a model to tested
+
+A model marked `untested` becomes `tested` when a report (issue template
+"I tested a model") has all of:
+
+- the output of `salamandra show` before and after a write;
+- the physical effect confirmed for LED, DPI and one remapped button;
+- a backup restored at the end, with `show` matching the first output.
+
+The change is one line in `crates/salamandra-core/src/spec.rs`
+(`Status::Tested`) and the status column in both READMEs and in
+`docs/models/<model>.md`, in the same commit. A failed or partial report
+does not promote the model: open an issue with what failed instead.
+
 ## Commits and pull requests
 
 - Commits in English, following Conventional Commits, without scope:

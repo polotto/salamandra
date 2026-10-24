@@ -57,7 +57,7 @@
       <div class="untested" role="alert">
         <strong>{t("Modelo não testado no mouse físico.")}</strong>
         {t("Os valores vêm do software oficial e de documentação pública. Faça um backup antes de gravar e relate o resultado.")}
-        <a href="https://github.com/polotto/salamandra/issues/new?template=new-mouse.yml" target="_blank" rel="noreferrer">{t("Relatar teste")}</a>
+        <a href="https://github.com/polotto/salamandra/issues/new?template=model-test.yml" target="_blank" rel="noreferrer">{t("Relatar teste")}</a>
       </div>
     {/if}
     {#if !app.connected}

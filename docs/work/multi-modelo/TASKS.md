@@ -26,10 +26,10 @@ O que a fonte mostra (base das tasks):
 - [x] L.1 SVG mestre da salamandra (`assets/logo/salamandra.svg`), versão
   monocromática (`salamandra-mono.svg`) e fundo claro/escuro
   - pronto quando: legível em 16, 32 e 512 px, conferido por captura
-- [ ] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
+- [x] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
   ícone da bandeja (template monocromático no macOS)
   - pronto quando: `Salamandra.app` e a bandeja mostram o novo ícone
-- [ ] L.3 logo no topo do `README.md` e `README.pt-BR.md` e no cabeçalho do app
+- [x] L.3 logo no topo do `README.md` e `README.pt-BR.md` e no cabeçalho do app
 - [ ] L.4 atualizar `docs/work` e o card do projeto no polotto.dev só se o
   Angelo pedir (imagem em card está fora do escopo do blog)
 
@@ -55,11 +55,11 @@ O que a fonte mostra (base das tasks):
   teste; texto em pt-BR e en no i18n
 - [x] S.3 CLI: aviso em qualquer comando que grava; sem confirmação, porque a
   decisão foi gravar direto (o MCP herda o aviso, o que fecha o N.2)
-- [ ] S.4 README (feito: coluna e explicação; falta template de issue de teste) (en e pt-BR): tabela de mouses com coluna Status
+- [x] S.4 README (template `model-test.yml`) (en e pt-BR): tabela de mouses com coluna Status
   (`tested`, `untested: mapped from public docs`) e como relatar teste;
   template de issue "testei o modelo X" com o que anexar (saída de `show`,
   efeito físico de LED, DPI e botão)
-- [ ] S.5 promoção de status: regra no `CONTRIBUTING` (um relato com `show`
+- [x] S.5 promoção de status: regra no `CONTRIBUTING` (um relato com `show`
   antes e depois e confirmação do efeito físico muda `Untested` para `Tested`)
 
 ## Trilha P: um modelo por vez (depende de M.1 a M.3; ordem de popularidade)

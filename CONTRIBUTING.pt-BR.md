@@ -90,6 +90,20 @@ Cmd/Ctrl+A, menu de clique direito ou atalhos de navegador
 
 Nenhuma dessas etapas pode trazer arquivos do software oficial para o repo.
 
+## Promover um modelo a testado
+
+Um modelo marcado `untested` vira `tested` quando um relato (template de
+issue "Testei um modelo") traz tudo isto:
+
+- a saída de `salamandra show` antes e depois de uma gravação;
+- o efeito físico confirmado no LED, no DPI e em um botão remapeado;
+- um backup restaurado no fim, com o `show` igual ao primeiro.
+
+A mudança é uma linha em `crates/salamandra-core/src/spec.rs`
+(`Status::Tested`) e a coluna de status nos dois READMEs e em
+`docs/models/<modelo>.md`, no mesmo commit. Relato parcial ou com falha não
+promove o modelo: abra uma issue com o que falhou.
+
 ## Commits e pull requests
 
 - Commits em inglês, no padrão Conventional Commits, sem escopo:

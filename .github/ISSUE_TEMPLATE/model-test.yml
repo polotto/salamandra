@@ -1,0 +1,53 @@
+name: Testei um modelo / I tested a model
+description: Relato de teste no mouse físico de um modelo marcado como untested / Physical test of a model marked untested
+labels: [test-report, model-test]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Modelo / Model
+      placeholder: M711 Cobra
+    validations:
+      required: true
+  - type: input
+    id: usb
+    attributes:
+      label: Código USB / USB ID (vendor:product)
+      placeholder: 04d9:fc30
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Sistema e versão do Salamandra / OS and Salamandra version
+    validations:
+      required: true
+  - type: textarea
+    id: before
+    attributes:
+      label: Saída de `salamandra show` antes / Output of `salamandra show` before
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: after
+    attributes:
+      label: Saída de `salamandra show` depois de gravar / Output of `salamandra show` after writing
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: effects
+    attributes:
+      label: Efeito físico confirmado / Physical effect confirmed
+      description: Marque só o que você viu no mouse / Check only what you saw on the mouse
+      options:
+        - label: Cor e modo do LED mudaram / LED color and mode changed
+        - label: O DPI mudou (ponteiro ou indicador) / DPI changed (pointer or indicator)
+        - label: Um botão remapeado fez a nova ação / A remapped button did the new action
+        - label: Taxa de polling mudou / Polling rate changed
+        - label: Restaurei o backup no fim / I restored the backup at the end
+  - type: textarea
+    id: notes
+    attributes:
+      label: O que não funcionou ou foi estranho / What failed or looked odd
