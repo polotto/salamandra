@@ -283,9 +283,11 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     let open = MenuItem::with_id(app, "open", "Abrir Salamandra", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Sair", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &quit])?;
-    if let Ok(mut items) = app.state::<AppState>().tray_items.lock() {
-        *items = Some((open.clone(), quit.clone()));
-    }
+    *app.state::<AppState>()
+        .tray_items
+        .lock()
+        .map_err(|e| tauri::Error::Io(std::io::Error::other(e.to_string())))? =
+        Some((open.clone(), quit.clone()));
     let mut tray = TrayIconBuilder::new()
         .tooltip("Salamandra")
         .menu(&menu)
@@ -327,11 +329,10 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
 /// O front manda os textos já traduzidos do menu da bandeja.
 #[tauri::command]
 fn set_tray_text(state: State<AppState>, open: String, quit: String) -> Result<(), String> {
-    if let Some((o, q)) = state.tray_items.lock().map_err(|e| e.to_string())?.as_ref() {
-        o.set_text(open).map_err(|e| e.to_string())?;
-        q.set_text(quit).map_err(|e| e.to_string())?;
-    }
-    Ok(())
+    let guard = state.tray_items.lock().map_err(|e| e.to_string())?;
+    let (o, q) = guard.as_ref().ok_or("bandeja ainda não criada")?;
+    o.set_text(open).map_err(|e| e.to_string())?;
+    q.set_text(quit).map_err(|e| e.to_string())
 }
 
 static STOP_SERVICE: AtomicBool = AtomicBool::new(false);

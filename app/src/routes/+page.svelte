@@ -17,7 +17,7 @@
 
   // O menu da bandeja é nativo: manda os textos do idioma atual para o backend.
   $effect(() => {
-    setTrayText(t("Abrir Salamandra"), t("Sair")).catch(() => {});
+    setTrayText(t("Abrir Salamandra"), t("Sair")).catch((e) => console.warn("bandeja", e));
   });
 
   import { getVersion } from "@tauri-apps/api/app";
