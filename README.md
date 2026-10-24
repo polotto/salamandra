@@ -63,7 +63,7 @@ it with the mouse on that system. If you did, tell us in an issue.
 | 5 profiles and active profile switch | done |
 | Polling rate (125, 250, 500, 1000 Hz) and scroll speed | done |
 | DPI: 5 levels from 100 to 24000, separate X and Y, active level | done |
-| Lighting: static, breathing, blinking, off, color, brightness and speed | done |
+| Lighting: static, breathing, blinking, off, color, brightness and speed (M908 Impact also has rainbow, wave, alternating and reactive, untested) | done |
 | Buttons: clicks, key, key combo, media, macro, rapid fire, DPI, profile, polling, scroll, LED mode, disable | done |
 | Shortcuts (copy, paste, browser, lock...), run by the PC | done |
 | Macros: 15, up to 63 actions, keyboard recording with real timing, editing | done |

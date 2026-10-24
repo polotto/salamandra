@@ -17,7 +17,7 @@ uso: salamandra <comando>
   --model <id>                         escolhe o modelo quando há mais de um mouse (ou SALAMANDRA_MODEL)
   show [perfil]                        mostra a configuração (todos os perfis sem argumento)
   profile <1-5>                        troca o perfil ativo
-  led <perfil> <RRGGBB> [modo] [vel]   modo: steady, breathing, flash, off; vel 1-8
+  led <perfil> <RRGGBB> [modo] [vel]   modo: steady, breathing, flash, off (M908 Impact: + rainbow, wave, alternating, reactive); vel 1-8
       [--brightness 1-3]
   dpi <perfil> <nível 1-5> <dpi>[x<dpiY>] [--off]
   dpi-active <perfil> <nível 1-5>
@@ -276,6 +276,10 @@ fn describe_led(mode: LedMode) -> String {
         LedMode::Breathing { speed } => format!("respirar (vel {speed})"),
         LedMode::Flash { speed } => format!("piscar (vel {speed})"),
         LedMode::Cycle => "ciclo".into(),
+        LedMode::Rainbow => "arco-íris".into(),
+        LedMode::Wave { speed } => format!("onda (vel {speed})"),
+        LedMode::Alternating { speed } => format!("alternado (vel {speed})"),
+        LedMode::Reactive { speed } => format!("reativo (vel {speed})"),
     }
 }
 
@@ -427,6 +431,10 @@ fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
                 "steady" => LedMode::Steady,
                 "breathing" => LedMode::Breathing { speed },
                 "flash" => LedMode::Flash { speed },
+                "rainbow" => LedMode::Rainbow,
+                "wave" => LedMode::Wave { speed },
+                "alternating" => LedMode::Alternating { speed },
+                "reactive" => LedMode::Reactive { speed },
                 "off" => LedMode::Off,
                 m => return Err(invalid(format!("modo inválido: {m}"))),
             };

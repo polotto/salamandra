@@ -37,6 +37,9 @@ pub fn button(p: usize, b: usize) -> u16 {
     PROFILE_BASES[p] + 0x42 + 4 * slot
 }
 
+/// Dois bytes antes do LED na família 3 (`FUN_00456d90`): `00 00` no Impact.
+pub const LED_GROUP: u16 = 0x0446;
+
 pub fn led(p: usize) -> u16 {
     0x0449 + 8 * p as u16
 }

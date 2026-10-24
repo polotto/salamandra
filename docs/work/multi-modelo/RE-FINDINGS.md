@@ -95,8 +95,12 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
   códigos já usados; fora do que sabemos explicar, não usadas.
 - O Impact usa o mesmo mapa de botões do M901-1 (20 posições, mesmos endereços),
   conforme a captura do mouse_m908.
-- LED família 3 (`FUN_00456d90`): grava antes 2 bytes em `0x446` que dependem do
-  grupo do modo; depois `0x449 + 8p` com `sub` 4, 8, 2, 0 ou 1. A captura do
+- LED família 3 (`FUN_00456d90`), resolvido em 24/10/2026: os 2 bytes em `0x446` só
+  ganham valor para o modelo "2850"; nos demais (inclusive IMPACT) vão `00 00`, igual
+  ao pacote da captura do mouse_m908. A velocidade é `9 - v` como nas famílias 0 a 2.
+  As 8 posições da interface são (modo, sub): 0 `1/4` respirar, 1 `1/8` arco-íris,
+  2 `1/2` fixo (velocidade 0), 3 `2/0` onda, 4 `6/0` alternado, 5 `7/0` reativo,
+  6 `1/0x10` piscar, 7 `0/0` desligado. Depois `0x449 + 8p`, com `sub` 4, 8, 2, 0 ou 1. A captura do
   mouse_m908 dá o par `(modo, sub)`: apagado `00 00`, fixo `01 02`, respirar
   `01 04`, arco-íris `01 08`, piscar `01 10`, respirar arco-íris `01 01`, onda
   `02 00`, reativo ao botão `03 00`, aleatório `04 00`, alternado `06 00`,

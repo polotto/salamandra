@@ -382,3 +382,63 @@ fn invader_has_one_macro_and_the_cobra_dpi_scale() {
     assert!(backup.contains_key("0x0478"));
     assert!(!backup.contains_key("0x0540"));
 }
+
+/// Pares `(modo, sub)` das oito posições da família 3 em `FUN_00456d90`.
+#[test]
+fn impact_encodes_the_eight_official_led_modes() {
+    let cases = [
+        (LedMode::Off, [0, 0, 0]),
+        (LedMode::Steady, [1, 0, 2]),
+        (LedMode::Breathing { speed: 3 }, [1, 3, 4]),
+        (LedMode::Rainbow, [1, 8, 8]),
+        (LedMode::Wave { speed: 5 }, [2, 5, 0]),
+        (LedMode::Alternating { speed: 6 }, [6, 6, 0]),
+        (LedMode::Reactive { speed: 2 }, [7, 2, 0]),
+        (LedMode::Flash { speed: 4 }, [1, 4, 0x10]),
+    ];
+    for (mode, bytes) in cases {
+        let mut m = impact();
+        let old = blank_profile(0);
+        let mut new = factory_profile(0);
+        new.led.rgb = [1, 2, 3];
+        new.led.mode = mode;
+        m.update_profile(0, &old, &new).unwrap();
+        let mem = &m.transport_mut().memory;
+        assert_eq!(
+            &mem[0x449..0x44F],
+            &[1, 2, 3, bytes[0], bytes[1], bytes[2]],
+            "{mode:?}"
+        );
+        let got = m.profile(0).unwrap().led.mode;
+        assert_eq!(got, mode);
+    }
+}
+
+#[test]
+fn impact_writes_zeros_at_0x446_before_the_led_and_the_cobra_does_not() {
+    let mut m = impact();
+    m.transport_mut().memory[0x446] = 9;
+    m.transport_mut().memory[0x447] = 9;
+    let old = blank_profile(0);
+    let mut new = factory_profile(0);
+    new.led.rgb = [5, 5, 5];
+    m.update_profile(0, &old, &new).unwrap();
+    assert_eq!(&m.transport_mut().memory[0x446..0x448], &[0, 0]);
+
+    let mut c = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M711_COBRA);
+    c.session_delay = Duration::ZERO;
+    c.transport_mut().memory[0x446] = 9;
+    let cobra_new =
+        salamandra_core::defaults::factory_profile_for(&salamandra_core::spec::M711_COBRA, 0);
+    c.update_profile(0, &blank_profile(0), &cobra_new).unwrap();
+    assert_eq!(c.transport_mut().memory[0x446], 9);
+}
+
+#[test]
+fn led_modes_of_family_3_are_rejected_by_other_models() {
+    let mut c = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M711_COBRA);
+    c.session_delay = Duration::ZERO;
+    let mut new = factory_profile(0);
+    new.led.mode = LedMode::Rainbow;
+    assert!(c.update_profile(0, &blank_profile(0), &new).is_err());
+}

@@ -64,7 +64,7 @@ testou com o mouse naquele sistema. Se você testou, conte numa issue.
 | 5 perfis e troca do perfil ativo | pronto |
 | Taxa de polling (125, 250, 500, 1000 Hz) e velocidade de rolagem | pronto |
 | DPI: 5 níveis de 100 a 24000, X e Y separados, nível ativo | pronto |
-| Luz: fixo, respirar, piscar, desligado, cor, brilho e velocidade | pronto |
+| Luz: fixo, respirar, piscar, desligado, cor, brilho e velocidade (o M908 Impact tem também arco-íris, onda, alternado e reativo, sem teste) | pronto |
 | Botões: cliques, tecla, combinação, mídia, macro, tiro rápido, DPI, perfil, polling, rolagem, modo do LED, desabilitar | pronto |
 | Atalhos (copiar, colar, navegador, bloquear...), executados pelo PC | pronto |
 | Macros: 15, até 63 ações, gravação do teclado com tempo real, edição | pronto |
