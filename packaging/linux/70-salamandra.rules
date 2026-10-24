@@ -2,3 +2,9 @@
 # Instalar: sudo cp 70-salamandra.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger
 # Redragon M901-1 Perdition 2
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="04d9", ATTRS{idProduct}=="fc40", MODE="0660", TAG+="uaccess"
+# Redragon M711 Cobra (untested)
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="04d9", ATTRS{idProduct}=="fc30", MODE="0660", TAG+="uaccess"
+# Redragon M908 Impact (untested)
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="04d9", ATTRS{idProduct}=="fc4d", MODE="0660", TAG+="uaccess"
+# Redragon M719 Invader (untested)
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="04d9", ATTRS{idProduct}=="fc4f", MODE="0660", TAG+="uaccess"

@@ -53,8 +53,10 @@ Redragon M901-1 Perdition 2 (USB `04d9:fc40`, firmware Holtek). Meta da v1:
 ## Fluxo de trabalho
 - Trabalho atual: `docs/work/v1-multiplataforma/TASKS.md` e `HANDOFF.md`
 - Verificar com `verify` antes de dizer que terminou (passos em `.agents/verify.steps`)
-- Neste repo, commitar e dar push no `main` ao fim de cada task, com `verify`
-  passando, e seguir para a próxima sem pedir (autorizado pelo dono em 11/10/2026)
+- Neste repo, cada mudança vai por branch e PR (`tools ship`, depois de
+  `tools review`). O próprio agente faz o merge no `main` quando o CI passar
+  e segue para a próxima sem pedir (autorizado pelo dono em 24/10/2026,
+  automação de ponta a ponta; vale só para o Salamandra)
 - Commits em inglês, Conventional Commits sem escopo (`feat: ...`)
 
 ## Armadilhas
