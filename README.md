@@ -5,9 +5,9 @@
 <h1 align="center">Salamandra</h1>
 
 <p align="center">
-  [![CI](https://github.com/polotto/salamandra/actions/workflows/ci.yml/badge.svg)](https://github.com/polotto/salamandra/actions/workflows/ci.yml)
+  <a href="https://github.com/polotto/salamandra/actions/workflows/ci.yml"><img src="https://github.com/polotto/salamandra/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <br>
-  **English** | [Português](README.pt-BR.md)
+  <b>English</b> | <a href="README.pt-BR.md">Português</a>
 </p>
 
 Open source configurator for gaming mice on Windows, Linux and macOS.
