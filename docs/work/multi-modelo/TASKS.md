@@ -23,7 +23,7 @@ O que a fonte mostra (base das tasks):
 - O `model.rs` atual assume um modelo só e precisa virar dados por modelo.
 
 ## Trilha L: logo (independente das outras)
-- [ ] L.1 SVG mestre da salamandra (`assets/logo/salamandra.svg`), versão
+- [x] L.1 SVG mestre da salamandra (`assets/logo/salamandra.svg`), versão
   monocromática (`salamandra-mono.svg`) e fundo claro/escuro
   - pronto quando: legível em 16, 32 e 512 px, conferido por captura
 - [ ] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
