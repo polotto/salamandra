@@ -108,17 +108,63 @@ pub enum LedMode {
     },
     /// Modo `03 .. 03`, sem nome na interface oficial.
     Cycle,
+    /// Só na família 3 (`FUN_00456d90`): `01 .. 08`.
+    Rainbow {
+        speed: u8,
+    },
+    /// Só na família 3: `02 .. 00`.
+    Wave {
+        speed: u8,
+    },
+    /// Só na família 3: `06 .. 00`.
+    Alternating {
+        speed: u8,
+    },
+    /// Só na família 3: `07 .. 00`.
+    Reactive {
+        speed: u8,
+    },
 }
 
 impl LedMode {
+    /// Velocidade do efeito, nos modos que têm.
+    pub fn speed(self) -> Option<u8> {
+        match self {
+            Self::Breathing { speed }
+            | Self::Flash { speed }
+            | Self::Rainbow { speed }
+            | Self::Wave { speed }
+            | Self::Alternating { speed }
+            | Self::Reactive { speed } => Some(speed),
+            _ => None,
+        }
+    }
+
+    /// O modo existe no mouse? Rainbow, wave, alternating e reactive só na família 3.
+    pub fn is_supported(self, codec: LedCodec) -> bool {
+        match self {
+            Self::Rainbow { .. }
+            | Self::Wave { .. }
+            | Self::Alternating { .. }
+            | Self::Reactive { .. } => codec == LedCodec::Family3,
+            Self::Cycle => codec == LedCodec::Family0,
+            _ => true,
+        }
+    }
+
     /// `modo velocidade sub` (`FUN_0040e9f0`).
     fn bytes(self, codec: LedCodec) -> [u8; 3] {
         if codec == LedCodec::Family3 {
             return match self {
                 Self::Off => [0x00, 0, 0x00],
-                Self::Steady => [0x01, 8, 0x02],
+                // FUN_00456d90: o fixo grava velocidade 0; os outros `9 - v`.
+                Self::Steady => [0x01, 0, 0x02],
                 Self::Breathing { speed } => [0x01, speed.min(8), 0x04],
                 Self::Flash { speed } => [0x01, speed.min(8), 0x10],
+                Self::Rainbow { speed } => [0x01, speed.min(8), 0x08],
+                Self::Wave { speed } => [0x02, speed.min(8), 0x00],
+                Self::Alternating { speed } => [0x06, speed.min(8), 0x00],
+                Self::Reactive { speed } => [0x07, speed.min(8), 0x00],
                 Self::Cycle => [0x03, 0, 0x00],
             };
         }
@@ -128,6 +174,11 @@ impl LedMode {
             Self::Breathing { speed } => [0x02, speed.min(8), 0],
             Self::Flash { speed } => [0x04, speed.min(8), 0],
             Self::Cycle => [0x03, 0, 0x03],
+            // Não existem na família 0; `validate_for` recusa antes de chegar aqui.
+            Self::Rainbow { .. }
+            | Self::Wave { .. }
+            | Self::Alternating { .. }
+            | Self::Reactive { .. } => [0x01, 0, 0],
         }
     }
 
@@ -138,7 +189,10 @@ impl LedMode {
                 (0x00, _) => Self::Off,
                 (0x01, 0x04) => Self::Breathing { speed },
                 (0x01, 0x10) => Self::Flash { speed },
-                (0x03, 0x00) => Self::Cycle,
+                (0x01, 0x08) => Self::Rainbow { speed },
+                (0x02, 0x00) => Self::Wave { speed },
+                (0x06, 0x00) => Self::Alternating { speed },
+                (0x07, 0x00) => Self::Reactive { speed },
                 _ => Self::Steady,
             };
         }
@@ -213,6 +267,12 @@ impl Profile {
             return Err(Error::Invalid(
                 "pelo menos um botão precisa ficar com o clique esquerdo".into(),
             ));
+        }
+        if !self.led.mode.is_supported(spec.led) {
+            return Err(Error::Invalid(format!(
+                "o modo de LED {:?} não existe no {}",
+                self.led.mode, spec.name
+            )));
         }
         if !(1..=3).contains(&self.led.brightness) {
             return Err(Error::Invalid("brilho deve ser 1, 2 ou 3".into()));

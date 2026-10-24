@@ -48,10 +48,11 @@ indexados pelo passo de 100 DPI, com limites 0x33, 0x5D, 0x79, 0x141, 0x190,
 Mesmo endereço do M901-1, mas o modo e a velocidade mudam por família:
 - famílias 0 a 2: modo em `local_30` (apagado 0, fixo 1, respirar 2, piscar 4,
   ...) com o byte de velocidade `9 - v`. Família 0 já é o que temos.
-- família 3: outros códigos de modo (o byte de sub assume 4, 8, 2, 0 e 1 conforme o modo).
+- família 3: oito posições com outros pares (modo, sub), listadas abaixo na seção
+  "Impact, LED". Velocidade `9 - v` em todas menos fixo e desligado.
 - família 4: o caminho de gravação é outro, com endereços `0x48`, `0x50`, `0x58`,
   `0x60`, `0x68` (uma gravação por zona ou perfil, ainda não confirmado).
-Tabela completa de modos por família: pendente (R.4).
+Tabela de modos da família 3: feita (ver abaixo). Famílias 1, 2 e 4: pendente (R.4).
 
 ## Primeiro lote: o que já se sabe
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
@@ -95,8 +96,18 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
   códigos já usados; fora do que sabemos explicar, não usadas.
 - O Impact usa o mesmo mapa de botões do M901-1 (20 posições, mesmos endereços),
   conforme a captura do mouse_m908.
-- LED família 3 (`FUN_00456d90`): grava antes 2 bytes em `0x446` que dependem do
-  grupo do modo; depois `0x449 + 8p` com `sub` 4, 8, 2, 0 ou 1. A captura do
+- LED família 3 (`FUN_00456d90`), resolvido em 24/10/2026: os 2 bytes em `0x446` só
+  ganham valor para o modelo "2850"; nos demais (inclusive IMPACT) vão `00 00`, igual
+  ao pacote da captura do mouse_m908. A velocidade é `9 - v` como nas famílias 0 a 2.
+  As 8 posições da interface são (modo, sub): 0 `1/4` respirar, 1 `1/8` arco-íris,
+  2 `1/2` fixo (velocidade 0), 3 `2/0` onda, 4 `6/0` alternado, 5 `7/0` reativo,
+  6 `1/0x10` piscar, 7 `0/0` desligado. Todas gravam a velocidade `9 - v`, menos
+  fixo e desligado. Depois grava `0x449 + 8p`.
+  Correção das notas acima: o valor `sub 1` (respirar arco-íris) aparece só na
+  captura do mouse_m908, não nas 8 posições do oficial; a nota "4, 8, 2, 0 e 1" estava
+  incompleta e o piscar é `0x10`. O `00 00` em `0x446` o oficial grava em todas as
+  famílias, mas só gravamos na 3: o M901-1 e o Cobra (família 0) ficam sem, porque o
+  M901-1 foi testado assim e o mouse já tem zeros ali. A captura do
   mouse_m908 dá o par `(modo, sub)`: apagado `00 00`, fixo `01 02`, respirar
   `01 04`, arco-íris `01 08`, piscar `01 10`, respirar arco-íris `01 01`, onda
   `02 00`, reativo ao botão `03 00`, aleatório `04 00`, alternado `06 00`,

@@ -10,7 +10,7 @@ use crate::macros::{self, MacroEvent};
 use crate::map;
 use crate::model::{DpiLevel, Led, PollingRate, Profile};
 use crate::packet::{self, ApplyArea};
-use crate::spec::{self, DeviceSpec};
+use crate::spec::{self, DeviceSpec, LedCodec};
 use crate::Error;
 
 /// Canal de Feature Reports. O byte 0 do buffer é o report ID.
@@ -119,6 +119,10 @@ impl<T: Transport> Mouse<T> {
         new.validate_for(self.spec)?;
         let mut writes: Vec<(u16, Vec<u8>)> = Vec::new();
         if new.led != old.led {
+            if self.spec.led == LedCodec::Family3 {
+                // FUN_00456d90 grava `00 00` aqui antes do LED (o mouse_m908 também).
+                writes.push((map::LED_GROUP, vec![0, 0]));
+            }
             writes.push((
                 map::led(p),
                 new.led.color_and_mode_with(self.spec.led).to_vec(),

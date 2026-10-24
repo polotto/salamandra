@@ -34,22 +34,32 @@
   ];
 
   type ModeKind = LedMode["type"];
-  const modes: [ModeKind, string][] = [
-    ["Steady", "Fixo"],
-    ["Breathing", "Respirar"],
-    ["Flash", "Piscar"],
-    ["Off", "Desligado"],
-  ];
+  const modeLabels: Record<string, string> = {
+    Steady: "Fixo",
+    Breathing: "Respirar",
+    Rainbow: "Arco-íris",
+    Wave: "Onda",
+    Alternating: "Alternado",
+    Reactive: "Reativo",
+    Flash: "Piscar",
+    Off: "Desligado",
+  };
+  /** Só os modos que o modelo oferece. */
+  const modes = $derived(
+    (app.model?.led_modes ?? ["Steady", "Breathing", "Flash", "Off"]).map(
+      (kind) => [kind, modeLabels[kind] ?? kind] as [ModeKind, string],
+    ),
+  );
+  const withSpeed = ["Breathing", "Flash", "Rainbow", "Wave", "Alternating", "Reactive"];
 
   function setMode(kind: ModeKind) {
     const speed = "value" in profile.led.mode ? profile.led.mode.value.speed : 5;
-    profile.led.mode =
-      kind === "Breathing" || kind === "Flash" ? { type: kind, value: { speed } } : ({ type: kind } as LedMode);
+    profile.led.mode = withSpeed.includes(kind) ? ({ type: kind, value: { speed } } as LedMode) : ({ type: kind } as LedMode);
   }
 
   function setSpeed(speed: number) {
     const m = profile.led.mode;
-    if (m.type === "Breathing" || m.type === "Flash") profile.led.mode = { type: m.type, value: { speed } };
+    if ("value" in m) profile.led.mode = { type: m.type, value: { speed } } as LedMode;
   }
 
   /** Valores que o sensor do modelo aceita. */
@@ -166,7 +176,7 @@
           <button class:on={profile.led.mode.type === kind} onclick={() => setMode(kind)}>{t(label)}</button>
         {/each}
       </div>
-      {#if profile.led.mode.type === "Breathing" || profile.led.mode.type === "Flash"}
+      {#if "value" in profile.led.mode}
         <div class="row">
           <span>{t("Velocidade")}</span>
           <input

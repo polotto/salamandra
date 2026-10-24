@@ -30,6 +30,8 @@ struct ModelInfo {
     buttons: Vec<usize>,
     dpi_values: Vec<u32>,
     macro_slots: usize,
+    /// Modos de LED que o modelo oferece, como os nomes de `LedMode`.
+    led_modes: Vec<&'static str>,
 }
 
 impl ModelInfo {
@@ -44,6 +46,7 @@ impl ModelInfo {
             buttons: spec.buttons.to_vec(),
             dpi_values: spec.dpi.values(),
             macro_slots: spec.macro_slots,
+            led_modes: spec.led.modes().to_vec(),
         }
     }
 }

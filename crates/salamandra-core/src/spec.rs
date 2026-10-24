@@ -41,6 +41,26 @@ pub enum LedCodec {
     Family3,
 }
 
+impl LedCodec {
+    /// Modos de LED que a interface oficial oferece, pelo nome de `LedMode`.
+    pub fn modes(self) -> &'static [&'static str] {
+        match self {
+            Self::Family0 => &["Steady", "Breathing", "Flash", "Off"],
+            // FUN_00456d90, família 3: oito posições (a ordem aqui é a de exibição).
+            Self::Family3 => &[
+                "Steady",
+                "Breathing",
+                "Rainbow",
+                "Wave",
+                "Alternating",
+                "Reactive",
+                "Flash",
+                "Off",
+            ],
+        }
+    }
+}
+
 /// Códigos do sensor 3325 para o índice 0..=50 (`DAT_004ba29f` do oficial).
 /// Acima de 50 o oficial lê a mesma tabela em `índice - 25`, com a flag ligada.
 const TABLE_3325: [u8; 51] = [

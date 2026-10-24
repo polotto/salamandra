@@ -13,7 +13,11 @@ export type LedMode =
   | { type: "Steady" }
   | { type: "Breathing"; value: { speed: number } }
   | { type: "Flash"; value: { speed: number } }
-  | { type: "Cycle" };
+  | { type: "Cycle" }
+  | { type: "Rainbow"; value: { speed: number } }
+  | { type: "Wave"; value: { speed: number } }
+  | { type: "Alternating"; value: { speed: number } }
+  | { type: "Reactive"; value: { speed: number } };
 
 export interface Led {
   rgb: [number, number, number];
@@ -91,6 +95,7 @@ export interface ModelInfo {
   dpi_values: number[];
   /** Quantas macros o mouse tem. */
   macro_slots: number;
+  led_modes: LedMode["type"][];
 }
 
 export interface Snapshot {

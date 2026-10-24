@@ -128,6 +128,18 @@ fn only_reset_and_restore_are_destructive_and_reads_are_marked() {
 }
 
 #[test]
+fn set_led_refuses_a_mode_the_model_does_not_have() {
+    let mut m = mouse();
+    let mut s = server(&mut m);
+    let r = call(
+        &mut s,
+        "mouse_set_led",
+        json!({ "profile": 1, "color": "FF8800", "mode": "rainbow", "speed": 3 }),
+    );
+    assert_eq!(r["result"]["isError"], json!(true), "{r}");
+}
+
+#[test]
 fn writes_are_visible_in_a_later_read() {
     let mut m = mouse();
     let mut s = server(&mut m);
