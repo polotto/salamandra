@@ -26,7 +26,7 @@ O que a fonte mostra (base das tasks):
 - [x] L.1 SVG mestre da salamandra (`assets/logo/salamandra.svg`), versão
   monocromática (`salamandra-mono.svg`) e fundo claro/escuro
   - pronto quando: legível em 16, 32 e 512 px, conferido por captura
-- [x] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
+- [ ] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
   ícone da bandeja (template monocromático no macOS)
   - pronto quando: `Salamandra.app` e a bandeja mostram o novo ícone
   - bandeja do macOS: silhueta template (`tray-template.png`) feita em 24/10/2026; conferência visual nos temas claro e escuro pendente
