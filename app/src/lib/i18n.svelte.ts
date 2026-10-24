@@ -1,6 +1,8 @@
 // Textos da interface em pt-BR e inglês. A chave é o texto em pt-BR.
 const en: Record<string, string> = {
   "Perfis": "Profiles",
+  "Abrir Salamandra": "Open Salamandra",
+  "Sair": "Quit",
   "Perfil": "Profile",
   "Macros": "Macros",
   "Sobre": "About",

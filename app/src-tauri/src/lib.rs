@@ -16,6 +16,13 @@ struct AppState {
     mouse: Mutex<Option<Mouse<HidTransport>>>,
     /// Perfis como estão no mouse, para gravar só o que mudou.
     loaded: Mutex<Vec<Profile>>,
+    /// Itens do menu da bandeja, para o front trocar o texto com o idioma.
+    tray_items: Mutex<
+        Option<(
+            tauri::menu::MenuItem<tauri::Wry>,
+            tauri::menu::MenuItem<tauri::Wry>,
+        )>,
+    >,
 }
 
 /// O modelo conectado, para a tela adaptar DPI, botões e o aviso de "não testado".
@@ -276,6 +283,9 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     let open = MenuItem::with_id(app, "open", "Abrir Salamandra", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Sair", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &quit])?;
+    if let Ok(mut items) = app.state::<AppState>().tray_items.lock() {
+        *items = Some((open.clone(), quit.clone()));
+    }
     let mut tray = TrayIconBuilder::new()
         .tooltip("Salamandra")
         .menu(&menu)
@@ -311,6 +321,16 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
         tray = tray.icon(icon.clone());
     }
     tray.build(app)?;
+    Ok(())
+}
+
+/// O front manda os textos já traduzidos do menu da bandeja.
+#[tauri::command]
+fn set_tray_text(state: State<AppState>, open: String, quit: String) -> Result<(), String> {
+    if let Some((o, q)) = state.tray_items.lock().map_err(|e| e.to_string())?.as_ref() {
+        o.set_text(open).map_err(|e| e.to_string())?;
+        q.set_text(quit).map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
@@ -358,7 +378,8 @@ pub fn run() {
             import_profile,
             reset_all,
             backup,
-            restore
+            restore,
+            set_tray_text
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o app")
