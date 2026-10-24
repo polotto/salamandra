@@ -97,6 +97,37 @@ The installers are not signed, so the system warns you the first time:
 - **Linux**: the `.deb` and `.rpm` already install the udev rule. With the
   AppImage, install the rule by hand (see below) and make the file executable.
 
+### Command line and MCP server
+
+Each release also has the command line (`salamandra`) and the MCP server
+(`salamandra-mcp`) in one archive per system, with no installer and no extra
+dependency:
+
+| System | File |
+| --- | --- |
+| Windows | `salamandra-cli-vx.y.z-windows-x86_64.zip` |
+| macOS (Intel and Apple Silicon) | `salamandra-cli-vx.y.z-macos-universal.tar.gz` |
+| Linux | `salamandra-cli-vx.y.z-linux-x86_64.tar.gz` |
+
+Extract it and put the two files in a folder on your `PATH`:
+
+```sh
+# macOS and Linux
+tar -xzf salamandra-cli-vx.y.z-<system>.tar.gz
+sudo install salamandra salamandra-mcp /usr/local/bin/
+salamandra show
+```
+
+On Windows, extract the zip, move `salamandra.exe` and `salamandra-mcp.exe` to
+a folder of your choice and add it to the `Path` variable.
+
+- **macOS**: if the system blocks the binaries, run
+  `xattr -d com.apple.quarantine salamandra salamandra-mcp` before installing.
+- **Linux**: install the udev rule (see below), or the commands will need root.
+
+Everything is in `salamandra --help`. The MCP server is registered in
+[MCP server](#mcp-server).
+
 ## How to build
 
 You need stable [Rust](https://rustup.rs) and [Node.js](https://nodejs.org) 22
@@ -116,10 +147,7 @@ npm run tauri build                # installer for your system
 ```
 
 Command line and MCP server, with no Tauri, Node.js, WebKit or libxdo (on
-Linux only `libudev-dev`):
-
-Each [release](https://github.com/polotto/salamandra/releases) also has these two
-binaries ready to download (`salamandra-cli-<version>-<system>`), or build them:
+Linux only `libudev-dev`), built from the repo:
 
 ```sh
 ./run.sh cli                       # target/release/salamandra and salamandra-mcp
@@ -136,6 +164,15 @@ Code with:
 ```sh
 claude mcp add salamandra -- /full/path/to/salamandra-mcp
 ```
+
+Other MCP clients take the same server in their JSON configuration:
+
+```json
+{ "mcpServers": { "salamandra": { "command": "/full/path/to/salamandra-mcp" } } }
+```
+
+With more than one supported mouse plugged in, choose one with the
+`SALAMANDRA_MODEL` environment variable (a model id, for example `m908-impact`).
 
 Tools: `mouse_show`, `mouse_macro_get`, `mouse_backup`, `mouse_set_profile`,
 `mouse_set_led`, `mouse_set_dpi`, `mouse_set_active_dpi_level`,
