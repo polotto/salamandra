@@ -114,7 +114,8 @@ Extraia e coloque os dois arquivos numa pasta do seu `PATH`:
 
 ```sh
 # macOS e Linux
-tar -xzf salamandra-cli-vx.y.z-<sistema>.tar.gz
+mkdir salamandra-cli && tar -xzf salamandra-cli-vx.y.z-<sistema>.tar.gz -C salamandra-cli
+cd salamandra-cli
 sudo install salamandra salamandra-mcp /usr/local/bin/
 salamandra show
 ```
@@ -124,7 +125,7 @@ uma pasta de sua escolha e adicione essa pasta à variável `Path`.
 
 - **macOS**: se o sistema bloquear os binários, rode
   `xattr -d com.apple.quarantine salamandra salamandra-mcp` antes de instalar.
-- **Linux**: instale a regra do udev (veja abaixo), senão os comandos vão
+- **Linux**: instale a regra do udev (veja "Linux: acesso ao mouse sem root"), senão os comandos vão
   precisar de root.
 
 Tudo está em `salamandra --help`. O registro do servidor MCP está em
@@ -188,10 +189,14 @@ também se recusa a deixar um perfil sem clique esquerdo. Faça um
 
 ### Linux: acesso ao mouse sem root
 
-Só para o AppImage ou para quem compilou (o `.deb` e o `.rpm` já fazem isso):
+Só para o AppImage, o arquivo do CLI ou quem compilou (o `.deb` e o `.rpm` já fazem isso). Num clone, copie o arquivo; senão baixe:
 
 ```sh
+# num clone:
 sudo cp packaging/linux/70-salamandra.rules /etc/udev/rules.d/
+# ou sem clone:
+sudo curl -fsSL https://raw.githubusercontent.com/polotto/salamandra/main/packaging/linux/70-salamandra.rules \
+  -o /etc/udev/rules.d/70-salamandra.rules
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 

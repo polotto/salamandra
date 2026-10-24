@@ -113,7 +113,8 @@ Extract it and put the two files in a folder on your `PATH`:
 
 ```sh
 # macOS and Linux
-tar -xzf salamandra-cli-vx.y.z-<system>.tar.gz
+mkdir salamandra-cli && tar -xzf salamandra-cli-vx.y.z-<system>.tar.gz -C salamandra-cli
+cd salamandra-cli
 sudo install salamandra salamandra-mcp /usr/local/bin/
 salamandra show
 ```
@@ -123,7 +124,8 @@ a folder of your choice and add it to the `Path` variable.
 
 - **macOS**: if the system blocks the binaries, run
   `xattr -d com.apple.quarantine salamandra salamandra-mcp` before installing.
-- **Linux**: install the udev rule (see below), or the commands will need root.
+- **Linux**: install the udev rule (see "Linux: mouse access without root"),
+  or the commands will need root.
 
 Everything is in `salamandra --help`. The MCP server is registered in
 [MCP server](#mcp-server).
@@ -185,10 +187,14 @@ leave a profile without a left click. Make a `mouse_backup` first.
 
 ### Linux: mouse access without root
 
-Only for the AppImage or a local build (the `.deb` and `.rpm` already do this):
+Only for the AppImage, the CLI archive or a local build (the `.deb` and `.rpm` already do this). From a clone, copy the file; otherwise download it:
 
 ```sh
+# from a clone:
 sudo cp packaging/linux/70-salamandra.rules /etc/udev/rules.d/
+# or without a clone:
+sudo curl -fsSL https://raw.githubusercontent.com/polotto/salamandra/main/packaging/linux/70-salamandra.rules \
+  -o /etc/udev/rules.d/70-salamandra.rules
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
