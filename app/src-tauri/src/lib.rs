@@ -298,6 +298,15 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                 show_main(tray.app_handle());
             }
         });
+    // No macOS a bandeja usa silhueta preta (template), que o sistema pinta
+    // para o tema claro ou escuro. Nos outros sistemas vai o ícone colorido.
+    #[cfg(target_os = "macos")]
+    {
+        let template =
+            tauri::image::Image::from_bytes(include_bytes!("../icons/tray-template.png"))?;
+        tray = tray.icon(template).icon_as_template(true);
+    }
+    #[cfg(not(target_os = "macos"))]
     if let Some(icon) = app.default_window_icon() {
         tray = tray.icon(icon.clone());
     }
