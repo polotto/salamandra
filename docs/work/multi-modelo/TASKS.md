@@ -26,10 +26,10 @@ O que a fonte mostra (base das tasks):
 - [x] L.1 SVG mestre da salamandra (`assets/logo/salamandra.svg`), versão
   monocromática (`salamandra-mono.svg`) e fundo claro/escuro
   - pronto quando: legível em 16, 32 e 512 px, conferido por captura
-- [ ] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
+- [x] L.2 gerar os ícones do Tauri (`npm run tauri icon`), favicon do front e
   ícone da bandeja (template monocromático no macOS)
   - pronto quando: `Salamandra.app` e a bandeja mostram o novo ícone
-  - bandeja do macOS: silhueta template (`tray-template.png`) feita em 24/10/2026; conferência visual nos temas claro e escuro pendente
+  - bandeja do macOS: silhueta template (`tray-template.png`) feita em 24/10/2026; conferido a olho nos temas claro e escuro em 24/10/2026
 - [x] L.3 logo no topo do `README.md` e `README.pt-BR.md` e no cabeçalho do app
 - [ ] L.4 atualizar `docs/work` e o card do projeto no polotto.dev só se o
   Angelo pedir (imagem em card está fora do escopo do blog)
