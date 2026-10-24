@@ -280,6 +280,7 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     use tauri::menu::{Menu, MenuItem};
     use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
+    // Textos provisórios: o front manda os traduzidos (`set_tray_text`) ao carregar.
     let open = MenuItem::with_id(app, "open", "Abrir Salamandra", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Sair", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &quit])?;
