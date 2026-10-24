@@ -24,6 +24,7 @@ pelo programa no computador; **SO** = ajuste do sistema operacional.
 | DPI | X e Y separados ("link XY") | mouse | núcleo pronto |
 | DPI | nível ativo | mouse `base + 2` | núcleo pronto |
 | Luz | fixo, respirar, piscar | mouse `0x449 + 8p` | núcleo pronto |
+| Luz | arco-íris, onda, alternado, reativo (só no M908 Impact) | mouse `0x449 + 8p`, grupo em `0x446` | núcleo pronto, sem teste no mouse |
 | Luz | cor da paleta e cor personalizada | mouse | núcleo pronto |
 | Luz | brilho baixo, médio, alto | mouse `0x44F + 8p` | núcleo pronto |
 | Luz | velocidade de respirar e de piscar (baixa, média, alta) | mouse | núcleo pronto |

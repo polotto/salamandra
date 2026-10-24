@@ -25,6 +25,7 @@ program on the computer; **OS** = operating system setting.
 | DPI | separate X and Y ("link XY") | mouse | core done |
 | DPI | active level | mouse `base + 2` | core done |
 | Lighting | static, breathing, blinking | mouse `0x449 + 8p` | core done |
+| Lighting | rainbow, wave, alternating, reactive (M908 Impact only) | mouse `0x449 + 8p`, group at `0x446` | core done, untested on the mouse |
 | Lighting | palette color and custom color | mouse | core done |
 | Lighting | brightness low, medium, high | mouse `0x44F + 8p` | core done |
 | Lighting | breathing and blinking speed (low, medium, high) | mouse | core done |

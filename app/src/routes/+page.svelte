@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { app } from "$lib/state.svelte";
-  import { onDeviceEvent, onServiceError } from "$lib/api";
+  import { onDeviceEvent, onServiceError, setTrayText } from "$lib/api";
   import { i18n, t } from "$lib/i18n.svelte";
   import ProfileEditor from "$lib/ProfileEditor.svelte";
   import MacrosView from "$lib/MacrosView.svelte";
@@ -13,6 +13,14 @@
     app.connect();
     const unlisten = [onDeviceEvent((e) => app.onDeviceEvent(e)), onServiceError((m) => (app.error = m))];
     return () => unlisten.forEach((u) => u.then((f) => f()));
+  });
+
+  // O menu da bandeja é nativo: manda os textos do idioma atual para o backend.
+  $effect(() => {
+    setTrayText(t("Abrir Salamandra"), t("Sair")).catch((e) => {
+      console.warn("bandeja", e);
+      app.error = t("Não deu para traduzir o menu da bandeja");
+    });
   });
 
   import { getVersion } from "@tauri-apps/api/app";

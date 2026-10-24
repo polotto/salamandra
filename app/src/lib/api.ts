@@ -22,3 +22,4 @@ export const onDeviceEvent = (f: (e: DeviceEvent) => void): Promise<UnlistenFn> 
   listen<DeviceEvent>("device-event", (e) => f(e.payload));
 export const onServiceError = (f: (msg: string) => void): Promise<UnlistenFn> =>
   listen<string>("service-error", (e) => f(e.payload));
+export const setTrayText = (open: string, quit: string) => invoke<void>("set_tray_text", { open, quit });

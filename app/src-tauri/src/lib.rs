@@ -16,6 +16,13 @@ struct AppState {
     mouse: Mutex<Option<Mouse<HidTransport>>>,
     /// Perfis como estão no mouse, para gravar só o que mudou.
     loaded: Mutex<Vec<Profile>>,
+    /// Itens do menu da bandeja, para o front trocar o texto com o idioma.
+    tray_items: Mutex<
+        Option<(
+            tauri::menu::MenuItem<tauri::Wry>,
+            tauri::menu::MenuItem<tauri::Wry>,
+        )>,
+    >,
 }
 
 /// O modelo conectado, para a tela adaptar DPI, botões e o aviso de "não testado".
@@ -273,9 +280,15 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
     use tauri::menu::{Menu, MenuItem};
     use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
+    // Textos provisórios: o front manda os traduzidos (`set_tray_text`) ao carregar.
     let open = MenuItem::with_id(app, "open", "Abrir Salamandra", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Sair", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&open, &quit])?;
+    *app.state::<AppState>()
+        .tray_items
+        .lock()
+        .map_err(|e| tauri::Error::Io(std::io::Error::other(e.to_string())))? =
+        Some((open.clone(), quit.clone()));
     let mut tray = TrayIconBuilder::new()
         .tooltip("Salamandra")
         .menu(&menu)
@@ -298,11 +311,29 @@ fn setup_tray(app: &tauri::App) -> tauri::Result<()> {
                 show_main(tray.app_handle());
             }
         });
+    // No macOS a bandeja usa silhueta preta (template), que o sistema pinta
+    // para o tema claro ou escuro. Nos outros sistemas vai o ícone colorido.
+    #[cfg(target_os = "macos")]
+    {
+        let template =
+            tauri::image::Image::from_bytes(include_bytes!("../icons/tray-template.png"))?;
+        tray = tray.icon(template).icon_as_template(true);
+    }
+    #[cfg(not(target_os = "macos"))]
     if let Some(icon) = app.default_window_icon() {
         tray = tray.icon(icon.clone());
     }
     tray.build(app)?;
     Ok(())
+}
+
+/// O front manda os textos já traduzidos do menu da bandeja.
+#[tauri::command]
+fn set_tray_text(state: State<AppState>, open: String, quit: String) -> Result<(), String> {
+    let guard = state.tray_items.lock().map_err(|e| e.to_string())?;
+    let (o, q) = guard.as_ref().ok_or("bandeja ainda não criada")?;
+    o.set_text(open).map_err(|e| e.to_string())?;
+    q.set_text(quit).map_err(|e| e.to_string())
 }
 
 static STOP_SERVICE: AtomicBool = AtomicBool::new(false);
@@ -349,7 +380,8 @@ pub fn run() {
             import_profile,
             reset_all,
             backup,
-            restore
+            restore,
+            set_tray_text
         ])
         .build(tauri::generate_context!())
         .expect("falha ao iniciar o app")

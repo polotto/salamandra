@@ -1,6 +1,9 @@
 // Textos da interface em pt-BR e inglês. A chave é o texto em pt-BR.
 const en: Record<string, string> = {
   "Perfis": "Profiles",
+  "Abrir Salamandra": "Open Salamandra",
+  "Sair": "Quit",
+  "Não deu para traduzir o menu da bandeja": "Could not translate the tray menu",
   "Perfil": "Profile",
   "Macros": "Macros",
   "Sobre": "About",
