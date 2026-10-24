@@ -390,7 +390,7 @@ fn impact_encodes_the_eight_official_led_modes() {
         (LedMode::Off, [0, 0, 0]),
         (LedMode::Steady, [1, 0, 2]),
         (LedMode::Breathing { speed: 3 }, [1, 3, 4]),
-        (LedMode::Rainbow, [1, 8, 8]),
+        (LedMode::Rainbow { speed: 7 }, [1, 7, 8]),
         (LedMode::Wave { speed: 5 }, [2, 5, 0]),
         (LedMode::Alternating { speed: 6 }, [6, 6, 0]),
         (LedMode::Reactive { speed: 2 }, [7, 2, 0]),
@@ -424,6 +424,15 @@ fn impact_writes_zeros_at_0x446_before_the_led_and_the_cobra_does_not() {
     new.led.rgb = [5, 5, 5];
     m.update_profile(0, &old, &new).unwrap();
     assert_eq!(&m.transport_mut().memory[0x446..0x448], &[0, 0]);
+    let addrs: Vec<u16> = m
+        .transport_mut()
+        .writes()
+        .iter()
+        .map(|p| p[2] as u16 | (p[3] as u16) << 8)
+        .collect();
+    let group = addrs.iter().position(|&a| a == 0x446).unwrap();
+    let led = addrs.iter().position(|&a| a == 0x449).unwrap();
+    assert!(group < led, "0x446 antes do LED: {addrs:x?}");
 
     let mut c = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M711_COBRA);
     c.session_delay = Duration::ZERO;
@@ -439,6 +448,6 @@ fn led_modes_of_family_3_are_rejected_by_other_models() {
     let mut c = Mouse::with_spec(Fake::new(), &salamandra_core::spec::M711_COBRA);
     c.session_delay = Duration::ZERO;
     let mut new = factory_profile(0);
-    new.led.mode = LedMode::Rainbow;
+    new.led.mode = LedMode::Rainbow { speed: 4 };
     assert!(c.update_profile(0, &blank_profile(0), &new).is_err());
 }

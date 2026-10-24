@@ -276,7 +276,7 @@ fn describe_led(mode: LedMode) -> String {
         LedMode::Breathing { speed } => format!("respirar (vel {speed})"),
         LedMode::Flash { speed } => format!("piscar (vel {speed})"),
         LedMode::Cycle => "ciclo".into(),
-        LedMode::Rainbow => "arco-íris".into(),
+        LedMode::Rainbow { speed } => format!("arco-íris (vel {speed})"),
         LedMode::Wave { speed } => format!("onda (vel {speed})"),
         LedMode::Alternating { speed } => format!("alternado (vel {speed})"),
         LedMode::Reactive { speed } => format!("reativo (vel {speed})"),
@@ -431,7 +431,7 @@ fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
                 "steady" => LedMode::Steady,
                 "breathing" => LedMode::Breathing { speed },
                 "flash" => LedMode::Flash { speed },
-                "rainbow" => LedMode::Rainbow,
+                "rainbow" => LedMode::Rainbow { speed },
                 "wave" => LedMode::Wave { speed },
                 "alternating" => LedMode::Alternating { speed },
                 "reactive" => LedMode::Reactive { speed },
@@ -669,7 +669,30 @@ mod tests {
         assert!(try_cmd(&mut m, "dpi 1 1 12000").is_err());
         assert!(try_cmd(&mut m, "button 1 9 left").is_err());
         assert!(try_cmd(&mut m, "button 1 20 left").is_err());
+        assert!(try_cmd(&mut m, "led 1 FF0000 rainbow 3").is_err());
         assert!(m.transport_mut().sent.iter().all(|p| p[1] != 0xF3));
+    }
+
+    #[test]
+    fn impact_accepts_the_extra_led_modes() {
+        let mut m = Mouse::with_spec(
+            salamandra_core::fake::MemoryTransport::default(),
+            &salamandra_core::spec::M908_IMPACT,
+        );
+        m.session_delay = std::time::Duration::ZERO;
+        execute(&mut m, "reset", &["all"]).unwrap();
+        for (mode, shown) in [
+            ("rainbow", "arco-íris (vel 3)"),
+            ("wave", "onda (vel 3)"),
+            ("alternating", "alternado (vel 3)"),
+            ("reactive", "reativo (vel 3)"),
+        ] {
+            let line = format!("led 1 FF0000 {mode} 3");
+            let a: Vec<&str> = line.split_whitespace().collect();
+            execute(&mut m, a[0], &a[1..]).unwrap();
+            let out = execute(&mut m, "show", &["1"]).unwrap();
+            assert!(out.contains(shown), "{mode}: {out}");
+        }
     }
 
     fn cmd(m: &mut Mouse<salamandra_core::fake::MemoryTransport>, line: &str) -> String {

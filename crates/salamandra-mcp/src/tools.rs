@@ -154,8 +154,8 @@ static TOOLS: [Tool; 13] = [
                 json!({
                     "profile": profile(),
                     "color": { "type": "string", "pattern": "^#?[0-9a-fA-F]{6}$", "description": "RRGGBB em hexadecimal" },
-                    "mode": { "type": "string", "enum": ["steady", "breathing", "flash", "off"], "description": "Padrão: steady" },
-                    "speed": { "type": "integer", "minimum": 1, "maximum": 8, "description": "Só para breathing e flash" },
+                    "mode": { "type": "string", "enum": ["steady", "breathing", "flash", "off", "rainbow", "wave", "alternating", "reactive"], "description": "Padrão: steady. rainbow, wave, alternating e reactive só no M908 Impact" },
+                    "speed": { "type": "integer", "minimum": 1, "maximum": 8, "description": "Para todos os modos menos steady e off" },
                     "brightness": { "type": "integer", "minimum": 1, "maximum": 3 },
                 }),
                 &["profile", "color"],

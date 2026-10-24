@@ -46,7 +46,7 @@ impl LedCodec {
     pub fn modes(self) -> &'static [&'static str] {
         match self {
             Self::Family0 => &["Steady", "Breathing", "Flash", "Off"],
-            // FUN_00456d90, família 3: oito posições.
+            // FUN_00456d90, família 3: oito posições (a ordem aqui é a de exibição).
             Self::Family3 => &[
                 "Steady",
                 "Breathing",

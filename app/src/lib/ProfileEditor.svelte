@@ -44,13 +44,13 @@
     Flash: "Piscar",
     Off: "Desligado",
   };
-  /** Só os modos que o modelo oferece, na ordem da interface oficial. */
+  /** Só os modos que o modelo oferece. */
   const modes = $derived(
     (app.model?.led_modes ?? ["Steady", "Breathing", "Flash", "Off"]).map(
       (kind) => [kind, modeLabels[kind] ?? kind] as [ModeKind, string],
     ),
   );
-  const withSpeed = ["Breathing", "Flash", "Wave", "Alternating", "Reactive"];
+  const withSpeed = ["Breathing", "Flash", "Rainbow", "Wave", "Alternating", "Reactive"];
 
   function setMode(kind: ModeKind) {
     const speed = "value" in profile.led.mode ? profile.led.mode.value.speed : 5;

@@ -109,7 +109,9 @@ pub enum LedMode {
     /// Modo `03 .. 03`, sem nome na interface oficial.
     Cycle,
     /// Só na família 3 (`FUN_00456d90`): `01 .. 08`.
-    Rainbow,
+    Rainbow {
+        speed: u8,
+    },
     /// Só na família 3: `02 .. 00`.
     Wave {
         speed: u8,
@@ -130,6 +132,7 @@ impl LedMode {
         match self {
             Self::Breathing { speed }
             | Self::Flash { speed }
+            | Self::Rainbow { speed }
             | Self::Wave { speed }
             | Self::Alternating { speed }
             | Self::Reactive { speed } => Some(speed),
@@ -140,7 +143,7 @@ impl LedMode {
     /// O modo existe no mouse? Rainbow, wave, alternating e reactive só na família 3.
     pub fn is_supported(self, codec: LedCodec) -> bool {
         match self {
-            Self::Rainbow
+            Self::Rainbow { .. }
             | Self::Wave { .. }
             | Self::Alternating { .. }
             | Self::Reactive { .. } => codec == LedCodec::Family3,
@@ -158,7 +161,7 @@ impl LedMode {
                 Self::Steady => [0x01, 0, 0x02],
                 Self::Breathing { speed } => [0x01, speed.min(8), 0x04],
                 Self::Flash { speed } => [0x01, speed.min(8), 0x10],
-                Self::Rainbow => [0x01, 8, 0x08],
+                Self::Rainbow { speed } => [0x01, speed.min(8), 0x08],
                 Self::Wave { speed } => [0x02, speed.min(8), 0x00],
                 Self::Alternating { speed } => [0x06, speed.min(8), 0x00],
                 Self::Reactive { speed } => [0x07, speed.min(8), 0x00],
@@ -172,7 +175,7 @@ impl LedMode {
             Self::Flash { speed } => [0x04, speed.min(8), 0],
             Self::Cycle => [0x03, 0, 0x03],
             // Não existem na família 0; `validate_for` recusa antes de chegar aqui.
-            Self::Rainbow
+            Self::Rainbow { .. }
             | Self::Wave { .. }
             | Self::Alternating { .. }
             | Self::Reactive { .. } => [0x01, 0, 0],
@@ -186,7 +189,7 @@ impl LedMode {
                 (0x00, _) => Self::Off,
                 (0x01, 0x04) => Self::Breathing { speed },
                 (0x01, 0x10) => Self::Flash { speed },
-                (0x01, 0x08) => Self::Rainbow,
+                (0x01, 0x08) => Self::Rainbow { speed },
                 (0x02, 0x00) => Self::Wave { speed },
                 (0x06, 0x00) => Self::Alternating { speed },
                 (0x07, 0x00) => Self::Reactive { speed },

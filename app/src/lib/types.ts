@@ -14,7 +14,7 @@ export type LedMode =
   | { type: "Breathing"; value: { speed: number } }
   | { type: "Flash"; value: { speed: number } }
   | { type: "Cycle" }
-  | { type: "Rainbow" }
+  | { type: "Rainbow"; value: { speed: number } }
   | { type: "Wave"; value: { speed: number } }
   | { type: "Alternating"; value: { speed: number } }
   | { type: "Reactive"; value: { speed: number } };
