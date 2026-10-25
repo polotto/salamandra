@@ -25,10 +25,21 @@
   const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
   const dirty = $derived(JSON.stringify(events) !== JSON.stringify(app.macros[selected] ?? []));
 
+  // Outro mouse (ou outra leitura) traz outras macros: recarrega o rascunho.
+  $effect(() => {
+    app.model?.id;
+    app.macros;
+    select(Math.min(selected, Math.max(0, (app.model?.macro_slots ?? 1) - 1)));
+  });
+  // O seletor de mouse espera a macro ser gravada ou descartada.
+  $effect(() => {
+    app.macroDirty = dirty;
+    return () => (app.macroDirty = false);
+  });
+
   onMount(async () => {
     keys.load();
     names = await macroNames();
-    select(0);
   });
   onDestroy(stopRecording);
 

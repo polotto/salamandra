@@ -14,6 +14,8 @@ class AppState {
   model = $state<ModelInfo | null>(null);
   /** Mouses conectados; o seletor só aparece com mais de um. */
   mice = $state<ConnectedMouse[]>([]);
+  /** A macro aberta na tela tem alteração não gravada. */
+  macroDirty = $state(false);
   busy = $state(false);
   message = $state<string | null>(null);
   error = $state<string | null>(null);
@@ -41,7 +43,10 @@ class AppState {
     } catch (e) {
       this.message = null;
       this.error = String(e);
-      if (String(e).includes("não encontrado")) this.connected = false;
+      if (String(e).includes("não encontrado")) {
+        this.connected = false;
+        this.mice = await api.connectedMice().catch(() => this.mice);
+      }
       return undefined;
     } finally {
       this.busy = false;

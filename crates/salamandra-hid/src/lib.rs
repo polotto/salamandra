@@ -112,7 +112,7 @@ pub fn connected_models() -> Result<Vec<&'static DeviceSpec>, Error> {
 }
 
 /// Qual modelo abrir quando o app pode ter mais de um mouse: o escolhido, se
-/// ainda estiver conectado; senão `SALAMANDRA_MODEL`; senão o primeiro, se
+/// ainda estiver conectado; senão `SALAMANDRA_MODEL`, se conectado; senão o primeiro, se
 /// houver mais de um. `None` deixa a escolha para `open` (um mouse só).
 pub fn pick_model(preferred: Option<&str>) -> Option<String> {
     let connected: Vec<&str> = connected_models()
@@ -129,7 +129,7 @@ fn choose_model(connected: &[&str], preferred: Option<&str>, env: Option<&str>) 
     if let Some(p) = preferred.filter(|p| connected.iter().any(|c| c.eq_ignore_ascii_case(p))) {
         return Some(p.to_string());
     }
-    if let Some(e) = env {
+    if let Some(e) = env.filter(|e| connected.iter().any(|c| c.eq_ignore_ascii_case(e))) {
         return Some(e.to_string());
     }
     (connected.len() > 1).then(|| connected[0].to_string())
@@ -176,6 +176,15 @@ mod tests {
         );
         assert_eq!(
             choose_model(&two, Some("m901-1"), Some("m711-cobra")).as_deref(),
+            Some("m901-1")
+        );
+    }
+
+    #[test]
+    fn an_environment_choice_that_is_unplugged_is_ignored() {
+        let two = ["m901-1", "m711-cobra"];
+        assert_eq!(
+            choose_model(&two, None, Some("m908-impact")).as_deref(),
             Some("m901-1")
         );
     }

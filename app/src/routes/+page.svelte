@@ -34,7 +34,7 @@
   let version = $state("");
   getVersion().then((v) => (version = v));
 
-  const pending = $derived(app.edited.some((_, p) => app.isDirty(p)));
+  const pending = $derived(app.macroDirty || app.edited.some((_, p) => app.isDirty(p)));
   const rgb = (c: [number, number, number]) => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 </script>
 
