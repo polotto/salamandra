@@ -6,7 +6,7 @@ use std::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 
 use salamandra_core::defaults::factory_profile_for;
-use salamandra_core::{map, Error, MacroEvent, Mouse, Profile};
+use salamandra_core::{map, Error, MacroEvent, Mouse, Profile, Transport};
 use salamandra_hid::HidTransport;
 use serde::Serialize;
 use tauri::{Emitter, Manager, State};
@@ -34,6 +34,8 @@ struct ModelInfo {
     name: &'static str,
     vendor_id: u16,
     product_id: u16,
+    /// Versão do dispositivo (`bcdDevice`); o mesmo PID cobre modelos diferentes.
+    release: Option<u16>,
     tested: bool,
     source: &'static str,
     buttons: Vec<usize>,
@@ -44,12 +46,13 @@ struct ModelInfo {
 }
 
 impl ModelInfo {
-    fn of(spec: &salamandra_core::DeviceSpec) -> Self {
+    fn of(spec: &salamandra_core::DeviceSpec, release: Option<u16>) -> Self {
         Self {
             id: spec.id,
             name: spec.name,
             vendor_id: spec.vendor_id,
             product_id: spec.product_id,
+            release,
             tested: spec.is_tested(),
             source: spec.source,
             buttons: spec.buttons.to_vec(),
@@ -108,8 +111,9 @@ fn with_mouse<R>(
 }
 
 fn read_all(mouse: &mut Mouse<HidTransport>) -> Result<Snapshot, Error> {
+    let release = mouse.transport_mut().release();
     Ok(Snapshot {
-        model: ModelInfo::of(mouse.spec()),
+        model: ModelInfo::of(mouse.spec(), release),
         active_profile: mouse.active_profile()?,
         profiles: (0..map::PROFILE_COUNT)
             .map(|p| mouse.profile(p))
