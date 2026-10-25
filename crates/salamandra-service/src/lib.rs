@@ -128,7 +128,8 @@ pub fn run(
         }
     };
     while !stop.load(Ordering::Relaxed) {
-        let choice = salamandra_hid::pick_model(chosen().as_deref());
+        let wanted = chosen();
+        let choice = salamandra_hid::pick_model(wanted.as_deref());
         let device = match HidTransport::open_model(choice.as_deref()) {
             Ok((d, _)) => d,
             Err(e) => {
@@ -140,7 +141,8 @@ pub fn run(
             }
         };
         while !stop.load(Ordering::Relaxed) {
-            if salamandra_hid::pick_model(chosen().as_deref()) != choice {
+            // Só compara a escolha do usuário (um lock); nada de listar o HID a cada leitura.
+            if chosen() != wanted {
                 break;
             }
             match device.read_event(250) {

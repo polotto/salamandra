@@ -68,7 +68,8 @@ struct Snapshot {
     macros: Vec<Vec<MacroEvent>>,
 }
 
-/// Roda `f` com o mouse aberto (abre se preciso). Em falha de comunicação,
+/// Roda `f` com o mouse aberto (abre se preciso). Reabre sempre o modelo escolhido
+/// e nunca troca de mouse sozinho: quem troca é `connect`, que relê os perfis. Em falha de comunicação,
 /// descarta a conexão para a próxima chamada reabrir.
 fn with_mouse<R>(
     state: &AppState,
