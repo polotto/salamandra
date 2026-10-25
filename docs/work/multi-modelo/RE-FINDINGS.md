@@ -82,7 +82,7 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
 
 ## Macros e botões por modelo, 24/10/2026
 - Macros (`FUN_00459cf0`): grava em `0x478 + 200 * slot`, 200 bytes, 3 bytes por
-  evento com terminador `06 00 01`. Não há ramo por família nem por nome de modelo:
+  evento (o enchimento do resto do slot não foi decifrado e não é usado). Não há ramo por família nem por nome de modelo:
   o layout é o do M901-1 para todos. Não explica o limite de 1 macro do Invader (vem
   só do autor do mouse_m908).
 - Botões (`FUN_0045c570`): o endereço é `0x42 + base do perfil + 4 * slot`. O oficial
@@ -94,7 +94,8 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
   índices 7 a 0x16 em +1 slot (índice 7 vai para `0x20`, o slot 8), e esses índices
   passam dos 20 botões do mapa do M901-1 (0 a 19): é outro mouse, fora do nosso lote. Isso só muda qual botão da interface do oficial é qual
   slot; o Salamandra numera por slot, então a gravação não muda, mas o nome do botão
-  na carcaça do Invader pode estar trocado entre os slots 3, 4 e 5 (a conferir).
+  na carcaça do Invader pode estar trocado entre os slots 3, 4 e 5 (a partir de 0; 4, 5
+  e 6 na página do modelo), a conferir.
 
 ## Primeiro lote: o que já se sabe
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
