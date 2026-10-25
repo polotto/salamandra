@@ -13,8 +13,8 @@ Situação: **não testado**. Nunca foi conferido no mouse físico. O app e o CL
 | Macros | 1 posição | o autor do `mouse_m908` escreveu que o modelo "parece aceitar só uma macro" |
 
 ## Ainda sem confirmar
-- O layout de macros da família 2 no oficial (`FUN_00458f90`) não foi lido. Só a posição 1 é oferecida até lá.
-- A captura do `mouse_m908` usa para este modelo uma codificação de LED diferente da do software oficial. Seguimos o oficial.
+- O layout de macros da família 2 no oficial ainda não foi lido (`FUN_00459cf0` e `FUN_0045c570` são as candidatas). Só a posição 1 é oferecida até lá.
+- A captura do `mouse_m908` usa para este modelo uma codificação de LED diferente da do software oficial. Seguimos o modo do oficial, com o byte `sub` com que o M901-1 foi testado (o código oficial grava `1` ali nas famílias 0 a 2; ver as notas de engenharia reversa).
 - Nome dos botões na carcaça.
 
 ## Como ajudar

@@ -13,8 +13,8 @@ Status: **untested**. Never checked on the physical mouse. The app and the CLI w
 | Macros | 1 slot | the `mouse_m908` author wrote that this model "only appears to support a single macro" |
 
 ## Still unconfirmed
-- The official macro layout for family 2 (`FUN_00458f90`) was not read. Only slot 1 is offered until it is.
-- The `mouse_m908` capture uses a different LED coding for this model than the official software. We follow the official one.
+- The official macro layout for family 2 was not read yet (`FUN_00459cf0` and `FUN_0045c570` are the candidates). Only slot 1 is offered until it is.
+- The `mouse_m908` capture uses a different LED coding for this model than the official software. We follow the official mode, with the `sub` byte the M901-1 was tested with (the official code writes `1` there for families 0 to 2; see the reverse engineering notes).
 - Button names on the shell.
 
 ## How to help

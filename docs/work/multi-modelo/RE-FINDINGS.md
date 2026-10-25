@@ -44,7 +44,7 @@ Cada sensor tem tabela de DPI própria em `FUN_00457b30` (códigos de 8 bits
 indexados pelo passo de 100 DPI, com limites 0x33, 0x5D, 0x79, 0x141, 0x190,
 0x208 e outros).
 
-## LED (`FUN_00456d90`, endereço `0x0449 + 8p`, len 7)
+## LED (`FUN_00456d90`, famílias 0 a 3: endereço `0x0449 + 8p`, len 7; a família 4 é outra)
 Mesmo endereço do M901-1, mas o modo e a velocidade mudam por família:
 - famílias 0 a 2: modo em `local_30` (apagado 0, fixo 1, respirar 2, piscar 4,
   ...) com o byte de velocidade `9 - v`. A família 0 já é o que temos, com o byte `sub` em aberto (seção abaixo).
