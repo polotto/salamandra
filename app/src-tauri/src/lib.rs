@@ -74,9 +74,9 @@ fn with_mouse<R>(
     state: &AppState,
     f: impl FnOnce(&mut Mouse<HidTransport>) -> Result<R, Error>,
 ) -> Result<R, String> {
+    let preferred = state.preferred.lock().map_err(|e| e.to_string())?.clone();
     let mut guard = state.mouse.lock().map_err(|e| e.to_string())?;
     if guard.is_none() {
-        let preferred = state.preferred.lock().map_err(|e| e.to_string())?.clone();
         let mouse = match preferred {
             Some(id) => salamandra_hid::open_model(Some(&id)),
             None => salamandra_hid::open(),
@@ -137,25 +137,28 @@ fn connected_mice() -> Result<Vec<ConnectedMouse>, String> {
 
 /// Lê o mouse. Com `model`, passa a usar esse modelo (escolha do seletor).
 /// Com mais de um conectado e nenhuma escolha, fica com o primeiro.
+/// O estado só muda depois da leitura dar certo: em falha, segue o mouse anterior.
 #[tauri::command]
 fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, String> {
-    {
-        let mut preferred = state.preferred.lock().map_err(|e| e.to_string())?;
-        let changed = model.is_some() && *preferred != model;
-        if model.is_some() {
-            *preferred = model;
-        } else if preferred.is_none() && std::env::var("SALAMANDRA_MODEL").is_err() {
-            if let Ok(found) = salamandra_hid::connected_models() {
-                if found.len() > 1 {
-                    *preferred = Some(found[0].id.to_string());
-                }
+    let mut choice = match model {
+        Some(id) => Some(id),
+        None => state.preferred.lock().map_err(|e| e.to_string())?.clone(),
+    };
+    if choice.is_none() && std::env::var("SALAMANDRA_MODEL").is_err() {
+        if let Ok(found) = salamandra_hid::connected_models() {
+            if found.len() > 1 {
+                choice = Some(found[0].id.to_string());
             }
         }
-        if changed {
-            *state.mouse.lock().map_err(|e| e.to_string())? = None;
-        }
     }
-    let snapshot = with_mouse(&state, read_all)?;
+    let mut mouse = match &choice {
+        Some(id) => salamandra_hid::open_model(Some(id)),
+        None => salamandra_hid::open(),
+    }
+    .map_err(|e| e.to_string())?;
+    let snapshot = read_all(&mut mouse).map_err(|e| e.to_string())?;
+    *state.mouse.lock().map_err(|e| e.to_string())? = Some(mouse);
+    *state.preferred.lock().map_err(|e| e.to_string())? = choice;
     remember(&state, &snapshot);
     Ok(snapshot)
 }

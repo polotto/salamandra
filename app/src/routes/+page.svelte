@@ -27,6 +27,7 @@
   let version = $state("");
   getVersion().then((v) => (version = v));
 
+  const pending = $derived(app.edited.some((_, p) => app.isDirty(p)));
   const rgb = (c: [number, number, number]) => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 </script>
 
@@ -38,9 +39,14 @@
         class="picker"
         aria-label={t("Mouse")}
         value={app.model?.id}
-        disabled={app.busy || app.edited.some((_, p) => app.isDirty(p))}
-        title={t("Grave ou descarte as alterações para trocar de mouse")}
-        onchange={(e) => app.connect(e.currentTarget.value)}
+        disabled={app.busy || pending}
+        title={pending ? t("Grave ou descarte as alterações para trocar de mouse") : undefined}
+        onchange={async (e) => {
+          const select = e.currentTarget;
+          await app.connect(select.value);
+          // Em falha o modelo não muda: o seletor volta para o mouse que segue em uso.
+          select.value = app.model?.id ?? "";
+        }}
       >
         {#each app.mice as m}<option value={m.id}>{m.name}</option>{/each}
       </select>
