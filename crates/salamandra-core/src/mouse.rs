@@ -17,6 +17,12 @@ use crate::Error;
 pub trait Transport {
     fn set_feature(&mut self, report: &[u8]) -> Result<(), Error>;
     fn get_feature(&mut self, report_id: u8, size: usize) -> Result<Vec<u8>, Error>;
+
+    /// Versão do dispositivo (`bcdDevice`), se o transporte a conhece. O oficial a usa
+    /// para dar nome ao mouse; aqui só informa (ver `RE-FINDINGS.md`).
+    fn release(&self) -> Option<u16> {
+        None
+    }
 }
 
 /// `F1` enviados ao fim de uma sessão, como `FUN_00412e90`.

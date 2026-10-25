@@ -394,13 +394,15 @@ fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
                 Some(p) => vec![profile_arg(p)?],
                 None => (0..map::PROFILE_COUNT).collect(),
             };
+            let release = mouse.transport_mut().release();
             let spec = mouse.spec();
             say!(
                 out,
-                "Modelo: {} ({:04x}:{:04x})",
+                "Modelo: {} ({:04x}:{:04x}{})",
                 spec.name,
                 spec.vendor_id,
-                spec.product_id
+                spec.product_id,
+                release.map_or(String::new(), |r| format!(", versão {r}"))
             );
             if let Some(w) = spec.warning() {
                 say!(out, "{w}");
@@ -568,6 +570,19 @@ fn run_command<T: Transport>(mouse: &mut Mouse<T>, cmd: &str, a: &[&str]) -> Res
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn show_prints_the_device_version_when_known() {
+        let mut m = fake();
+        let text = execute(&mut m, "show", &["1"]).unwrap();
+        assert!(!text.contains("versão"), "{text}");
+        m.transport_mut().release = Some(512);
+        let text = execute(&mut m, "show", &["1"]).unwrap();
+        assert!(
+            text.lines().next().unwrap().contains(", versão 512)"),
+            "{text}"
+        );
+    }
 
     #[test]
     fn parses_actions() {
