@@ -122,10 +122,9 @@ Nenhum dos dois entra no lote.
 - Bate com o `buttons.rs`: `81`, `82`, `83` (cliques), `84`/`85` (voltar e avançar), `88` a
   `8d` (DPI, rolagem, perfil), `97`/`98` (taxa), `8e 01 ff <id>` (atalhos), `8e 01 <uso>`
   (mídia), `8f <mod> <tecla>` (combo), `90` (tecla), `91` (macro), `99` (tiro rápido) e
-  `9b 04` (modo de LED).
+  `9b 04` (modo de LED) e `00 00 00 00` (desligado, id `0x2f`).
 - Existem na tabela e não oferecemos, sem significado conhecido: `30 00 00 00` (id `0x31`),
-  `94` (id `0x3a`), `95` (id `0x07`), `9a 01 01 01` (id `0x40`), `9d` (id `0x0c`) e
-  `00 00 00 00` (id `0x2f`, desligado). Ficam como dado; testar no mouse antes de expor.
+  `94` (id `0x3a`), `95` (id `0x07`), `9a 01 01 01` (id `0x40`), e `9d` (id `0x0c`). Ficam como dado; testar no mouse antes de expor.
 
 ## Lista de mouses do oficial (`Config.ini`, 25/10/2026)
 O pacote Cobra V2 traz `REDRAGON Gaming Mouse/Config.ini` com a seção `[Mouse_List]`
