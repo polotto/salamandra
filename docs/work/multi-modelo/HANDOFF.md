@@ -57,7 +57,7 @@ o `rea doctor` diz que o Ghidra não existe).
 - Dois mouses do mesmo modelo aparecem como um só no seletor (o id do modelo identifica o mouse). Para separar, guardar o caminho HID.
 - Qual SKU exato é o "Cobra" da fonte (`fc30`) em relação ao King Cobra 2 e
   ao Cobra V2 do site. Pista: no `Config.ini` do oficial o `fc30` é M711 (versão 1 a
-  767) ou M711-FPS-1 (768 a 1535), mas a lista não diz qual nome comercial é qual.
+  767), M711-FPS-1 (768 a 1535), M711-FPS-2 (1536 a 1791) ou 2710-H (1792 a 2047), mas a lista não diz qual nome comercial é qual.
 
 ## Como verificar
 `verify .` e, para um modelo novo, o teste de montagem de pacote contra a captura.
