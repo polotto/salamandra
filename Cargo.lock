@@ -2658,7 +2658,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
 name = "salamandra-app"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "salamandra-core",
  "salamandra-hid",
@@ -2672,7 +2672,7 @@ dependencies = [
 
 [[package]]
 name = "salamandra-cli"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "salamandra-core",
  "salamandra-hid",
@@ -2681,14 +2681,14 @@ dependencies = [
 
 [[package]]
 name = "salamandra-core"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "salamandra-hid"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "hidapi",
  "salamandra-core",
@@ -2696,7 +2696,7 @@ dependencies = [
 
 [[package]]
 name = "salamandra-mcp"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "salamandra-cli",
  "salamandra-core",
@@ -2705,7 +2705,7 @@ dependencies = [
 
 [[package]]
 name = "salamandra-service"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "enigo",
  "salamandra-core",
