@@ -43,7 +43,7 @@ O que a fonte mostra (base das tasks):
 - [x] M.2 o `Mouse` e o `model.rs` passam a receber a spec; codificação de DPI
   por estratégia (`DpiCodec`) em vez de função fixa
   - pronto quando: teste de bytes do M901-1 idêntico ao de hoje
-- [x] M.3 detecção (feito: `--model`/`SALAMANDRA_MODEL` escolhem entre vários; o app tem seletor na barra lateral quando há mais de um; o serviço de atalhos ainda abre só com um mouse): `salamandra-hid` enumera todos os PIDs da tabela; com mais
+- [x] M.3 detecção (feito: `--model`/`SALAMANDRA_MODEL` escolhem entre vários; o app tem seletor na barra lateral quando há mais de um; o serviço de atalhos segue o mesmo mouse): `salamandra-hid` enumera todos os PIDs da tabela; com mais
   de um mouse ligado o app e o CLI pedem qual usar; `Error::NotFound` e o
   texto "mouse 04d9:fc40 não encontrado" deixam de citar um modelo fixo
 - [ ] M.4 (feito para o M711 Cobra) `docs/models/<slug>.md` (en e pt-BR) por modelo: origem de cada campo,

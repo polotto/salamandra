@@ -7,6 +7,7 @@ fn main() {
     println!("salamandra-service: escutando o mouse (Ctrl+C para sair)");
     salamandra_service::run(
         &stop,
+        || None,
         |event| println!("{event:?}"),
         |error| eprintln!("erro: {error}"),
     );

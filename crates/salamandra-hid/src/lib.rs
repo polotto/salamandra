@@ -20,17 +20,7 @@ impl HidTransport {
     /// escolhe qual; sem ele, o erro lista os encontrados.
     pub fn open_model(prefer: Option<&str>) -> Result<(Self, &'static DeviceSpec), Error> {
         let api = HidApi::new().map_err(io)?;
-        let mut found: Vec<(&'static DeviceSpec, &hidapi::DeviceInfo)> = Vec::new();
-        for info in api.device_list() {
-            if info.usage_page() != USAGE_PAGE {
-                continue;
-            }
-            if let Some(model) = spec::by_product_id(info.vendor_id(), info.product_id()) {
-                if !found.iter().any(|(m, _)| m.id == model.id) {
-                    found.push((model, info));
-                }
-            }
-        }
+        let found = enumerate(&api);
         let (model, info) =
             match (prefer, found.as_slice()) {
                 (_, []) => return Err(Error::NotFound),
@@ -99,21 +89,50 @@ pub fn open_model(prefer: Option<&str>) -> Result<Mouse<HidTransport>, Error> {
     Ok(Mouse::with_spec(transport, model))
 }
 
-/// Modelos suportados que estão conectados agora, na ordem em que o sistema os lista.
-pub fn connected_models() -> Result<Vec<&'static DeviceSpec>, Error> {
-    let api = HidApi::new().map_err(io)?;
-    let mut found: Vec<&'static DeviceSpec> = Vec::new();
+/// Mouses suportados conectados, um por modelo, na ordem em que o sistema os lista.
+fn enumerate(api: &HidApi) -> Vec<(&'static DeviceSpec, &hidapi::DeviceInfo)> {
+    let mut found: Vec<(&'static DeviceSpec, &hidapi::DeviceInfo)> = Vec::new();
     for info in api.device_list() {
         if info.usage_page() != USAGE_PAGE {
             continue;
         }
         if let Some(model) = spec::by_product_id(info.vendor_id(), info.product_id()) {
-            if !found.iter().any(|m| m.id == model.id) {
-                found.push(model);
+            if !found.iter().any(|(m, _)| m.id == model.id) {
+                found.push((model, info));
             }
         }
     }
-    Ok(found)
+    found
+}
+
+/// Modelos suportados que estão conectados agora.
+pub fn connected_models() -> Result<Vec<&'static DeviceSpec>, Error> {
+    let api = HidApi::new().map_err(io)?;
+    Ok(enumerate(&api).into_iter().map(|(m, _)| m).collect())
+}
+
+/// Qual modelo abrir quando o app pode ter mais de um mouse: o escolhido, se
+/// ainda estiver conectado; senão `SALAMANDRA_MODEL`; senão o primeiro, se
+/// houver mais de um. `None` deixa a escolha para `open` (um mouse só).
+pub fn pick_model(preferred: Option<&str>) -> Option<String> {
+    let connected: Vec<&str> = connected_models()
+        .map(|list| list.into_iter().map(|m| m.id).collect())
+        .unwrap_or_default();
+    choose_model(
+        &connected,
+        preferred,
+        std::env::var("SALAMANDRA_MODEL").ok().as_deref(),
+    )
+}
+
+fn choose_model(connected: &[&str], preferred: Option<&str>, env: Option<&str>) -> Option<String> {
+    if let Some(p) = preferred.filter(|p| connected.iter().any(|c| c.eq_ignore_ascii_case(p))) {
+        return Some(p.to_string());
+    }
+    if let Some(e) = env {
+        return Some(e.to_string());
+    }
+    (connected.len() > 1).then(|| connected[0].to_string())
 }
 
 /// Modelos que o Salamandra conhece, para listar na interface.
@@ -123,4 +142,47 @@ pub fn known_models() -> &'static [DeviceSpec] {
 
 fn io(e: hidapi::HidError) -> Error {
     Error::Io(e.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::choose_model;
+
+    #[test]
+    fn keeps_the_choice_while_it_is_connected() {
+        let two = ["m901-1", "m711-cobra"];
+        assert_eq!(
+            choose_model(&two, Some("m711-cobra"), None).as_deref(),
+            Some("m711-cobra")
+        );
+    }
+
+    #[test]
+    fn drops_a_choice_that_was_unplugged() {
+        let two = ["m901-1", "m711-cobra"];
+        assert_eq!(
+            choose_model(&two, Some("m908-impact"), None).as_deref(),
+            Some("m901-1")
+        );
+        assert_eq!(choose_model(&["m901-1"], Some("m908-impact"), None), None);
+    }
+
+    #[test]
+    fn the_environment_wins_over_the_first_mouse_but_not_over_a_choice() {
+        let two = ["m901-1", "m711-cobra"];
+        assert_eq!(
+            choose_model(&two, None, Some("m711-cobra")).as_deref(),
+            Some("m711-cobra")
+        );
+        assert_eq!(
+            choose_model(&two, Some("m901-1"), Some("m711-cobra")).as_deref(),
+            Some("m901-1")
+        );
+    }
+
+    #[test]
+    fn one_mouse_needs_no_choice() {
+        assert_eq!(choose_model(&["m901-1"], None, None), None);
+        assert_eq!(choose_model(&[], None, None), None);
+    }
 }

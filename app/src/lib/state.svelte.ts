@@ -50,10 +50,10 @@ class AppState {
 
   async connect(model?: string) {
     const snap = await this.run("Lendo o mouse...", () => api.connect(model));
+    this.mice = await api.connectedMice().catch(() => this.mice);
     if (!snap) return;
     this.connected = true;
     this.applySnapshot(snap);
-    this.mice = await api.connectedMice().catch(() => []);
   }
 
   async save(p: number) {

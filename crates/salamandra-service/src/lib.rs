@@ -112,9 +112,11 @@ fn to_enigo(k: HostKey) -> Option<Key> {
 
 /// Escuta o mouse até `stop` virar `true`. Executa os atalhos e repassa todo
 /// aviso para `on_event` (a interface usa para mostrar troca de perfil e DPI).
-/// Se o mouse sumir, espera ele voltar.
+/// Se o mouse sumir, espera ele voltar. `chosen` devolve o modelo que o usuário
+/// escolheu (com mais de um mouse); quando muda, o serviço reabre no novo.
 pub fn run(
     stop: &AtomicBool,
+    chosen: impl Fn() -> Option<String>,
     mut on_event: impl FnMut(&DeviceEvent),
     mut on_error: impl FnMut(&Error),
 ) {
@@ -126,8 +128,9 @@ pub fn run(
         }
     };
     while !stop.load(Ordering::Relaxed) {
-        let device = match HidTransport::open() {
-            Ok(d) => d,
+        let choice = salamandra_hid::pick_model(chosen().as_deref());
+        let device = match HidTransport::open_model(choice.as_deref()) {
+            Ok((d, _)) => d,
             Err(e) => {
                 if e != Error::NotFound {
                     on_error(&e);
@@ -137,6 +140,9 @@ pub fn run(
             }
         };
         while !stop.load(Ordering::Relaxed) {
+            if salamandra_hid::pick_model(chosen().as_deref()) != choice {
+                break;
+            }
             match device.read_event(250) {
                 Ok(Some(report)) => {
                     let Some(event) = parse_event(&report) else {

@@ -140,17 +140,11 @@ fn connected_mice() -> Result<Vec<ConnectedMouse>, String> {
 /// O estado só muda depois da leitura dar certo: em falha, segue o mouse anterior.
 #[tauri::command]
 fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, String> {
-    let mut choice = match model {
+    let wanted = match model {
         Some(id) => Some(id),
         None => state.preferred.lock().map_err(|e| e.to_string())?.clone(),
     };
-    if choice.is_none() && std::env::var("SALAMANDRA_MODEL").is_err() {
-        if let Ok(found) = salamandra_hid::connected_models() {
-            if found.len() > 1 {
-                choice = Some(found[0].id.to_string());
-            }
-        }
-    }
+    let choice = salamandra_hid::pick_model(wanted.as_deref());
     let mut mouse = match &choice {
         Some(id) => salamandra_hid::open_model(Some(id)),
         None => salamandra_hid::open(),
@@ -397,6 +391,11 @@ pub fn run() {
                 let errors = handle.clone();
                 salamandra_service::run(
                     &STOP_SERVICE,
+                    || {
+                        let state = handle.state::<AppState>();
+                        let choice = state.preferred.lock().ok().and_then(|p| p.clone());
+                        choice
+                    },
                     |event| {
                         let _ = handle.emit("device-event", event);
                     },
