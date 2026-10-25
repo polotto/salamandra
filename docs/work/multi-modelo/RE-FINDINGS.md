@@ -47,13 +47,13 @@ indexados pelo passo de 100 DPI, com limites 0x33, 0x5D, 0x79, 0x141, 0x190,
 ## LED (`FUN_00456d90`, endereço `0x0449 + 8p`, len 7)
 Mesmo endereço do M901-1, mas o modo e a velocidade mudam por família:
 - famílias 0 a 2: modo em `local_30` (apagado 0, fixo 1, respirar 2, piscar 4,
-  ...) com o byte de velocidade `9 - v`. Família 0 já é o que temos.
+  ...) com o byte de velocidade `9 - v`. A família 0 já é o que temos, com o byte `sub` em aberto (seção abaixo).
 - família 3: oito posições com outros pares (modo, sub), listadas abaixo na seção
   "Impact, LED". Velocidade `9 - v` em todas menos fixo e desligado.
 - família 4: o caminho de gravação é outro: cinco gravações por zona, em `0x448`,
   `0x450`, `0x458`, `0x460` e `0x468` (seção "LED das famílias 1, 2 e 4").
-Tabela de modos da família 3: feita (ver abaixo). Famílias 1 e 2: resolvido em 24/10/2026
-(abaixo). Família 4: lida, sem modelo para testar (abaixo).
+Tabela de modos da família 3: feita (ver abaixo). Famílias 1 e 2: lidas em 24/10/2026, com
+divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para testar (abaixo).
 
 ## LED das famílias 1, 2 e 4, 24/10/2026
 - Famílias 0, 1 e 2 caem no mesmo ramo de `FUN_00456d90` (`uVar4 < 3`), então a 1 e a
@@ -85,7 +85,7 @@ Tabela de modos da família 3: feita (ver abaixo). Famílias 1 e 2: resolvido em
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
 | --- | --- | --- | --- |
 | M711 Cobra (`fc30`) | 0 | 3325 | quase tudo; muda só a tabela de DPI |
-| INVADER (`fc4f`) | 2 | 3325 | LED e botões podem divergir; DPI de 3325 |
+| INVADER (`fc4f`) | 2 | 3325 | LED como a família 0 (`sub` em aberto); botões a confirmar; DPI de 3325 |
 | IMPACT (`fc4d`) | 3 | 3327 | LED e botões da família 3 |
 | GRIFFIN (`fc38`) | 3 | 3212 | família 3 com outra tabela de DPI |
 
@@ -151,4 +151,5 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
   (100 -> 2, 900 -> 20, 6400 -> 73 flag 1, máximo 7200). Divergência: **dúvida em
   aberto**, o Griffin não entra até alguém com o mouse resolver.
 - A captura do mouse_m908 codifica o LED do Cobra e do Invader diferente do
-  oficial (par modo/sub genérico). Seguimos o oficial, que no M901-1 foi testado.
+  oficial (par modo/sub genérico). Seguimos o modo do oficial com o `sub 0` testado no M901-1 (divergência de `sub` em
+  "LED das famílias 1, 2 e 4").
