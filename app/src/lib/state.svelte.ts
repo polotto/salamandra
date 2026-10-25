@@ -43,10 +43,8 @@ class AppState {
     } catch (e) {
       this.message = null;
       this.error = String(e);
-      if (String(e).includes("não encontrado")) {
-        this.connected = false;
-        this.mice = await api.connectedMice().catch(() => this.mice);
-      }
+      if (String(e).includes("não encontrado")) this.connected = false;
+      this.mice = await api.connectedMice().catch(() => this.mice);
       return undefined;
     } finally {
       this.busy = false;

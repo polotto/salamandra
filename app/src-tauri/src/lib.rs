@@ -152,8 +152,10 @@ fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, St
     }
     .map_err(|e| e.to_string())?;
     let snapshot = read_all(&mut mouse).map_err(|e| e.to_string())?;
+    // Guarda o modelo aberto de fato, para reabrir sempre o mesmo e nunca outro.
+    let opened = mouse.spec().id.to_string();
     *state.mouse.lock().map_err(|e| e.to_string())? = Some(mouse);
-    *state.preferred.lock().map_err(|e| e.to_string())? = choice;
+    *state.preferred.lock().map_err(|e| e.to_string())? = Some(opened);
     remember(&state, &snapshot);
     Ok(snapshot)
 }
