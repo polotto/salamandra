@@ -52,7 +52,28 @@ Mesmo endereço do M901-1, mas o modo e a velocidade mudam por família:
   "Impact, LED". Velocidade `9 - v` em todas menos fixo e desligado.
 - família 4: o caminho de gravação é outro, com endereços `0x48`, `0x50`, `0x58`,
   `0x60`, `0x68` (uma gravação por zona ou perfil, ainda não confirmado).
-Tabela de modos da família 3: feita (ver abaixo). Famílias 1, 2 e 4: pendente (R.4).
+Tabela de modos da família 3: feita (ver abaixo). Famílias 1 e 2: resolvido em 24/10/2026
+(abaixo). Família 4: lida, sem modelo para testar (abaixo).
+
+## LED das famílias 1, 2 e 4, 24/10/2026
+- Famílias 0, 1 e 2 caem no mesmo ramo de `FUN_00456d90` (`uVar4 < 3`), então 1 e 2
+  usam o mesmo codec que a 0 (`LedCodec::Family0`), que é o que o Invader (família 2)
+  já usa. Nada a acrescentar no código. O ramo mapeia as posições de modo do oficial
+  (0 a 8) para (modo, sub): 0 `2/1` respirar, 1 `3/1`, 2 `1/1` fixo (sem velocidade),
+  3 `5/1`, 6 `4/1` piscar, 7 `0/0` desligado, 8 `2/3`. Só oferecemos os quatro que o
+  M901-1 testado usa (fixo, respirar, piscar, desligado); as posições 1, 3 e 8 não
+  têm nome conhecido e ficam fora.
+- Família 4 (só "2931-A V1" e mais um nome, `DAT_004b1b99`): o LED não é um bloco de
+  7 bytes em `0x449 + 8p`. São cinco gravações de 8 bytes, uma por zona, em `0x448`,
+  `0x450`, `0x458`, `0x460` e `0x468`, com dados `[0x81 (0x80 na zona 2), r, g, b,
+  modo da zona, 9 - velocidade, flag, brilho]` e a quinta zona toda zero com `0x80`.
+  Nenhum modelo do primeiro lote é família 4: não implementado, sem como testar.
+- `FUN_00458530` também grava LED por zona (mesmos endereços de 8 bytes, ramos para
+  família 3 e 4); a função que decide o que ela é no fluxo do oficial não foi
+  identificada. `FUN_00458f90` não é macro: só envia `F1 02 m` com m = `04`, `01`,
+  `02`, `08`, `10` em sequência (seleção de bloco, já coberta pelo envelope atual).
+  `FUN_00459cf0` e `FUN_0045c570` (botões e macros por família) seguem sem leitura
+  completa: são os 241 e 622 linhas que faltam.
 
 ## Primeiro lote: o que já se sabe
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
