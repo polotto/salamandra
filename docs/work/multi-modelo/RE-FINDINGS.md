@@ -132,7 +132,7 @@ Nenhum dos dois entra no lote.
 `_SetReadCallBack` e `_SetMultiCaptureDevice`, e usa `SetupDi*`, `HidD_GetAttributes`,
 `HidD_SetFeature`/`GetFeature`, `ReadFile` e `RegisterDeviceNotification` (janela e thread
 para detectar o mouse ligado ou desligado). Ela registra em depuração o VID, o PID e a versão do dispositivo. `HidD_GetAttributes` devolve o `VersionNumber`,
-que é o `bcdDevice`: isso sustenta que `VER_MIN`/`VER_MAX` do `Config.ini` é o mesmo
+que é o `bcdDevice` (o `hid_get_release_number` da `HIDApi.dll` devolve o mesmo número): isso indica que `VER_MIN`/`VER_MAX` do `Config.ini` é o mesmo
 número que o `salamandra show` imprime (512 no M901-1). Os pacotes `F3`/`F2`/`F1`/`F5`
 saem de `RDCfg.exe` pela `HIDApi.dll` (`hid_send_feature_report`), já mapeados.
 
@@ -140,8 +140,8 @@ saem de `RDCfg.exe` pela `HIDApi.dll` (`hid_send_feature_report`), já mapeados.
 O pacote Cobra V2 traz `REDRAGON Gaming Mouse/Config.ini` com a seção `[Mouse_List]`
 (46 entradas: `VID_n`, `PID_n`, `VER_MIN_n`, `VER_MAX_n`, `PRODUCT_NAME_n` e as
 páginas de uso). O `RDCfg.exe` não tem tabela de PIDs no código; o nome do modelo
-sai dessa lista. O VID é sempre `04d9`. `VER_MIN`/`VER_MAX` (decimal) parecem ser a
-versão do dispositivo (`hid_get_release_number`, que a `HIDApi.dll` exporta); a
+sai dessa lista. O VID é sempre `04d9`. `VER_MIN`/`VER_MAX` (decimal) provavelmente são a
+versão do dispositivo; a
 origem provável da versão: `HidD_GetAttributes` (seção "`HidDevice.dll`"), ou seja o `bcdDevice`.
 
 O mesmo PID serve a vários nomes, separados só pela versão:
