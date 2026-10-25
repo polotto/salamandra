@@ -3,7 +3,7 @@
 Fonte: `RDCfg.exe` do pacote "REDRAGON Gaming Mouse" (site da Redragon, link da
 Cobra V2), sha256 `c0fe791f...c8c703`, analisado com `rea` 6.4 e Ghidra 12.1.4.
 Para interoperabilidade. Nada do oficial entra no repo: só estes fatos, cada um
-com a função de origem. Atualizado em 22/10/2026.
+com a função de origem. Atualizado em 24/10/2026.
 
 ## Como o oficial escolhe o layout
 O programa não decide por VID/PID. Ele guarda um **nome de modelo** (string,
@@ -50,30 +50,36 @@ Mesmo endereço do M901-1, mas o modo e a velocidade mudam por família:
   ...) com o byte de velocidade `9 - v`. Família 0 já é o que temos.
 - família 3: oito posições com outros pares (modo, sub), listadas abaixo na seção
   "Impact, LED". Velocidade `9 - v` em todas menos fixo e desligado.
-- família 4: o caminho de gravação é outro, com endereços `0x48`, `0x50`, `0x58`,
-  `0x60`, `0x68` (uma gravação por zona ou perfil, ainda não confirmado).
+- família 4: o caminho de gravação é outro: cinco gravações por zona, em `0x448`,
+  `0x450`, `0x458`, `0x460` e `0x468` (seção "LED das famílias 1, 2 e 4").
 Tabela de modos da família 3: feita (ver abaixo). Famílias 1 e 2: resolvido em 24/10/2026
 (abaixo). Família 4: lida, sem modelo para testar (abaixo).
 
 ## LED das famílias 1, 2 e 4, 24/10/2026
-- Famílias 0, 1 e 2 caem no mesmo ramo de `FUN_00456d90` (`uVar4 < 3`), então 1 e 2
-  usam o mesmo codec que a 0 (`LedCodec::Family0`), que é o que o Invader (família 2)
-  já usa. Nada a acrescentar no código. O ramo mapeia as posições de modo do oficial
-  (0 a 8) para (modo, sub): 0 `2/1` respirar, 1 `3/1`, 2 `1/1` fixo (sem velocidade),
-  3 `5/1`, 6 `4/1` piscar, 7 `0/0` desligado, 8 `2/3`. Só oferecemos os quatro que o
-  M901-1 testado usa (fixo, respirar, piscar, desligado); as posições 1, 3 e 8 não
-  têm nome conhecido e ficam fora.
+- Famílias 0, 1 e 2 caem no mesmo ramo de `FUN_00456d90` (`uVar4 < 3`), então a 1 e a
+  2 têm o mesmo layout da 0, e o Invader (família 2) usa `LedCodec::Family0`. As
+  posições de modo do oficial (0 a 8) viram (modo, sub) assim: 0 `2/1` respirar,
+  1 `3/1`, 2 `1/1` fixo (sem velocidade), 3 `5/1`, 6 `4/1` piscar, 7 `0/0` desligado,
+  8 `2/3`; velocidade `9 - v`.
+  **Divergência, dúvida em aberto:** o nosso `Family0` grava sub `0` em fixo,
+  respirar e piscar (como o M901-1, que foi testado no mouse), e este ramo do
+  oficial grava sub `1`. O `Cycle` (`03 .. 03`) também não bate com nenhuma posição
+  daqui (`3/1` e `2/3`). O firmware provavelmente ignora esse byte nos modelos de
+  família 0, mas não está provado. Não mudamos o código: o que foi testado no M901-1
+  continua valendo. Quem testar um Cobra ou Invader pode conferir se sub `1` muda
+  algo. A leitura também só aceita sub `0`, então um perfil gravado pelo oficial com
+  sub `1` aparece como fixo no Salamandra.
 - Família 4 (só "2931-A V1" e mais um nome, `DAT_004b1b99`): o LED não é um bloco de
   7 bytes em `0x449 + 8p`. São cinco gravações de 8 bytes, uma por zona, em `0x448`,
   `0x450`, `0x458`, `0x460` e `0x468`, com dados `[0x81 (0x80 na zona 2), r, g, b,
   modo da zona, 9 - velocidade, flag, brilho]` e a quinta zona toda zero com `0x80`.
   Nenhum modelo do primeiro lote é família 4: não implementado, sem como testar.
-- `FUN_00458530` também grava LED por zona (mesmos endereços de 8 bytes, ramos para
-  família 3 e 4); a função que decide o que ela é no fluxo do oficial não foi
-  identificada. `FUN_00458f90` não é macro: só envia `F1 02 m` com m = `04`, `01`,
-  `02`, `08`, `10` em sequência (seleção de bloco, já coberta pelo envelope atual).
-  `FUN_00459cf0` e `FUN_0045c570` (botões e macros por família) seguem sem leitura
-  completa: são os 241 e 622 linhas que faltam.
+- `FUN_00458530` também grava blocos de 8 bytes nos endereços de zona (ramos para as
+  famílias 3 e 4); o papel dela no fluxo do oficial não foi identificado, então não é
+  "botões" como se supunha. `FUN_00458f90` não é macro: só envia `F1 02 m` com
+  m = `04`, `01`, `02`, `08`, `10` em sequência (parte do envelope de sessão, já
+  coberto). `FUN_00459cf0` (241 linhas) e `FUN_0045c570` (622 linhas) seguem sem
+  leitura completa.
 
 ## Primeiro lote: o que já se sabe
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
@@ -88,8 +94,9 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
 
 ## Ainda não lido
 - tabelas de DPI por sensor (dados em `DAT_004b9ddc`...`DAT_004ba29f`);
-- botões por família (`FUN_00458530`, `FUN_00459cf0`, `FUN_0045c570`);
-- macros por família (`FUN_00458f90`);
+- botões e macros por família: `FUN_00459cf0` e `FUN_0045c570` (as outras duas que se
+  supunha ligadas a isso foram lidas e não são, ver "LED das famílias 1, 2 e 4");
+- o papel de `FUN_00458530` no fluxo do oficial;
 - de onde sai o nome do modelo (provavelmente lido do mouse) e a tabela
   VID/PID para nome.
 
