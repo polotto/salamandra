@@ -1,8 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import type { DeviceEvent, MacroEvent, Profile, Snapshot } from "./types";
+import type { ConnectedMouse, DeviceEvent, MacroEvent, Profile, Snapshot } from "./types";
 
-export const connect = () => invoke<Snapshot>("connect");
+export const connect = (model?: string) => invoke<Snapshot>("connect", { model });
+export const connectedMice = () => invoke<ConnectedMouse[]>("connected_mice");
 export const saveProfile = (index: number, profile: Profile) =>
   invoke<Profile>("save_profile", { index, profile });
 export const setActiveProfile = (index: number) => invoke<number>("set_active_profile", { index });

@@ -1,6 +1,6 @@
 import * as api from "./api";
 import { ask, open, save } from "@tauri-apps/plugin-dialog";
-import type { DeviceEvent, MacroEvent, ModelInfo, Profile } from "./types";
+import type { ConnectedMouse, DeviceEvent, MacroEvent, ModelInfo, Profile } from "./types";
 import { t } from "./i18n.svelte";
 
 export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "about" };
@@ -12,6 +12,10 @@ class AppState {
   connected = $state(false);
   /** Modelo do mouse conectado. */
   model = $state<ModelInfo | null>(null);
+  /** Mouses conectados; o seletor só aparece com mais de um. */
+  mice = $state<ConnectedMouse[]>([]);
+  /** A macro aberta na tela tem alteração não gravada. */
+  macroDirty = $state(false);
   busy = $state(false);
   message = $state<string | null>(null);
   error = $state<string | null>(null);
@@ -40,17 +44,23 @@ class AppState {
       this.message = null;
       this.error = String(e);
       if (String(e).includes("não encontrado")) this.connected = false;
+      this.mice = await api.connectedMice().catch(() => this.mice);
       return undefined;
     } finally {
       this.busy = false;
     }
   }
 
-  async connect() {
-    const snap = await this.run("Lendo o mouse...", api.connect);
-    if (!snap) return;
-    this.connected = true;
-    this.applySnapshot(snap);
+  async connect(model?: string) {
+    // O snapshot entra dentro do `busy`: não há instante com o backend no mouse novo
+    // e a tela ainda no antigo, com os botões de gravar liberados.
+    await this.run("Lendo o mouse...", async () => {
+      const snap = await api.connect(model);
+      this.connected = true;
+      this.applySnapshot(snap);
+      return snap;
+    });
+    this.mice = await api.connectedMice().catch(() => this.mice);
   }
 
   async save(p: number) {

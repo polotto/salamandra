@@ -110,11 +110,18 @@ fn to_enigo(k: HostKey) -> Option<Key> {
     })
 }
 
+/// O usuário escolheu um mouse e o serviço está em outro (o escolhido estava fora).
+fn wants_back(wanted: Option<&str>, opened: &str) -> bool {
+    wanted.is_some_and(|w| !w.eq_ignore_ascii_case(opened))
+}
+
 /// Escuta o mouse até `stop` virar `true`. Executa os atalhos e repassa todo
 /// aviso para `on_event` (a interface usa para mostrar troca de perfil e DPI).
-/// Se o mouse sumir, espera ele voltar.
+/// Se o mouse sumir, espera ele voltar. `chosen` devolve o modelo que o usuário
+/// escolheu (com mais de um mouse); quando muda, o serviço reabre no novo.
 pub fn run(
     stop: &AtomicBool,
+    chosen: impl Fn() -> Option<String>,
     mut on_event: impl FnMut(&DeviceEvent),
     mut on_error: impl FnMut(&Error),
 ) {
@@ -126,17 +133,37 @@ pub fn run(
         }
     };
     while !stop.load(Ordering::Relaxed) {
-        let device = match HidTransport::open() {
-            Ok(d) => d,
+        let wanted = chosen();
+        let choice = salamandra_hid::pick_model(wanted.as_deref());
+        let device = match HidTransport::open_model(choice.as_deref()) {
+            Ok(opened) => opened,
             Err(e) => {
-                if e != Error::NotFound {
+                // "Modelo não conectado" com escolha feita é o mouse que saiu entre a
+                // enumeração e a abertura: o laço tenta de novo.
+                let vanished = wanted.is_some() && matches!(e, Error::Invalid(_));
+                if e != Error::NotFound && !vanished {
                     on_error(&e);
                 }
                 sleep(Duration::from_secs(2));
                 continue;
             }
         };
+        let (device, opened) = device;
+        let mut last_check = std::time::Instant::now();
         while !stop.load(Ordering::Relaxed) {
+            // Caiu em outro mouse enquanto o escolhido estava fora: volta quando ele reaparece.
+            if wants_back(wanted.as_deref(), opened.id)
+                && last_check.elapsed() >= Duration::from_secs(2)
+            {
+                last_check = std::time::Instant::now();
+                if salamandra_hid::pick_model(wanted.as_deref()) == wanted {
+                    break;
+                }
+            }
+            // Só compara a escolha do usuário (um lock); nada de listar o HID a cada leitura.
+            if chosen() != wanted {
+                break;
+            }
             match device.read_event(250) {
                 Ok(Some(report)) => {
                     let Some(event) = parse_event(&report) else {
@@ -148,7 +175,10 @@ pub fn run(
                             on_error(&e);
                         }
                     }
-                    on_event(&event);
+                    // Evento de outro mouse (o escolhido está fora) não vai para a tela.
+                    if !wants_back(wanted.as_deref(), opened.id) {
+                        on_event(&event);
+                    }
                 }
                 Ok(None) => {}
                 Err(e) => {
@@ -164,6 +194,13 @@ pub fn run(
 mod tests {
     use super::*;
     use salamandra_core::Shortcut;
+
+    #[test]
+    fn the_service_goes_back_to_the_chosen_mouse_only_when_it_is_on_another() {
+        assert!(wants_back(Some("m901-1"), "m711-cobra"));
+        assert!(!wants_back(Some("m901-1"), "m901-1"));
+        assert!(!wants_back(None, "m711-cobra"));
+    }
 
     #[test]
     fn every_action_of_this_os_maps_to_real_keys() {

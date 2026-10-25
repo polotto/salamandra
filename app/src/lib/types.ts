@@ -112,3 +112,9 @@ export type DeviceEvent =
   | { type: "LedModeChanged"; value: [number, number, number] }
   | { type: "ShortcutPressed"; value: Shortcut }
   | { type: "ShortcutReleased" };
+
+/** Mouse conectado que o app sabe configurar. */
+export interface ConnectedMouse {
+  id: string;
+  name: string;
+}

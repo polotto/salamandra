@@ -3,6 +3,7 @@ const en: Record<string, string> = {
   "Perfis": "Profiles",
   "Abrir Salamandra": "Open Salamandra",
   "Sair": "Quit",
+  "Grave ou descarte as alterações para trocar de mouse": "Save or discard your changes to switch mouse",
   "Não deu para traduzir o menu da bandeja": "Could not translate the tray menu",
   "Perfil": "Profile",
   "Macros": "Macros",

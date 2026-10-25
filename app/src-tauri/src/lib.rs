@@ -16,6 +16,8 @@ struct AppState {
     mouse: Mutex<Option<Mouse<HidTransport>>>,
     /// Perfis como estão no mouse, para gravar só o que mudou.
     loaded: Mutex<Vec<Profile>>,
+    /// Id do modelo que o usuário escolheu quando há mais de um mouse conectado.
+    preferred: Mutex<Option<String>>,
     /// Itens do menu da bandeja, para o front trocar o texto com o idioma.
     tray_items: Mutex<
         Option<(
@@ -66,15 +68,37 @@ struct Snapshot {
     macros: Vec<Vec<MacroEvent>>,
 }
 
-/// Roda `f` com o mouse aberto (abre se preciso). Em falha de comunicação,
+fn is_plugged(id: &str, connected: &[&str]) -> bool {
+    connected.iter().any(|c| c.eq_ignore_ascii_case(id))
+}
+
+/// Roda `f` com o mouse aberto (abre se preciso). Reabre sempre o modelo escolhido
+/// e nunca troca de mouse sozinho: quem troca é `connect`, que relê os perfis. Em falha de comunicação,
 /// descarta a conexão para a próxima chamada reabrir.
 fn with_mouse<R>(
     state: &AppState,
     f: impl FnOnce(&mut Mouse<HidTransport>) -> Result<R, Error>,
 ) -> Result<R, String> {
+    let preferred = state.preferred.lock().map_err(|e| e.to_string())?.clone();
     let mut guard = state.mouse.lock().map_err(|e| e.to_string())?;
     if guard.is_none() {
-        *guard = Some(salamandra_hid::open().map_err(|e| e.to_string())?);
+        let mouse = match preferred {
+            Some(id) => {
+                // O mouse escolhido sumiu: cai na tela "não encontrado" e o `connect`
+                // seguinte escolhe outro e relê os perfis. Nunca troca em silêncio aqui.
+                let connected: Vec<&str> = salamandra_hid::connected_models()
+                    .map_err(|e| e.to_string())?
+                    .into_iter()
+                    .map(|m| m.id)
+                    .collect();
+                if !is_plugged(&id, &connected) {
+                    return Err(Error::NotFound.to_string());
+                }
+                salamandra_hid::open_model(Some(&id))
+            }
+            None => salamandra_hid::open_model(None),
+        };
+        *guard = Some(mouse.map_err(|e| e.to_string())?);
     }
     let result = f(guard.as_mut().expect("aberto acima"));
     if let Err(Error::Io(_)) = &result {
@@ -109,9 +133,55 @@ fn remember(state: &AppState, snapshot: &Snapshot) {
     }
 }
 
+/// Mouse conectado que o app sabe configurar, para o seletor da tela.
+#[derive(Serialize)]
+struct ConnectedMouse {
+    id: &'static str,
+    name: &'static str,
+}
+
 #[tauri::command]
-fn connect(state: State<AppState>) -> Result<Snapshot, String> {
-    let snapshot = with_mouse(&state, read_all)?;
+fn connected_mice() -> Result<Vec<ConnectedMouse>, String> {
+    Ok(salamandra_hid::connected_models()
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .map(|m| ConnectedMouse {
+            id: m.id,
+            name: m.name,
+        })
+        .collect())
+}
+
+/// Lê o mouse. Com `model`, passa a usar esse modelo (escolha do seletor).
+/// Com mais de um conectado e nenhuma escolha, fica com o primeiro.
+/// O estado só muda depois da leitura dar certo: em falha, segue o mouse anterior.
+#[tauri::command]
+fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, String> {
+    let wanted = match model {
+        Some(id) => {
+            let connected: Vec<&str> = salamandra_hid::connected_models()
+                .map_err(|e| e.to_string())?
+                .into_iter()
+                .map(|m| m.id)
+                .collect();
+            if !is_plugged(&id, &connected) {
+                // Não é "mouse não encontrado": o mouse atual segue em uso.
+                return Err(
+                    Error::Invalid(format!("o mouse {id} não está mais conectado")).to_string(),
+                );
+            }
+            Some(id)
+        }
+        None => state.preferred.lock().map_err(|e| e.to_string())?.clone(),
+    };
+    let choice = salamandra_hid::pick_model(wanted.as_deref());
+    // `pick_model` já levou em conta SALAMANDRA_MODEL: `None` aqui é "o único mouse".
+    let mut mouse = salamandra_hid::open_model(choice.as_deref()).map_err(|e| e.to_string())?;
+    let snapshot = read_all(&mut mouse).map_err(|e| e.to_string())?;
+    // Guarda o modelo aberto de fato, para reabrir sempre o mesmo e nunca outro.
+    let opened = mouse.spec().id.to_string();
+    *state.mouse.lock().map_err(|e| e.to_string())? = Some(mouse);
+    *state.preferred.lock().map_err(|e| e.to_string())? = Some(opened);
     remember(&state, &snapshot);
     Ok(snapshot)
 }
@@ -350,6 +420,11 @@ pub fn run() {
                 let errors = handle.clone();
                 salamandra_service::run(
                     &STOP_SERVICE,
+                    || {
+                        let state = handle.state::<AppState>();
+                        let choice = state.preferred.lock().ok().and_then(|p| p.clone());
+                        choice
+                    },
                     |event| {
                         let _ = handle.emit("device-event", event);
                     },
@@ -369,6 +444,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             connect,
+            connected_mice,
             save_profile,
             set_active_profile,
             set_macro,
@@ -399,6 +475,13 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_reconnect_only_reopens_the_chosen_mouse_while_it_is_plugged() {
+        assert!(is_plugged("m901-1", &["m711-cobra", "m901-1"]));
+        assert!(!is_plugged("m901-1", &["m711-cobra"]));
+        assert!(!is_plugged("m901-1", &[]));
+    }
 
     #[test]
     fn profile_file_round_trip() {

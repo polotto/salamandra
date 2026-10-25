@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { app } from "$lib/state.svelte";
+  import * as api from "$lib/api";
   import { onDeviceEvent, onServiceError, setTrayText } from "$lib/api";
   import { i18n, t } from "$lib/i18n.svelte";
   import ProfileEditor from "$lib/ProfileEditor.svelte";
@@ -11,8 +12,14 @@
   onMount(() => {
     installNativeFeel();
     app.connect();
+    // Quem liga um segundo mouse com o app aberto vê o seletor ao voltar para a janela.
+    const refreshMice = () => api.connectedMice().then((m) => (app.mice = m)).catch(() => {});
+    window.addEventListener("focus", refreshMice);
     const unlisten = [onDeviceEvent((e) => app.onDeviceEvent(e)), onServiceError((m) => (app.error = m))];
-    return () => unlisten.forEach((u) => u.then((f) => f()));
+    return () => {
+      window.removeEventListener("focus", refreshMice);
+      unlisten.forEach((u) => u.then((f) => f()));
+    };
   });
 
   // O menu da bandeja é nativo: manda os textos do idioma atual para o backend.
@@ -27,12 +34,30 @@
   let version = $state("");
   getVersion().then((v) => (version = v));
 
+  const pending = $derived(app.macroDirty || app.edited.some((_, p) => app.isDirty(p)));
   const rgb = (c: [number, number, number]) => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
 </script>
 
 <div class="shell">
   <nav class="sidebar">
     <div class="brand"><img src="/logo.svg" alt="" width="24" height="24" />Salamandra</div>
+    {#if app.mice.length > 1}
+      <select
+        class="picker"
+        aria-label={t("Mouse")}
+        value={app.model?.id}
+        disabled={app.busy || pending}
+        title={pending ? t("Grave ou descarte as alterações para trocar de mouse") : undefined}
+        onchange={async (e) => {
+          const select = e.currentTarget;
+          await app.connect(select.value);
+          // Em falha o modelo não muda: o seletor volta para o mouse que segue em uso.
+          select.value = app.model?.id ?? "";
+        }}
+      >
+        {#each app.mice as m}<option value={m.id}>{m.name}</option>{/each}
+      </select>
+    {/if}
     <div class="section">{t("Perfis")}</div>
     {#each app.edited as profile, p}
       <button
