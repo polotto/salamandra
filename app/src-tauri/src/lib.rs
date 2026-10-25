@@ -87,8 +87,10 @@ fn with_mouse<R>(
                 // O mouse escolhido sumiu: cai na tela "não encontrado" e o `connect`
                 // seguinte escolhe outro e relê os perfis. Nunca troca em silêncio aqui.
                 let connected: Vec<&str> = salamandra_hid::connected_models()
-                    .map(|l| l.into_iter().map(|m| m.id).collect())
-                    .unwrap_or_default();
+                    .map_err(|e| e.to_string())?
+                    .into_iter()
+                    .map(|m| m.id)
+                    .collect();
                 if !is_plugged(&id, &connected) {
                     return Err(Error::NotFound.to_string());
                 }
@@ -156,7 +158,17 @@ fn connected_mice() -> Result<Vec<ConnectedMouse>, String> {
 #[tauri::command]
 fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, String> {
     let wanted = match model {
-        Some(id) => Some(id),
+        Some(id) => {
+            let connected: Vec<&str> = salamandra_hid::connected_models()
+                .map_err(|e| e.to_string())?
+                .into_iter()
+                .map(|m| m.id)
+                .collect();
+            if !is_plugged(&id, &connected) {
+                return Err(Error::NotFound.to_string());
+            }
+            Some(id)
+        }
         None => state.preferred.lock().map_err(|e| e.to_string())?.clone(),
     };
     let choice = salamandra_hid::pick_model(wanted.as_deref());
