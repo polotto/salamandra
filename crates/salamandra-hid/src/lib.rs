@@ -99,6 +99,23 @@ pub fn open_model(prefer: Option<&str>) -> Result<Mouse<HidTransport>, Error> {
     Ok(Mouse::with_spec(transport, model))
 }
 
+/// Modelos suportados que estão conectados agora, na ordem em que o sistema os lista.
+pub fn connected_models() -> Result<Vec<&'static DeviceSpec>, Error> {
+    let api = HidApi::new().map_err(io)?;
+    let mut found: Vec<&'static DeviceSpec> = Vec::new();
+    for info in api.device_list() {
+        if info.usage_page() != USAGE_PAGE {
+            continue;
+        }
+        if let Some(model) = spec::by_product_id(info.vendor_id(), info.product_id()) {
+            if !found.iter().any(|m| m.id == model.id) {
+                found.push(model);
+            }
+        }
+    }
+    Ok(found)
+}
+
 /// Modelos que o Salamandra conhece, para listar na interface.
 pub fn known_models() -> &'static [DeviceSpec] {
     MODELS

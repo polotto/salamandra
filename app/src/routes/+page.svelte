@@ -33,6 +33,18 @@
 <div class="shell">
   <nav class="sidebar">
     <div class="brand"><img src="/logo.svg" alt="" width="24" height="24" />Salamandra</div>
+    {#if app.mice.length > 1}
+      <select
+        class="picker"
+        aria-label={t("Mouse")}
+        value={app.model?.id}
+        disabled={app.busy || app.edited.some((_, p) => app.isDirty(p))}
+        title={t("Grave ou descarte as alterações para trocar de mouse")}
+        onchange={(e) => app.connect(e.currentTarget.value)}
+      >
+        {#each app.mice as m}<option value={m.id}>{m.name}</option>{/each}
+      </select>
+    {/if}
     <div class="section">{t("Perfis")}</div>
     {#each app.edited as profile, p}
       <button

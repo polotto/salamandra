@@ -138,6 +138,12 @@ select {
   flex: 1;
 }
 
+.picker {
+  margin: 0 8px 8px;
+  width: calc(100% - 16px);
+  font-size: 12px;
+}
+
 .lang {
   display: flex;
   gap: 4px;

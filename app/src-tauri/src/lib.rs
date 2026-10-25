@@ -16,6 +16,8 @@ struct AppState {
     mouse: Mutex<Option<Mouse<HidTransport>>>,
     /// Perfis como estão no mouse, para gravar só o que mudou.
     loaded: Mutex<Vec<Profile>>,
+    /// Id do modelo que o usuário escolheu quando há mais de um mouse conectado.
+    preferred: Mutex<Option<String>>,
     /// Itens do menu da bandeja, para o front trocar o texto com o idioma.
     tray_items: Mutex<
         Option<(
@@ -74,7 +76,12 @@ fn with_mouse<R>(
 ) -> Result<R, String> {
     let mut guard = state.mouse.lock().map_err(|e| e.to_string())?;
     if guard.is_none() {
-        *guard = Some(salamandra_hid::open().map_err(|e| e.to_string())?);
+        let preferred = state.preferred.lock().map_err(|e| e.to_string())?.clone();
+        let mouse = match preferred {
+            Some(id) => salamandra_hid::open_model(Some(&id)),
+            None => salamandra_hid::open(),
+        };
+        *guard = Some(mouse.map_err(|e| e.to_string())?);
     }
     let result = f(guard.as_mut().expect("aberto acima"));
     if let Err(Error::Io(_)) = &result {
@@ -109,8 +116,45 @@ fn remember(state: &AppState, snapshot: &Snapshot) {
     }
 }
 
+/// Mouse conectado que o app sabe configurar, para o seletor da tela.
+#[derive(Serialize)]
+struct ConnectedMouse {
+    id: &'static str,
+    name: &'static str,
+}
+
 #[tauri::command]
-fn connect(state: State<AppState>) -> Result<Snapshot, String> {
+fn connected_mice() -> Result<Vec<ConnectedMouse>, String> {
+    Ok(salamandra_hid::connected_models()
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .map(|m| ConnectedMouse {
+            id: m.id,
+            name: m.name,
+        })
+        .collect())
+}
+
+/// Lê o mouse. Com `model`, passa a usar esse modelo (escolha do seletor).
+/// Com mais de um conectado e nenhuma escolha, fica com o primeiro.
+#[tauri::command]
+fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, String> {
+    {
+        let mut preferred = state.preferred.lock().map_err(|e| e.to_string())?;
+        let changed = model.is_some() && *preferred != model;
+        if model.is_some() {
+            *preferred = model;
+        } else if preferred.is_none() && std::env::var("SALAMANDRA_MODEL").is_err() {
+            if let Ok(found) = salamandra_hid::connected_models() {
+                if found.len() > 1 {
+                    *preferred = Some(found[0].id.to_string());
+                }
+            }
+        }
+        if changed {
+            *state.mouse.lock().map_err(|e| e.to_string())? = None;
+        }
+    }
     let snapshot = with_mouse(&state, read_all)?;
     remember(&state, &snapshot);
     Ok(snapshot)
@@ -369,6 +413,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             connect,
+            connected_mice,
             save_profile,
             set_active_profile,
             set_macro,

@@ -1,6 +1,6 @@
 import * as api from "./api";
 import { ask, open, save } from "@tauri-apps/plugin-dialog";
-import type { DeviceEvent, MacroEvent, ModelInfo, Profile } from "./types";
+import type { ConnectedMouse, DeviceEvent, MacroEvent, ModelInfo, Profile } from "./types";
 import { t } from "./i18n.svelte";
 
 export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "about" };
@@ -12,6 +12,8 @@ class AppState {
   connected = $state(false);
   /** Modelo do mouse conectado. */
   model = $state<ModelInfo | null>(null);
+  /** Mouses conectados; o seletor só aparece com mais de um. */
+  mice = $state<ConnectedMouse[]>([]);
   busy = $state(false);
   message = $state<string | null>(null);
   error = $state<string | null>(null);
@@ -46,11 +48,12 @@ class AppState {
     }
   }
 
-  async connect() {
-    const snap = await this.run("Lendo o mouse...", api.connect);
+  async connect(model?: string) {
+    const snap = await this.run("Lendo o mouse...", () => api.connect(model));
     if (!snap) return;
     this.connected = true;
     this.applySnapshot(snap);
+    this.mice = await api.connectedMice().catch(() => []);
   }
 
   async save(p: number) {
