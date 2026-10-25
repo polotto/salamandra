@@ -80,14 +80,14 @@ citando a função de origem.
 - [x] R.2 rodar `rea analyze` no `RDCfg.exe`; achar que a seleção de modelo é
   por nome e que `FUN_0040e870` é só interface
 - [x] R.3a achar a camada que fala com o mouse (`hid_send_feature_report`, `0x456c40` a `0x45c910`) e as tabelas de família e sensor (ver `RE-FINDINGS.md`)
-- [ ] R.3 decompilar `HidDevice.dll` e rastrear os chamadores de envio/leitura
+- [x] R.3 (feito em 25/10/2026: é só transporte do Windows, sem comandos novos) decompilar `HidDevice.dll` e rastrear os chamadores de envio/leitura
   no `RDCfg.exe` (`rea trace` em "pollrate", "DPI_INFO", `F3`)
-- [ ] R.4 (LED das famílias lido, com a divergência de sub das famílias 0 a 2 em aberto; macros e mapa de botões por modelo lidos em 24/10/2026; `FUN_00458530` e os bytes de ação de `FUN_0045c570` lidos em 25/10/2026; botões e LED estão lidos, faltam as tabelas de DPI dos sensores que não usamos) por modelo do primeiro lote: endereço do perfil, codificação do DPI,
+- [x] R.4 (feito para o lote sem o Griffin; LED das famílias lido, com a divergência de sub das famílias 0 a 2 em aberto; macros e mapa de botões por modelo lidos em 24/10/2026; `FUN_00458530` e os bytes de ação de `FUN_0045c570` lidos em 25/10/2026; botões e LED estão lidos, faltam as tabelas de DPI dos sensores que não usamos) por modelo do primeiro lote: endereço do perfil, codificação do DPI,
   botões por perfil, macros e LED, cada campo com a função de origem
   em `docs/models/<slug>.md`
   - pronto quando: o teste de pacote de cada modelo bate com os bytes que a
     função do oficial gera, e com a captura do mouse_m908 quando houver
-- [ ] R.5 cruzar o resultado do R.4 com o mouse_m908; divergência vira dúvida
+- [x] R.5 (feito: as divergências com o mouse_m908 estão em RE-FINDINGS como dúvida: `sub` do LED das famílias 0 a 2, DPI do 3212, velocidade do fixo no Impact, modos extras) cruzar o resultado do R.4 com o mouse_m908; divergência vira dúvida
   em aberto, não dado
 
 ## Trilha Q: lista do site da Redragon (depende do usuário)
