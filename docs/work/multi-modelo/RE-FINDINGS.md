@@ -87,10 +87,12 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
   só do autor do mouse_m908).
 - Botões (`FUN_0045c570`): o endereço é `0x42 + base do perfil + 4 * slot`. O oficial
   troca o índice da interface pelo slot **conforme o nome do modelo**. IMPACT cai no
-  padrão (slot = índice), como no M901-1. INVADER: índice 3 vai para o slot 5
-  (`0x14`), 4 para o slot 3 (`0xc`) e 5 para o slot 4 (`0x10`); os outros seguem o
+  padrão (slot = índice), como no M901-1. Os índices abaixo contam a partir de 0, como o código. INVADER: índice 3 vai para o
+  slot 5 (`0x14`), 4 para o slot 3 (`0xc`) e 5 para o slot 4 (`0x10`); nas docs de
+  modelo, que contam a partir de 1, são os botões 4, 5 e 6 indo para os slots 6, 4 e 5; os outros seguem o
   padrão. GRIFFIN: índice 6 vai para o slot 7 (`0x1c`). LEGEND e LEGEND2 deslocam os
-  índices 7 a 0x16 em um slot. Isso só muda qual botão da interface do oficial é qual
+  índices 7 a 0x16 em +1 slot (índice 7 vai para `0x20`, o slot 8), e esses índices
+  passam dos 20 botões do mapa do M901-1 (0 a 19): é outro mouse, fora do nosso lote. Isso só muda qual botão da interface do oficial é qual
   slot; o Salamandra numera por slot, então a gravação não muda, mas o nome do botão
   na carcaça do Invader pode estar trocado entre os slots 3, 4 e 5 (a conferir).
 

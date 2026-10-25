@@ -14,9 +14,8 @@ Situação: **não testado**. Nunca foi conferido no mouse físico. O app e o CL
 
 ## Ainda sem confirmar
 - O gravador de macros do oficial (`FUN_00459cf0`) não tem ramo por família nem por modelo, então o layout é o do M901-1. O limite de 1 posição vem só do autor do `mouse_m908`; por isso só a posição 1 é oferecida até alguém testar mais.
-- O oficial leva os índices de botão 3, 4 e 5 para os slots de memória 5, 3 e 4 neste modelo (`FUN_0045c570`). Numeramos por slot, então a gravação não muda, mas o nome desses três botões na carcaça pode estar trocado.
+- O oficial leva os botões 4, 5 e 6 para os slots 6, 4 e 5 da numeração desta página (a partir de 1; offsets `0x14`, `0xc` e `0x10`) neste modelo (`FUN_0045c570`). Numeramos por slot, então a gravação não muda, mas o nome desses três botões na carcaça pode estar trocado. Confira qual botão físico é cada um.
 - A captura do `mouse_m908` usa para este modelo uma codificação de LED diferente da do software oficial. Seguimos o modo do oficial, com o byte `sub` com que o M901-1 foi testado (o programa oficial multimodelo (`RDCfg.exe`) grava `1` ali nas famílias 0 a 2; ver as notas de engenharia reversa).
-- Nome dos botões na carcaça.
 
 ## Como ajudar
 Abra o formulário "Suporte a um mouse" com a saída de `salamandra show` antes e depois de uma mudança e o que você viu no mouse.
