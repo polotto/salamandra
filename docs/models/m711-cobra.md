@@ -21,6 +21,7 @@ same way as on the M901-1, so the app and the CLI write directly, with a warning
 - LED modes: the app shows the M901-1 modes. Family 0 is the same layout in the official code, but this was not checked on the mouse.
 - The `mouse_m908` capture uses a different LED coding for this model than the official software. We follow the official mode (family 0) with the `sub` byte tested on the M901-1; the multi-model official program (`RDCfg.exe`) writes `1` there, an open doubt.
 - The official software writes 5 bytes per DPI level, the old capture 4. We write 5, like the current official software.
+- Device version: the same PID `fc30` also covers other models with other sensors (M711-FPS-1, M711-FPS-2, 2710-H). This spec matches the official list only for versions 1 to 767. `salamandra show` prints the version; please include it in your report.
 
 ## How to help
 Open the "Mouse support" issue form with the output of `salamandra show` before and after a change, and what you saw on the mouse (LED, DPI, buttons).
