@@ -131,8 +131,7 @@ Nenhum dos dois entra no lote.
 `HidDevice_Open`, `_Close`, `_SetMultiFeature`, `_GetMultiFeature`, `_MultiWrite`,
 `_SetReadCallBack` e `_SetMultiCaptureDevice`, e usa `SetupDi*`, `HidD_GetAttributes`,
 `HidD_SetFeature`/`GetFeature`, `ReadFile` e `RegisterDeviceNotification` (janela e thread
-para detectar o mouse ligado ou desligado). Há uma mensagem de depuração
-"xx %x %x %d ver %d" (VID, PID, versão). `HidD_GetAttributes` devolve o `VersionNumber`,
+para detectar o mouse ligado ou desligado). Ela registra em depuração o VID, o PID e a versão do dispositivo. `HidD_GetAttributes` devolve o `VersionNumber`,
 que é o `bcdDevice`: isso sustenta que `VER_MIN`/`VER_MAX` do `Config.ini` é o mesmo
 número que o `salamandra show` imprime (512 no M901-1). Os pacotes `F3`/`F2`/`F1`/`F5`
 saem de `RDCfg.exe` pela `HIDApi.dll` (`hid_send_feature_report`), já mapeados.
