@@ -93,12 +93,21 @@ citando a função de origem.
 ## Trilha Q: lista do site da Redragon (depende do usuário)
 O `redragon.com.br/downloads` lista software para M711 King Cobra 2, M711 Cobra V2,
 M988 Storm Elite, ID711 Ryu e B703 Cerberus. Não sabemos o VID:PID deles
-nem se o protocolo é o mesmo.
+nem se o protocolo é o mesmo. O `Config.ini` do oficial (46 mouses, ver
+`RE-FINDINGS.md`) ajuda: o `fc30` cobre M711, M711-FPS-1, M711-FPS-2 e 2710-H por faixa de versão do
+dispositivo; qual nome comercial corresponde a cada um não está confirmado.
 - [ ] Q.1 Angelo informa `lsusb`/Informações do Sistema de cada um que tiver,
   ou o assunto vira issue "peço suporte" na comunidade
 - [ ] Q.2 com o VID:PID, conferir se cai em um modelo da trilha P; se não,
   decidir se vale baixar o software oficial e fazer a engenharia reversa
   como foi feito no M901-1 (decisão do Angelo, trabalho grande)
+
+## Trilha V: versão do dispositivo (nova, 25/10/2026)
+O mesmo PID cobre modelos com sensores diferentes (ver "Lista de mouses do oficial").
+- [ ] V.1 ler `release_number` na enumeração e mostrar no `show`/`list`, sem mudar a escolha
+  - pronto quando: o M901-1 aparece com versão 512 e o relato de teste inclui a versão
+- [ ] V.2 decidir pela versão: só depois que alguém com um `fc30` ou `fc4f` de outra
+  versão relatar o que o mouse faz (o M901-1 testado contradiz a leitura direta)
 
 ## Trilha K: CLI sem Tauri (independente)
 - [x] K.1 `salamandra-cli` vira biblioteca (comandos devolvem texto) mais binário

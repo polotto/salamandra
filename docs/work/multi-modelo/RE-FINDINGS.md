@@ -108,13 +108,49 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
 Isso reordena o trabalho: **M711 Cobra** é o mais fácil e deve ir primeiro, e o
 modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
 
+## Lista de mouses do oficial (`Config.ini`, 25/10/2026)
+O pacote Cobra V2 traz `REDRAGON Gaming Mouse/Config.ini` com a seção `[Mouse_List]`
+(46 entradas: `VID_n`, `PID_n`, `VER_MIN_n`, `VER_MAX_n`, `PRODUCT_NAME_n` e as
+páginas de uso). O `RDCfg.exe` não tem tabela de PIDs no código; o nome do modelo
+sai dessa lista. O VID é sempre `04d9`. `VER_MIN`/`VER_MAX` (decimal) parecem ser a
+versão do dispositivo (`hid_get_release_number`, que a `HIDApi.dll` exporta); a
+origem exata da versão **não foi confirmada**.
+
+O mesmo PID serve a vários nomes, separados só pela versão:
+
+| PID | Versão (decimal) e nome |
+| --- | --- |
+| `fc30` | 1-767 M711; 768-1535 M711-FPS-1; 1536-1791 M711-FPS-2; 1792-2047 2710-H |
+| `fc40` | 1-511 PERDITION; 512-767 PERDITION3 |
+| `fc41` | 256-511 LEGEND; 512-767 LEGEND2 |
+| `fc42` | 1-767 TITANOBOA2; 768-1023 TITANOBOA3; 1024-1279 TITANOBOA4 |
+| `fc4f` | 256-511 INVADER; 768-1023 2776-3327 |
+| `fc39` | 256-511 M715; 1792-2047 2722-3327 |
+| `fc58` | 768-1023 2805; 512-767 M912-RGB; 1280-1535 2805-P3333 |
+| `fc5c` | 1-511 M721-PRO; 512-767 M721-RGB; 1536-1791 M721-RGB2; 1792-2047 2819 |
+| `fc5f` | 512-767 M998-RGB; 256-511 M808-RGB |
+| um nome por PID | `fc4d` IMPACT, `fc38` GRIFFIN, `fc3e` LAVAWOLF, `fc2a` TIGER, `fc3a` M716, `fc5d` M720-RGB, `fc2f` PHOENIX, `fc3f` SAMSARA2, `fc3c` INSPIRIT2, `fc4c` EMPEROR, `fc56` MAMMOTH, `fc49` RANGER, `fc61` 2850, `fc5e` 2858, `fc62` 2710-G, `fc66` 2825-A, `fc60` 2866-3327, `fc69` 2903-1, `fc65` 2890, `fc6b` 2903 3389, `fc6f` 2713 3325, `fc3b` 2732 3327 |
+
+Consequências para o Salamandra:
+- O `fc30` não é só o Cobra: a versão decide o nome, e o nome decide o sensor e a
+  tabela de DPI (M711 usa 3325, M711-FPS-1 usa 3360, M711-FPS-2 usa 3389, 2710-H usa
+  3327; sensor por nome em `FUN_004314d0`: M711 cai no padrão 0xCFD, FPS-1 no ramo
+  0xD20, FPS-2 no 0xD3D, 2710-H e 2776 3327 na lista do ramo 0xCFF junto com o IMPACT). A spec do Cobra vale para as versões 1 a 767; um `fc30` mais novo pode
+  gravar códigos de DPI errados. Hoje o `salamandra-hid` escolhe só pelo PID.
+- Mesmo caso do `fc4f` (Invader 256-511; 2776-3327 em 768-1023 tem outro sensor) e do
+  `fc40`.
+- O M901-1 testado reporta versão 512 (`bcdDevice` 0x0200, lido com `ioreg` no macOS em 25/10/2026), que a lista nomeia
+  PERDITION3, mas ele se comporta como o sensor 3360 (lê e grava DPI de 100 a 24000
+  em passos de 100). Ou a versão não é o `bcdDevice`, ou a lista do oficial não
+  descreve esse mouse; **dúvida em aberto**, não mudar o código por isso.
+- Os nomes `2xxx` são códigos de fábrica sem nome comercial na lista.
+
 ## Ainda não lido
 - tabelas de DPI por sensor (dados em `DAT_004b9ddc`...`DAT_004ba29f`);
 - botões e macros: lidos (seção "Macros e botões por modelo"); falta o formato dos
   bytes de cada ação por família em `FUN_0045c570` (acima de `0x45cf89`);
 - o papel de `FUN_00458530` no fluxo do oficial;
-- de onde sai o nome do modelo (provavelmente lido do mouse) e a tabela
-  VID/PID para nome.
+- de onde sai a versão usada para escolher o nome (ver "Lista de mouses do oficial").
 
 ## Sensor 3325 (M711 Cobra, INVADER), 23/10/2026
 - `FUN_00457b30`, ramo `0xCFD`: nível de DPI gravado em `base+4+6n`, 5 bytes

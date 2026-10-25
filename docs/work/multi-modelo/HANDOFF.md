@@ -1,13 +1,15 @@
 # Handoff: multi-modelo e logo
 
-Atualizado em: 22/10/2026
+Atualizado em: 25/10/2026
 
 ## Objetivo
 Dar uma logo ao Salamandra e suportar mais mouses Redragon, os populares
 primeiro, sempre marcando o que não foi testado no físico.
 
 ## Estado atual
-- Planejado, nada implementado. `TASKS.md` aguardando o ok do Angelo.
+- Implementado e publicado (v0.4.0): núcleo multi-modelo, Cobra, Impact, Invader, seletor
+  de mouse, CLI e MCP. Em aberto: Griffin, família 4, trilha Q e a trilha V (versão do
+  dispositivo). `TASKS.md` tem o detalhe.
 - Repo: `~/GitHub/salamandra`, branch `main`, fluxo do repo: commit e push
   por task com `verify` passando.
 
@@ -21,7 +23,8 @@ aviso; logo geométrica; só fatos do mouse_m908 (GPL-3), sem copiar código.
 - Capturas de referência: `documentation/default_m908.txt` e os `data.cpp`
   por modelo em `include/<modelo>/` do mouse_m908.
 - `redragon.com.br/downloads` lista software de M711 King Cobra 2, Cobra V2,
-  Storm Elite M988, ID711 e B703; o VID:PID deles é desconhecido (Trilha Q).
+  Storm Elite M988, ID711 e B703; o VID:PID deles não está confirmado (Trilha Q). O `Config.ini` do oficial
+  lista 46 mouses com PID e versão (ver `RE-FINDINGS.md`), mas sem os nomes comerciais.
 
 ## Achados do REA (22/10/2026)
 Software oficial analisado com `rea` 6.4 e Ghidra 12.1.4
@@ -46,12 +49,15 @@ o `rea doctor` diz que o Ghidra não existe).
   `.../vendor/{king-cobra2,cobra-v2}`.
 
 ## Bloqueios e dúvidas em aberto
+- O mesmo PID cobre modelos com sensores diferentes (trilha V). O M901-1 testado reporta
+  versão 512, que o oficial nomeia PERDITION3, mas ele se comporta como sensor 3360.
 - Sem nenhum desses mouses em mãos, tudo entra como `Untested`.
 - Seletor de mouse do app: testado só com mouse falso e uma lista de um mouse. Falta conferir com dois mouses reais ligados (trocar, desligar o escolhido, ligar um segundo com o app aberto).
 - O serviço de atalhos escuta um mouse só: com dois ligados, os atalhos do mouse não escolhido não funcionam e a interface não avisa. Avaliar um transporte por mouse no serviço.
 - Dois mouses do mesmo modelo aparecem como um só no seletor (o id do modelo identifica o mouse). Para separar, guardar o caminho HID.
 - Qual SKU exato é o "Cobra" da fonte (`fc30`) em relação ao King Cobra 2 e
-  ao Cobra V2 do site.
+  ao Cobra V2 do site. Pista: no `Config.ini` do oficial o `fc30` é M711 (versão 1 a
+  767), M711-FPS-1 (768 a 1535), M711-FPS-2 (1536 a 1791) ou 2710-H (1792 a 2047), mas a lista não diz qual nome comercial é qual.
 
 ## Como verificar
 `verify .` e, para um modelo novo, o teste de montagem de pacote contra a captura.
