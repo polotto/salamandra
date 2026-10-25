@@ -7,6 +7,7 @@ use salamandra_core::{Error, Mouse, Transport, USAGE_PAGE};
 
 pub struct HidTransport {
     device: HidDevice,
+    release: u16,
 }
 
 impl HidTransport {
@@ -54,7 +55,13 @@ impl HidTransport {
                 }
             ))
         })?;
-        Ok((Self { device }, model))
+        Ok((
+            Self {
+                device,
+                release: info.release_number(),
+            },
+            model,
+        ))
     }
 
     /// Espera até `timeout_ms` por um report de entrada da interface de
@@ -67,6 +74,10 @@ impl HidTransport {
 }
 
 impl Transport for HidTransport {
+    fn release(&self) -> Option<u16> {
+        Some(self.release)
+    }
+
     fn set_feature(&mut self, report: &[u8]) -> Result<(), Error> {
         self.device.send_feature_report(report).map_err(io)
     }

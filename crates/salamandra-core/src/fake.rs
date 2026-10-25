@@ -13,6 +13,8 @@ pub struct MemoryTransport {
     response: Vec<u8>,
     /// Todo pacote enviado, na ordem (para conferir a sessão `F5`/`F1`).
     pub sent: Vec<Vec<u8>>,
+    /// Versão do dispositivo que o mouse falso informa (`None`: não informa).
+    pub release: Option<u16>,
 }
 
 impl Default for MemoryTransport {
@@ -21,6 +23,7 @@ impl Default for MemoryTransport {
             memory: vec![0; MEMORY_SIZE],
             response: Vec::new(),
             sent: Vec::new(),
+            release: None,
         }
     }
 }
@@ -32,6 +35,10 @@ impl MemoryTransport {
 }
 
 impl Transport for MemoryTransport {
+    fn release(&self) -> Option<u16> {
+        self.release
+    }
+
     fn set_feature(&mut self, report: &[u8]) -> Result<(), Error> {
         self.sent.push(report.to_vec());
         let address = u16::from_le_bytes([report[2], report[3]]) as usize;
