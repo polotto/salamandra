@@ -14,7 +14,7 @@ Situação: **não testado**. Nunca foi conferido no mouse físico. O app e o CL
 
 ## Ainda sem confirmar
 - O layout de macros da família 2 no oficial ainda não foi lido (`FUN_00459cf0` e `FUN_0045c570` são as candidatas). Só a posição 1 é oferecida até lá.
-- A captura do `mouse_m908` usa para este modelo uma codificação de LED diferente da do software oficial. Seguimos o modo do oficial, com o byte `sub` com que o M901-1 foi testado (o código oficial grava `1` ali nas famílias 0 a 2; ver as notas de engenharia reversa).
+- A captura do `mouse_m908` usa para este modelo uma codificação de LED diferente da do software oficial. Seguimos o modo do oficial, com o byte `sub` com que o M901-1 foi testado (o programa oficial multimodelo (`RDCfg.exe`) grava `1` ali nas famílias 0 a 2; ver as notas de engenharia reversa).
 - Nome dos botões na carcaça.
 
 ## Como ajudar
