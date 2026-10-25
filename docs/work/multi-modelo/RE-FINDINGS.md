@@ -74,9 +74,14 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
   `0x450`, `0x458`, `0x460` e `0x468`, com dados `[0x81 (0x80 na zona 2), r, g, b,
   modo da zona, 9 - velocidade, flag, brilho]` e a quinta zona toda zero com `0x80`.
   Nenhum modelo do primeiro lote é família 4: não implementado, sem como testar.
-- `FUN_00458530` também grava blocos de 8 bytes nos endereços de zona (ramos para as
-  famílias 3 e 4); o papel dela no fluxo do oficial não foi identificado, então não é
-  "botões" como se supunha. `FUN_00458f90` não é macro: só envia `F1 02 m` com
+- `FUN_00458530` é a gravação do LED dos cinco perfis de uma vez (25/10/2026): primeiro
+  `F3` de 2 bytes em `0x446` (máscara do modo: 1 padrão, 4, 2, `0x10`, 8, `0x20`
+  conforme a posição escolhida; só nos nomes "2850" e família 4), depois, por perfil, o
+  mesmo bloco de 7 bytes em `0x449 + 8p` de `FUN_00456d90`. Os pares (modo, sub) da
+  família 3 que ela grava (`1/4`, `1/8`, `1/2`, `2/0`, `6/0`, `7/0`, `1/0x10` e
+  desligado `0/0`, velocidade `9 - v`) são os mesmos que já usamos no Impact, então
+  confirmam a tabela. Para a família 4 e o nome "2850" ela grava as zonas de 8 bytes
+  (`0x448` a `0x470`) descritas acima. Não é "botões" como se supunha. `FUN_00458f90` não é macro: só envia `F1 02 m` com
   m = `04`, `01`, `02`, `08`, `10` em sequência (parte do envelope de sessão, já
   coberto).
 
@@ -107,6 +112,20 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
 
 Isso reordena o trabalho: **M711 Cobra** é o mais fácil e deve ir primeiro, e o
 modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
+
+## Bytes de cada ação de botão, 25/10/2026
+`FUN_0045c570` monta os 4 bytes de cada botão com uma tabela de 54 entradas
+(`DAT_004ba2e4`, 6 dwords por entrada: quatro bytes de ação, um campo não usado e o id da
+ação na interface), a mesma para todas as famílias. A única exceção por família está no
+id `0x36`: normalmente `8f 00 00 00`, mas na família 4 e no nome "2850" vira `9b 08`.
+Nenhum dos dois entra no lote.
+- Bate com o `buttons.rs`: `81`, `82`, `83` (cliques), `84`/`85` (voltar e avançar), `88` a
+  `8d` (DPI, rolagem, perfil), `97`/`98` (taxa), `8e 01 ff <id>` (atalhos), `8e 01 <uso>`
+  (mídia), `8f <mod> <tecla>` (combo), `90` (tecla), `91` (macro), `99` (tiro rápido) e
+  `9b 04` (modo de LED).
+- Existem na tabela e não oferecemos, sem significado conhecido: `30 00 00 00` (id `0x31`),
+  `94` (id `0x3a`), `95` (id `0x07`), `9a 01 01 01` (id `0x40`), `9d` (id `0x0c`) e
+  `00 00 00 00` (id `0x2f`, desligado). Ficam como dado; testar no mouse antes de expor.
 
 ## Lista de mouses do oficial (`Config.ini`, 25/10/2026)
 O pacote Cobra V2 traz `REDRAGON Gaming Mouse/Config.ini` com a seção `[Mouse_List]`
@@ -147,9 +166,8 @@ Consequências para o Salamandra:
 
 ## Ainda não lido
 - tabelas de DPI por sensor (dados em `DAT_004b9ddc`...`DAT_004ba29f`);
-- botões e macros: lidos (seção "Macros e botões por modelo"); falta o formato dos
-  bytes de cada ação por família em `FUN_0045c570` (acima de `0x45cf89`);
-- o papel de `FUN_00458530` no fluxo do oficial;
+- botões e macros: lidos (seções "Macros e botões por modelo" e "Bytes de cada ação de
+  botão"); o papel de `FUN_00458530` também (LED dos cinco perfis);
 - de onde sai a versão usada para escolher o nome (ver "Lista de mouses do oficial").
 
 ## Sensor 3325 (M711 Cobra, INVADER), 23/10/2026
