@@ -94,8 +94,8 @@ citando a função de origem.
 O `redragon.com.br/downloads` lista software para M711 King Cobra 2, M711 Cobra V2,
 M988 Storm Elite, ID711 Ryu e B703 Cerberus. Não sabemos o VID:PID deles
 nem se o protocolo é o mesmo. O `Config.ini` do oficial (46 mouses, ver
-`RE-FINDINGS.md`) já resolve parte: o M711 Cobra V2 e o King Cobra 2 (M711-FPS-1) usam o
-PID `fc30`, separados pela versão do dispositivo.
+`RE-FINDINGS.md`) ajuda: o `fc30` cobre M711 e M711-FPS-1/FPS-2 por faixa de versão do
+dispositivo; qual nome comercial corresponde a cada um não está confirmado.
 - [ ] Q.1 Angelo informa `lsusb`/Informações do Sistema de cada um que tiver,
   ou o assunto vira issue "peço suporte" na comunidade
 - [ ] Q.2 com o VID:PID, conferir se cai em um modelo da trilha P; se não,
