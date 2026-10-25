@@ -21,7 +21,8 @@ aviso; logo geométrica; só fatos do mouse_m908 (GPL-3), sem copiar código.
 - Capturas de referência: `documentation/default_m908.txt` e os `data.cpp`
   por modelo em `include/<modelo>/` do mouse_m908.
 - `redragon.com.br/downloads` lista software de M711 King Cobra 2, Cobra V2,
-  Storm Elite M988, ID711 e B703; o VID:PID deles é desconhecido (Trilha Q).
+  Storm Elite M988, ID711 e B703; o VID:PID deles não está confirmado (Trilha Q). O `Config.ini` do oficial
+  lista 46 mouses com PID e versão (ver `RE-FINDINGS.md`), mas sem os nomes comerciais.
 
 ## Achados do REA (22/10/2026)
 Software oficial analisado com `rea` 6.4 e Ghidra 12.1.4
@@ -51,7 +52,8 @@ o `rea doctor` diz que o Ghidra não existe).
 - O serviço de atalhos escuta um mouse só: com dois ligados, os atalhos do mouse não escolhido não funcionam e a interface não avisa. Avaliar um transporte por mouse no serviço.
 - Dois mouses do mesmo modelo aparecem como um só no seletor (o id do modelo identifica o mouse). Para separar, guardar o caminho HID.
 - Qual SKU exato é o "Cobra" da fonte (`fc30`) em relação ao King Cobra 2 e
-  ao Cobra V2 do site.
+  ao Cobra V2 do site. Pista: no `Config.ini` do oficial o `fc30` é M711 (versão 1 a
+  767) ou M711-FPS-1 (768 a 1535), mas a lista não diz qual nome comercial é qual.
 
 ## Como verificar
 `verify .` e, para um modelo novo, o teste de montagem de pacote contra a captura.

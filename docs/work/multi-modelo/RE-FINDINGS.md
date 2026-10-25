@@ -134,11 +134,12 @@ O mesmo PID serve a vários nomes, separados só pela versão:
 Consequências para o Salamandra:
 - O `fc30` não é só o Cobra: a versão decide o nome, e o nome decide o sensor e a
   tabela de DPI (M711 usa 3325, M711-FPS-1 usa 3360, M711-FPS-2 usa 3389, 2710-H usa
-  3327). A spec do Cobra vale para as versões 1 a 767; um `fc30` mais novo pode
+  3327; sensor por nome em `FUN_004314d0`: M711 cai no padrão 0xCFD, FPS-1 no ramo
+  0xD20, FPS-2 no 0xD3D, 2710-H e 2776 3327 na lista do ramo 0xCFF junto com o IMPACT). A spec do Cobra vale para as versões 1 a 767; um `fc30` mais novo pode
   gravar códigos de DPI errados. Hoje o `salamandra-hid` escolhe só pelo PID.
 - Mesmo caso do `fc4f` (Invader 256-511; 2776-3327 em 768-1023 tem outro sensor) e do
   `fc40`.
-- O M901-1 testado reporta versão 512 (`bcdDevice` 0x0200), que a lista nomeia
+- O M901-1 testado reporta versão 512 (`bcdDevice` 0x0200, lido com `ioreg` no macOS em 25/10/2026), que a lista nomeia
   PERDITION3, mas ele se comporta como o sensor 3360 (lê e grava DPI de 100 a 24000
   em passos de 100). Ou a versão não é o `bcdDevice`, ou a lista do oficial não
   descreve esse mouse; **dúvida em aberto**, não mudar o código por isso.
