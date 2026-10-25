@@ -16,6 +16,7 @@ Status: **untested**. Never checked on the physical mouse. The app and the CLI w
 - The official macro writer (`FUN_00459cf0`) has no family or model branch, so the layout is the M901-1 one. The 1 slot limit comes only from the `mouse_m908` author, so only slot 1 is offered until someone tests more.
 - The official software maps its button numbers 4, 5 and 6 to the slots 6, 4 and 5 of this page's numbering (counted from 1; offsets `0x14`, `0xc` and `0x10`) for this model (`FUN_0045c570`). We number by slot, so writing is unaffected, but the names of those three buttons on the shell may be swapped. Check which physical button each one is.
 - The `mouse_m908` capture uses a different LED coding for this model than the official software. We follow the official mode, with the `sub` byte the M901-1 was tested with (the multi-model official program (`RDCfg.exe`) writes `1` there for families 0 to 2; see the reverse engineering notes).
+- Device version: the PID `fc4f` also covers a model with another sensor (2776-3327, versions 768 to 1023). This spec matches the official list for versions 256 to 511. `salamandra show` prints the version; please include it in your report.
 
 ## How to help
 Open the "Mouse support" issue form with the output of `salamandra show` before and after a change, and what you saw on the mouse.

@@ -46,7 +46,7 @@ O que a fonte mostra (base das tasks):
 - [x] M.3 detecção (feito: `--model`/`SALAMANDRA_MODEL` escolhem entre vários; o app tem seletor na barra lateral quando há mais de um; o serviço de atalhos segue o mesmo mouse): `salamandra-hid` enumera todos os PIDs da tabela; com mais
   de um mouse ligado o CLI pede qual usar e o app abre o primeiro e oferece o seletor; `Error::NotFound` e o
   texto "mouse 04d9:fc40 não encontrado" deixam de citar um modelo fixo
-- [ ] M.4 (feito para o M711 Cobra) `docs/models/<slug>.md` (en e pt-BR) por modelo: origem de cada campo,
+- [x] M.4 (feito para Cobra, Impact e Invader; o Griffin espera a P.4) `docs/models/<slug>.md` (en e pt-BR) por modelo: origem de cada campo,
   diferença para o M901-1, o que falta confirmar
 
 ## Trilha S: sinalização de "não testado" (depende de M.1)
@@ -143,6 +143,6 @@ O mesmo PID cobre modelos com sensores diferentes (ver "Lista de mouses do ofici
 - Teclados, headsets e o resto da página de downloads.
 
 ## Integração
-- [ ] I.1 `verify` verde com os 5 modelos na tabela
-- [ ] I.2 nova versão: subir em `Cargo.toml`, `app/package.json` e
+- [x] I.1 `verify` verde com os 4 modelos da tabela (M901-1, Impact, Invader, Cobra; o Griffin segue fora até a P.4)
+- [x] I.2 (feito nas versões 0.3.0 e 0.4.0) nova versão: subir em `Cargo.toml`, `app/package.json` e
   `tauri.conf.json`, tag `vX.Y.Z`, conferir o rascunho da release
