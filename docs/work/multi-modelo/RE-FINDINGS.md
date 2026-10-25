@@ -78,14 +78,30 @@ divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para test
   famílias 3 e 4); o papel dela no fluxo do oficial não foi identificado, então não é
   "botões" como se supunha. `FUN_00458f90` não é macro: só envia `F1 02 m` com
   m = `04`, `01`, `02`, `08`, `10` em sequência (parte do envelope de sessão, já
-  coberto). `FUN_00459cf0` (241 linhas) e `FUN_0045c570` (622 linhas) seguem sem
-  leitura completa.
+  coberto).
+
+## Macros e botões por modelo, 24/10/2026
+- Macros (`FUN_00459cf0`): grava em `0x478 + 200 * slot`, 200 bytes, 3 bytes por
+  evento (o enchimento do resto do slot não foi decifrado e não é usado). Não há ramo por família nem por nome de modelo:
+  o layout é o do M901-1 para todos. Não explica o limite de 1 macro do Invader (vem
+  só do autor do mouse_m908).
+- Botões (`FUN_0045c570`): o endereço é `0x42 + base do perfil + 4 * slot`. O oficial
+  troca o índice da interface pelo slot **conforme o nome do modelo**. IMPACT cai no
+  padrão (slot = índice), como no M901-1. Os índices abaixo contam a partir de 0, como o código. INVADER: índice 3 vai para o
+  slot 5 (`0x14`), 4 para o slot 3 (`0xc`) e 5 para o slot 4 (`0x10`); nas docs de
+  modelo, que contam a partir de 1, são os botões 4, 5 e 6 indo para os slots 6, 4 e 5; os outros seguem o
+  padrão. GRIFFIN: índice 6 vai para o slot 7 (`0x1c`); o índice 7 segue o padrão e cai no mesmo slot 7 (`0x1c`), o que sugere que a interface do Griffin não usa o índice 6 (a conferir). LEGEND e LEGEND2 deslocam os
+  índices 7 a 0x16 em +1 slot (índice 7 vai para `0x20`, o slot 8), e esses índices
+  passam dos 20 botões do mapa do M901-1 (0 a 19): é outro mouse, fora do nosso lote. Isso só muda qual botão da interface do oficial é qual
+  slot; o Salamandra numera por slot, então a gravação não muda, mas o nome do botão
+  na carcaça do Invader pode estar trocado entre os slots 3, 4 e 5 (a partir de 0; 4, 5
+  e 6 na página do modelo), a conferir.
 
 ## Primeiro lote: o que já se sabe
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
 | --- | --- | --- | --- |
 | M711 Cobra (`fc30`) | 0 | 3325 | quase tudo; muda só a tabela de DPI |
-| INVADER (`fc4f`) | 2 | 3325 | LED como a família 0 (`sub` em aberto); botões a confirmar; DPI de 3325 |
+| INVADER (`fc4f`) | 2 | 3325 | LED como a família 0 (`sub` em aberto); mapa de botões lido (slots 3 a 5 trocados na interface do oficial), nome na carcaça a confirmar; DPI de 3325 |
 | IMPACT (`fc4d`) | 3 | 3327 | LED e botões da família 3 |
 | GRIFFIN (`fc38`) | 3 | 3212 | família 3 com outra tabela de DPI |
 
@@ -94,8 +110,8 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
 
 ## Ainda não lido
 - tabelas de DPI por sensor (dados em `DAT_004b9ddc`...`DAT_004ba29f`);
-- botões e macros por família: `FUN_00459cf0` e `FUN_0045c570` (as outras duas que se
-  supunha ligadas a isso foram lidas e não são, ver "LED das famílias 1, 2 e 4");
+- botões e macros: lidos (seção "Macros e botões por modelo"); falta o formato dos
+  bytes de cada ação por família em `FUN_0045c570` (acima de `0x45cf89`);
 - o papel de `FUN_00458530` no fluxo do oficial;
 - de onde sai o nome do modelo (provavelmente lido do mouse) e a tabela
   VID/PID para nome.
