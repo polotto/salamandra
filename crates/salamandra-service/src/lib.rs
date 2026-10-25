@@ -138,7 +138,10 @@ pub fn run(
         let device = match HidTransport::open_model(choice.as_deref()) {
             Ok(opened) => opened,
             Err(e) => {
-                if e != Error::NotFound {
+                // "Modelo não conectado" com escolha feita é o mouse que saiu entre a
+                // enumeração e a abertura: o laço tenta de novo.
+                let vanished = wanted.is_some() && matches!(e, Error::Invalid(_));
+                if e != Error::NotFound && !vanished {
                     on_error(&e);
                 }
                 sleep(Duration::from_secs(2));
@@ -172,7 +175,10 @@ pub fn run(
                             on_error(&e);
                         }
                     }
-                    on_event(&event);
+                    // Evento de outro mouse (o escolhido está fora) não vai para a tela.
+                    if !wants_back(wanted.as_deref(), opened.id) {
+                        on_event(&event);
+                    }
                 }
                 Ok(None) => {}
                 Err(e) => {

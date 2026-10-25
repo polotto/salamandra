@@ -96,7 +96,7 @@ fn with_mouse<R>(
                 }
                 salamandra_hid::open_model(Some(&id))
             }
-            None => salamandra_hid::open(),
+            None => salamandra_hid::open_model(None),
         };
         *guard = Some(mouse.map_err(|e| e.to_string())?);
     }
@@ -165,18 +165,18 @@ fn connect(state: State<AppState>, model: Option<String>) -> Result<Snapshot, St
                 .map(|m| m.id)
                 .collect();
             if !is_plugged(&id, &connected) {
-                return Err(Error::NotFound.to_string());
+                // Não é "mouse não encontrado": o mouse atual segue em uso.
+                return Err(
+                    Error::Invalid(format!("o mouse {id} não está mais conectado")).to_string(),
+                );
             }
             Some(id)
         }
         None => state.preferred.lock().map_err(|e| e.to_string())?.clone(),
     };
     let choice = salamandra_hid::pick_model(wanted.as_deref());
-    let mut mouse = match &choice {
-        Some(id) => salamandra_hid::open_model(Some(id)),
-        None => salamandra_hid::open(),
-    }
-    .map_err(|e| e.to_string())?;
+    // `pick_model` já levou em conta SALAMANDRA_MODEL: `None` aqui é "o único mouse".
+    let mut mouse = salamandra_hid::open_model(choice.as_deref()).map_err(|e| e.to_string())?;
     let snapshot = read_all(&mut mouse).map_err(|e| e.to_string())?;
     // Guarda o modelo aberto de fato, para reabrir sempre o mesmo e nunca outro.
     let opened = mouse.spec().id.to_string();
