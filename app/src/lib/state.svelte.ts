@@ -52,11 +52,15 @@ class AppState {
   }
 
   async connect(model?: string) {
-    const snap = await this.run("Lendo o mouse...", () => api.connect(model));
+    // O snapshot entra dentro do `busy`: não há instante com o backend no mouse novo
+    // e a tela ainda no antigo, com os botões de gravar liberados.
+    await this.run("Lendo o mouse...", async () => {
+      const snap = await api.connect(model);
+      this.connected = true;
+      this.applySnapshot(snap);
+      return snap;
+    });
     this.mice = await api.connectedMice().catch(() => this.mice);
-    if (!snap) return;
-    this.connected = true;
-    this.applySnapshot(snap);
   }
 
   async save(p: number) {
