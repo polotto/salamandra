@@ -3,7 +3,7 @@
 Fonte: `RDCfg.exe` do pacote "REDRAGON Gaming Mouse" (site da Redragon, link da
 Cobra V2), sha256 `c0fe791f...c8c703`, analisado com `rea` 6.4 e Ghidra 12.1.4.
 Para interoperabilidade. Nada do oficial entra no repo: só estes fatos, cada um
-com a função de origem. Atualizado em 22/10/2026.
+com a função de origem. Atualizado em 24/10/2026.
 
 ## Como o oficial escolhe o layout
 O programa não decide por VID/PID. Ele guarda um **nome de modelo** (string,
@@ -44,21 +44,48 @@ Cada sensor tem tabela de DPI própria em `FUN_00457b30` (códigos de 8 bits
 indexados pelo passo de 100 DPI, com limites 0x33, 0x5D, 0x79, 0x141, 0x190,
 0x208 e outros).
 
-## LED (`FUN_00456d90`, endereço `0x0449 + 8p`, len 7)
+## LED (`FUN_00456d90`, famílias 0 a 3: endereço `0x0449 + 8p`, len 7; a família 4 é outra)
 Mesmo endereço do M901-1, mas o modo e a velocidade mudam por família:
 - famílias 0 a 2: modo em `local_30` (apagado 0, fixo 1, respirar 2, piscar 4,
-  ...) com o byte de velocidade `9 - v`. Família 0 já é o que temos.
+  ...) com o byte de velocidade `9 - v`. A família 0 já é o que temos, com o byte `sub` em aberto (seção abaixo).
 - família 3: oito posições com outros pares (modo, sub), listadas abaixo na seção
   "Impact, LED". Velocidade `9 - v` em todas menos fixo e desligado.
-- família 4: o caminho de gravação é outro, com endereços `0x48`, `0x50`, `0x58`,
-  `0x60`, `0x68` (uma gravação por zona ou perfil, ainda não confirmado).
-Tabela de modos da família 3: feita (ver abaixo). Famílias 1, 2 e 4: pendente (R.4).
+- família 4: o caminho de gravação é outro: cinco gravações por zona, em `0x448`,
+  `0x450`, `0x458`, `0x460` e `0x468` (seção "LED das famílias 1, 2 e 4").
+Tabela de modos da família 3: feita (ver abaixo). Famílias 1 e 2: lidas em 24/10/2026, com
+divergência de `sub` em aberto (abaixo). Família 4: lida, sem modelo para testar (abaixo).
+
+## LED das famílias 1, 2 e 4, 24/10/2026
+- Famílias 0, 1 e 2 caem no mesmo ramo de `FUN_00456d90` (`uVar4 < 3`), então a 1 e a
+  2 têm o mesmo layout da 0, e o Invader (família 2) usa `LedCodec::Family0`. As
+  posições de modo do oficial (0 a 8) viram (modo, sub) assim: 0 `2/1` respirar,
+  1 `3/1`, 2 `1/1` fixo (sem velocidade), 3 `5/1`, 6 `4/1` piscar, 7 `0/0` desligado,
+  8 `2/3`; velocidade `9 - v`.
+  **Divergência, dúvida em aberto:** o nosso `Family0` grava sub `0` em fixo,
+  respirar e piscar (como o M901-1, que foi testado no mouse), e este ramo do
+  oficial grava sub `1`. O `Cycle` (`03 .. 03`) também não bate com nenhuma posição
+  daqui (`3/1` e `2/3`). O firmware provavelmente ignora esse byte nos modelos de
+  família 0, mas não está provado. Não mudamos o código: o que foi testado no M901-1
+  continua valendo. Quem testar um Cobra ou Invader pode conferir se sub `1` muda
+  algo. A leitura também só aceita sub `0`, então um perfil gravado pelo oficial com
+  sub `1` aparece como fixo no Salamandra.
+- Família 4 (só "2931-A V1" e mais um nome, `DAT_004b1b99`): o LED não é um bloco de
+  7 bytes em `0x449 + 8p`. São cinco gravações de 8 bytes, uma por zona, em `0x448`,
+  `0x450`, `0x458`, `0x460` e `0x468`, com dados `[0x81 (0x80 na zona 2), r, g, b,
+  modo da zona, 9 - velocidade, flag, brilho]` e a quinta zona toda zero com `0x80`.
+  Nenhum modelo do primeiro lote é família 4: não implementado, sem como testar.
+- `FUN_00458530` também grava blocos de 8 bytes nos endereços de zona (ramos para as
+  famílias 3 e 4); o papel dela no fluxo do oficial não foi identificado, então não é
+  "botões" como se supunha. `FUN_00458f90` não é macro: só envia `F1 02 m` com
+  m = `04`, `01`, `02`, `08`, `10` em sequência (parte do envelope de sessão, já
+  coberto). `FUN_00459cf0` (241 linhas) e `FUN_0045c570` (622 linhas) seguem sem
+  leitura completa.
 
 ## Primeiro lote: o que já se sabe
 | Modelo | Família | Sensor | Quanto reaproveita do M901-1 |
 | --- | --- | --- | --- |
 | M711 Cobra (`fc30`) | 0 | 3325 | quase tudo; muda só a tabela de DPI |
-| INVADER (`fc4f`) | 2 | 3325 | LED e botões podem divergir; DPI de 3325 |
+| INVADER (`fc4f`) | 2 | 3325 | LED como a família 0 (`sub` em aberto); botões a confirmar; DPI de 3325 |
 | IMPACT (`fc4d`) | 3 | 3327 | LED e botões da família 3 |
 | GRIFFIN (`fc38`) | 3 | 3212 | família 3 com outra tabela de DPI |
 
@@ -67,8 +94,9 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
 
 ## Ainda não lido
 - tabelas de DPI por sensor (dados em `DAT_004b9ddc`...`DAT_004ba29f`);
-- botões por família (`FUN_00458530`, `FUN_00459cf0`, `FUN_0045c570`);
-- macros por família (`FUN_00458f90`);
+- botões e macros por família: `FUN_00459cf0` e `FUN_0045c570` (as outras duas que se
+  supunha ligadas a isso foram lidas e não são, ver "LED das famílias 1, 2 e 4");
+- o papel de `FUN_00458530` no fluxo do oficial;
 - de onde sai o nome do modelo (provavelmente lido do mouse) e a tabela
   VID/PID para nome.
 
@@ -123,4 +151,5 @@ modelo do núcleo precisa ser `Familia` + `Sensor`, não um enum de mouses.
   (100 -> 2, 900 -> 20, 6400 -> 73 flag 1, máximo 7200). Divergência: **dúvida em
   aberto**, o Griffin não entra até alguém com o mouse resolver.
 - A captura do mouse_m908 codifica o LED do Cobra e do Invader diferente do
-  oficial (par modo/sub genérico). Seguimos o oficial, que no M901-1 foi testado.
+  oficial (par modo/sub genérico). Seguimos o modo do oficial com o `sub 0` testado no M901-1 (divergência de `sub` em
+  "LED das famílias 1, 2 e 4").
