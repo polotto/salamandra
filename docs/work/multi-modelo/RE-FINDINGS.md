@@ -170,15 +170,17 @@ Consequências para o Salamandra:
   `fc40`.
 - O M901-1 testado reporta versão 512 (`bcdDevice` 0x0200, lido com `ioreg` no macOS em 25/10/2026), que a lista nomeia
   PERDITION3, mas ele se comporta como o sensor 3360 (lê e grava DPI de 100 a 24000
-  em passos de 100). Ou a versão não é o `bcdDevice`, ou a lista do oficial não
-  descreve esse mouse; **dúvida em aberto**, não mudar o código por isso.
+  em passos de 100). A versão do `Config.ini` é provavelmente o
+  `bcdDevice` (seção "`HidDevice.dll`"), então o oficial trataria esse mouse como
+  PERDITION3. Ou a lista não descreve esse mouse, ou o ramo de sensor que lemos para
+  PERDITION3 em `FUN_004314d0` está errado; **dúvida em aberto**, não mudar o código por isso.
 - Os nomes `2xxx` são códigos de fábrica sem nome comercial na lista.
 
 ## Ainda não lido
 - tabelas de DPI por sensor (dados em `DAT_004b9ddc`...`DAT_004ba29f`);
 - botões e macros: lidos (seções "Macros e botões por modelo" e "Bytes de cada ação de
   botão"); o papel de `FUN_00458530` também (LED dos cinco perfis);
-- de onde sai a versão usada para escolher o nome (ver "Lista de mouses do oficial").
+- o chamador que compara `VER_MIN`/`VER_MAX` com a versão do mouse (não rastreado; ver "Lista de mouses do oficial").
 
 ## Sensor 3325 (M711 Cobra, INVADER), 23/10/2026
 - `FUN_00457b30`, ramo `0xCFD`: nível de DPI gravado em `base+4+6n`, 5 bytes
