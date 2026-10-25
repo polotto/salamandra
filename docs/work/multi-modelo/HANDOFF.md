@@ -48,6 +48,7 @@ o `rea doctor` diz que o Ghidra não existe).
 ## Bloqueios e dúvidas em aberto
 - Sem nenhum desses mouses em mãos, tudo entra como `Untested`.
 - Seletor de mouse do app: testado só com mouse falso e uma lista de um mouse. Falta conferir com dois mouses reais ligados (trocar, desligar o escolhido, ligar um segundo com o app aberto).
+- O serviço de atalhos escuta um mouse só: com dois ligados, os atalhos do mouse não escolhido não funcionam e a interface não avisa. Avaliar um transporte por mouse no serviço.
 - Qual SKU exato é o "Cobra" da fonte (`fc30`) em relação ao King Cobra 2 e
   ao Cobra V2 do site.
 

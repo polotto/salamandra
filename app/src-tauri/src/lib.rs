@@ -68,6 +68,10 @@ struct Snapshot {
     macros: Vec<Vec<MacroEvent>>,
 }
 
+fn is_plugged(id: &str, connected: &[&str]) -> bool {
+    connected.iter().any(|c| c.eq_ignore_ascii_case(id))
+}
+
 /// Roda `f` com o mouse aberto (abre se preciso). Reabre sempre o modelo escolhido
 /// e nunca troca de mouse sozinho: quem troca é `connect`, que relê os perfis. Em falha de comunicação,
 /// descarta a conexão para a próxima chamada reabrir.
@@ -79,7 +83,17 @@ fn with_mouse<R>(
     let mut guard = state.mouse.lock().map_err(|e| e.to_string())?;
     if guard.is_none() {
         let mouse = match preferred {
-            Some(id) => salamandra_hid::open_model(Some(&id)),
+            Some(id) => {
+                // O mouse escolhido sumiu: cai na tela "não encontrado" e o `connect`
+                // seguinte escolhe outro e relê os perfis. Nunca troca em silêncio aqui.
+                let connected: Vec<&str> = salamandra_hid::connected_models()
+                    .map(|l| l.into_iter().map(|m| m.id).collect())
+                    .unwrap_or_default();
+                if !is_plugged(&id, &connected) {
+                    return Err(Error::NotFound.to_string());
+                }
+                salamandra_hid::open_model(Some(&id))
+            }
             None => salamandra_hid::open(),
         };
         *guard = Some(mouse.map_err(|e| e.to_string())?);
@@ -449,6 +463,13 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_reconnect_only_reopens_the_chosen_mouse_while_it_is_plugged() {
+        assert!(is_plugged("m901-1", &["m711-cobra", "m901-1"]));
+        assert!(!is_plugged("m901-1", &["m711-cobra"]));
+        assert!(!is_plugged("m901-1", &[]));
+    }
 
     #[test]
     fn profile_file_round_trip() {
