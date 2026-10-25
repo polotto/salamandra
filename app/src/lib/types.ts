@@ -87,6 +87,8 @@ export interface ModelInfo {
   name: string;
   vendor_id: number;
   product_id: number;
+  /** Versão do dispositivo (bcdDevice), se o sistema informa. */
+  release: number | null;
   tested: boolean;
   source: string;
   /** Índices de botão (0 a 19) que o mouse tem. */

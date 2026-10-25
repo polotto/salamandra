@@ -134,7 +134,7 @@
           <p>{t("Configurador aberto de mouses gamer para Windows, Linux e macOS.")}</p>
           {#if app.model}
             <p class="muted">
-              {t("Mouse")}: {app.model.name} (USB {app.model.vendor_id.toString(16).padStart(4, "0")}:{app.model.product_id.toString(16).padStart(4, "0")}).
+              {t("Mouse")}: {app.model.name} (USB {app.model.vendor_id.toString(16).padStart(4, "0")}:{app.model.product_id.toString(16).padStart(4, "0")}{app.model.release === null ? "" : `, ${t("versão")} ${app.model.release}`}).
             </p>
           {/if}
           <p class="muted">{t("Projeto independente, sem vínculo com a Redragon. Licença MIT.")}</p>

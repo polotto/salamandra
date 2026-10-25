@@ -79,6 +79,7 @@ const en: Record<string, string> = {
   "Modo": "Mode",
   "Mostrar mesa": "Show desktop",
   "Mouse": "Mouse",
+  "versão": "version",
   "a": "to",
   "Os botões DPI + e DPI - percorrem só os níveis ligados.": "The DPI + and DPI - buttons only cycle through enabled levels.",
   "Modelo não testado no mouse físico.": "Model not tested on the physical mouse.",

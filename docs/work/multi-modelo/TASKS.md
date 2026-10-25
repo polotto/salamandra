@@ -104,7 +104,7 @@ dispositivo; qual nome comercial corresponde a cada um não está confirmado.
 
 ## Trilha V: versão do dispositivo (nova, 25/10/2026)
 O mesmo PID cobre modelos com sensores diferentes (ver "Lista de mouses do oficial").
-- [x] V.1 ler `release_number` e mostrar no `show` (feito; conferido no M901-1 real em 25/10/2026: `show` imprime `04d9:fc40, versão 512`, igual ao `ioreg`; a lista do app ainda não mostra), sem mudar a escolha
+- [x] V.1 ler `release_number` e mostrar no `show` (feito; conferido no M901-1 real em 25/10/2026: `show` imprime `04d9:fc40, versão 512`, igual ao `ioreg`; a tela Sobre do app também mostra), sem mudar a escolha
   - pronto quando: o M901-1 aparece com versão 512 e o relato de teste inclui a versão
 - [ ] V.2 decidir pela versão: só depois que alguém com um `fc30` ou `fc4f` de outra
   versão relatar o que o mouse faz (o M901-1 testado contradiz a leitura direta)
