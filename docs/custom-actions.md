@@ -47,7 +47,7 @@ Keys of `bindings` are the shortcut names: `Cut`, `Copy`, `Paste`, `SelectAll`,
 | `Keys` | `modifiers` (`Ctrl`, `Shift`, `Alt`, `Cmd`), `key` | Holds the modifiers, taps the key |
 | `Builtin` | `name`: `MissionControl`, `Launchpad` (macOS), `ShowDesktop` | Ready-made action, resolved per system |
 | `Hyper` | none | Holds Ctrl+Alt+Shift+Cmd while the button is held |
-| `OpenApp` | `name` | Opens an app (`open -a` on macOS) |
+| `OpenApp` | `name` | Opens an app (`open -a` on macOS; on Windows and Linux `name` is the program, in the PATH or a full path) |
 | `OpenUrl` | `url` | Opens with the default program |
 | `Command` | `argv` | Runs a program with arguments, no shell |
 | `Wait` | `ms` | Pause, only inside a `Sequence` (10 s total) |

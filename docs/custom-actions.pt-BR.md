@@ -47,7 +47,7 @@ As chaves de `bindings` são os nomes dos atalhos: `Cut`, `Copy`, `Paste`,
 | `Keys` | `modifiers` (`Ctrl`, `Shift`, `Alt`, `Cmd`), `key` | Segura os modificadores e toca a tecla |
 | `Builtin` | `name`: `MissionControl`, `Launchpad` (macOS), `ShowDesktop` | Ação pronta, resolvida por sistema |
 | `Hyper` | nenhum | Segura Ctrl+Alt+Shift+Cmd enquanto o botão está apertado |
-| `OpenApp` | `name` | Abre um app (`open -a` no macOS) |
+| `OpenApp` | `name` | Abre um app (`open -a` no macOS; no Windows e no Linux `name` é o programa, no PATH ou caminho completo) |
 | `OpenUrl` | `url` | Abre com o programa padrão |
 | `Command` | `argv` | Roda um programa com argumentos, sem shell |
 | `Wait` | `ms` | Pausa, só dentro de uma `Sequence` (10 s no total) |

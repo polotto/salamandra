@@ -208,7 +208,8 @@ fn builtin(b: Builtin, os: Os) -> Result<Op, Error> {
 fn open_app(name: &str, os: Os) -> Op {
     match os {
         Os::MacOs => Op::Spawn(vec!["open".into(), "-a".into(), name.into()]),
-        _ => Op::Open(name.into()),
+        // Windows e Linux: o nome é o programa (no PATH ou caminho), sem shell.
+        _ => Op::Spawn(vec![name.into()]),
     }
 }
 
@@ -332,7 +333,7 @@ mod tests {
         );
         assert_eq!(
             plan(&simple[3], Os::Linux).unwrap(),
-            vec![Op::Open("Notes".into())]
+            vec![Op::Spawn(vec!["Notes".into()])]
         );
     }
 
