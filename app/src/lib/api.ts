@@ -12,7 +12,7 @@ export const setMacro = (index: number, events: MacroEvent[]) =>
 export const keyNames = () => invoke<[string, number][]>("key_names");
 export const macroNames = () => invoke<string[]>("macro_names");
 export const setMacroNames = (names: string[]) => invoke<void>("set_macro_names", { names });
-export const customActions = () => invoke<CustomActions>("custom_actions");
+export const customActions = () => invoke<{ actions: CustomActions; load_error: string | null }>("custom_actions");
 export const setCustomActions = (actions: CustomActions) => invoke<void>("set_custom_actions", { actions });
 export const exportProfile = (path: string, profile: Profile) => invoke<void>("export_profile", { path, profile });
 export const importProfile = (path: string) => invoke<Profile>("import_profile", { path });

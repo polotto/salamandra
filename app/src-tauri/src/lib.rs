@@ -285,25 +285,40 @@ fn custom_actions_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, Str
     Ok(dir.join("custom-actions.json"))
 }
 
-/// Ações customizadas dos atalhos do mouse (arquivo vazio ou ausente: nenhuma).
-#[tauri::command]
-fn custom_actions(app: tauri::AppHandle) -> Result<salamandra_core::custom::CustomActions, String> {
-    let path = custom_actions_path(&app)?;
-    salamandra_service::load_custom_actions(&path)
-        .map(|a| a.unwrap_or_else(salamandra_core::custom::CustomActions::new))
-        .map_err(|e| e.to_string())
+/// Ações customizadas e, se o arquivo estiver ruim, o motivo: a tela abre vazia
+/// e deixa o usuário regravar em vez de travar.
+#[derive(Serialize)]
+struct CustomActionsFile {
+    actions: salamandra_core::custom::CustomActions,
+    load_error: Option<String>,
 }
 
-/// Valida, grava no arquivo e passa a valer no serviço na hora.
+#[tauri::command]
+fn custom_actions(app: tauri::AppHandle) -> Result<CustomActionsFile, String> {
+    let path = custom_actions_path(&app)?;
+    let (actions, load_error) = match salamandra_service::load_custom_actions(&path) {
+        Ok(a) => (a, None),
+        Err(e) => (None, Some(e.to_string())),
+    };
+    Ok(CustomActionsFile {
+        actions: actions.unwrap_or_else(salamandra_core::custom::CustomActions::new),
+        load_error,
+    })
+}
+
+/// Valida, grava no arquivo e só então passa a valer no serviço.
 #[tauri::command]
 fn set_custom_actions(
     app: tauri::AppHandle,
     actions: salamandra_core::custom::CustomActions,
 ) -> Result<(), String> {
     let path = custom_actions_path(&app)?;
-    salamandra_service::set_custom_actions(Some(actions.clone())).map_err(|e| e.to_string())?;
+    actions
+        .validate(salamandra_core::events::Os::current())
+        .map_err(|e| e.to_string())?;
     let json = serde_json::to_string_pretty(&actions).map_err(|e| e.to_string())?;
-    std::fs::write(path, json).map_err(|e| e.to_string())
+    std::fs::write(path, json).map_err(|e| e.to_string())?;
+    salamandra_service::set_custom_actions(Some(actions)).map_err(|e| e.to_string())
 }
 
 /// Nomes das teclas (uso HID), a mesma tabela do CLI.
@@ -446,16 +461,11 @@ pub fn run() {
         .manage(AppState::default())
         .setup(|app| {
             setup_tray(app)?;
-            // Ações customizadas salvas valem desde a abertura; arquivo ruim só é avisado.
-            let loaded = custom_actions_path(app.handle()).and_then(|p| {
-                salamandra_service::load_custom_actions(&p).map_err(|e| e.to_string())
-            });
-            match loaded {
-                Ok(actions) => {
+            // Ações customizadas salvas valem desde a abertura. Arquivo ruim é mostrado
+            // na aba Ações, que abre vazia e deixa regravar.
+            if let Ok(path) = custom_actions_path(app.handle()) {
+                if let Ok(actions) = salamandra_service::load_custom_actions(&path) {
                     let _ = salamandra_service::set_custom_actions(actions);
-                }
-                Err(e) => {
-                    let _ = app.handle().emit("service-error", e);
                 }
             }
             let handle = app.handle().clone();

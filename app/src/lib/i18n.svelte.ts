@@ -179,13 +179,15 @@ const en: Record<string, string> = {
   "Sequência (edite no arquivo)": "Sequence (edit in the file)",
   "Nome do app": "App name",
   "Endereço": "URL",
-  "Comando e argumentos": "Command and arguments",
+  "Programa": "Program",
+  "Argumento": "Argument",
+  "Adicionar argumento": "Add argument",
+  "Remover argumento": "Remove argument",
   "Hyper segura as quatro teclas enquanto o botão está apertado.": "Hyper holds the four modifier keys while the button is held.",
   "Salvar ações": "Save actions",
   "Ações salvas": "Actions saved",
   "Alterações não salvas": "Unsaved changes",
   "Descartar ações": "Discard actions",
-  "Cmd": "Cmd",
 };
 
 class I18n {

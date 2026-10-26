@@ -7,7 +7,8 @@
 
   type Kind = "Default" | "Keys" | Builtin | "Hyper" | "OpenApp" | "OpenUrl" | "Command" | "Sequence";
 
-  const kinds: [Kind, string][] = [
+  const isMac = navigator.userAgent.includes("Mac");
+  const allKinds: [Kind, string][] = [
     ["Default", "Padrão do atalho"],
     ["Keys", "Combinação de teclas"],
     ["MissionControl", "Mission Control"],
@@ -18,6 +19,8 @@
     ["OpenUrl", "Abrir endereço"],
     ["Command", "Rodar comando"],
   ];
+  const kinds = allKinds.filter(([k]) => isMac || k !== "Launchpad");
+  const modifierLabel = (m: Modifier) => (m === "Cmd" && !isMac ? "Win" : m);
   const modifiers: Modifier[] = ["Ctrl", "Shift", "Alt", "Cmd"];
 
   let saved = $state<CustomActions | null>(null);
@@ -27,12 +30,16 @@
   let busy = $state(false);
 
   const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
-  const dirty = $derived(JSON.stringify(draft) !== JSON.stringify(saved));
+  // Ordem fixa dos atalhos: trocar para "Padrão" e voltar não suja o rascunho.
+  const snapshot = (c: CustomActions | null) => JSON.stringify(shortcuts.map(([s]) => c?.bindings[s] ?? null));
+  const dirty = $derived(snapshot(draft) !== snapshot(saved));
 
   onMount(async () => {
     try {
-      saved = await customActions();
+      const file = await customActions();
+      saved = file.actions;
       draft = clone(saved);
+      error = file.load_error;
     } catch (e) {
       error = String(e);
     }
@@ -99,7 +106,7 @@
           {@const keys = action}
           <span class="mods">
             {#each modifiers as m}
-              <label><input type="checkbox" checked={keys.modifiers.includes(m)} onchange={() => toggle(keys, m)} />{m}</label>
+              <label><input type="checkbox" checked={keys.modifiers.includes(m)} onchange={() => toggle(keys, m)} />{modifierLabel(m)}</label>
             {/each}
           </span>
           <input class="field short" placeholder={t("Tecla")} bind:value={keys.key} />
@@ -108,14 +115,18 @@
         {:else if action?.type === "OpenUrl"}
           <input class="field" placeholder={t("Endereço")} bind:value={action.url} />
         {:else if action?.type === "Command"}
-          <input
-            class="field"
-            placeholder={t("Comando e argumentos")}
-            value={action.argv.join(" ")}
-            oninput={(e) => {
-              if (action?.type === "Command") action.argv = e.currentTarget.value.split(" ");
-            }}
-          />
+          {@const cmd = action}
+          <span class="args">
+            {#each cmd.argv as _, i}
+              <input
+                class="field"
+                placeholder={i === 0 ? t("Programa") : t("Argumento")}
+                bind:value={cmd.argv[i]}
+              />
+            {/each}
+            <button onclick={() => cmd.argv.push("")}>{t("Adicionar argumento")}</button>
+            {#if cmd.argv.length > 1}<button onclick={() => cmd.argv.pop()}>{t("Remover argumento")}</button>{/if}
+          </span>
         {:else if action?.type === "Hyper"}
           <span class="muted">{t("Hyper segura as quatro teclas enquanto o botão está apertado.")}</span>
         {/if}
@@ -164,6 +175,12 @@
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+  .args {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .field {
     flex: 1;
