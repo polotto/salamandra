@@ -279,6 +279,33 @@ fn set_macro_names(app: tauri::AppHandle, names: Vec<String>) -> Result<(), Stri
     std::fs::write(macro_names_path(&app)?, json).map_err(|e| e.to_string())
 }
 
+fn custom_actions_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir.join("custom-actions.json"))
+}
+
+/// Ações customizadas dos atalhos do mouse (arquivo vazio ou ausente: nenhuma).
+#[tauri::command]
+fn custom_actions(app: tauri::AppHandle) -> Result<salamandra_core::custom::CustomActions, String> {
+    let path = custom_actions_path(&app)?;
+    salamandra_service::load_custom_actions(&path)
+        .map(|a| a.unwrap_or_else(salamandra_core::custom::CustomActions::new))
+        .map_err(|e| e.to_string())
+}
+
+/// Valida, grava no arquivo e passa a valer no serviço na hora.
+#[tauri::command]
+fn set_custom_actions(
+    app: tauri::AppHandle,
+    actions: salamandra_core::custom::CustomActions,
+) -> Result<(), String> {
+    let path = custom_actions_path(&app)?;
+    salamandra_service::set_custom_actions(Some(actions.clone())).map_err(|e| e.to_string())?;
+    let json = serde_json::to_string_pretty(&actions).map_err(|e| e.to_string())?;
+    std::fs::write(path, json).map_err(|e| e.to_string())
+}
+
 /// Nomes das teclas (uso HID), a mesma tabela do CLI.
 #[tauri::command]
 fn key_names() -> Vec<(String, u8)> {
@@ -419,6 +446,18 @@ pub fn run() {
         .manage(AppState::default())
         .setup(|app| {
             setup_tray(app)?;
+            // Ações customizadas salvas valem desde a abertura; arquivo ruim só é avisado.
+            let loaded = custom_actions_path(app.handle()).and_then(|p| {
+                salamandra_service::load_custom_actions(&p).map_err(|e| e.to_string())
+            });
+            match loaded {
+                Ok(actions) => {
+                    let _ = salamandra_service::set_custom_actions(actions);
+                }
+                Err(e) => {
+                    let _ = app.handle().emit("service-error", e);
+                }
+            }
             let handle = app.handle().clone();
             std::thread::spawn(move || {
                 let errors = handle.clone();
@@ -456,6 +495,8 @@ pub fn run() {
             key_names,
             macro_names,
             set_macro_names,
+            custom_actions,
+            set_custom_actions,
             export_profile,
             import_profile,
             reset_all,

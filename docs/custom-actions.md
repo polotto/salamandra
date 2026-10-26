@@ -11,7 +11,9 @@ The mouse only tells the PC when one of its 22 built-in shortcuts is pressed
 **Buttons** tab, then bind it to a custom action in `custom-actions.json`. The
 background service runs your action instead of the built-in one.
 
-Run the service with the file:
+In the app, use the **Actions** tab: pick an action per shortcut and save. The file lives in the app config folder (`custom-actions.json`) and takes effect immediately. Sequences are edited in the file.
+
+To run the service alone with a file:
 
 ```
 SALAMANDRA_ACTIONS=custom-actions.json ./target/release/salamandra-service
