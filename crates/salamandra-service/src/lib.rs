@@ -295,13 +295,14 @@ pub fn run(
                 Ok(None) => {}
                 Err(e) => {
                     on_error(&e);
-                    // Mouse sumiu com o Hyper apertado: não deixa as teclas presas.
-                    if let Some(ex) = executor.as_mut() {
-                        let _ = ex.shortcut_released();
-                    }
                     break;
                 }
             }
+        }
+        // Saiu do laço por qualquer motivo (parar, trocar de mouse, mouse sumiu):
+        // não deixa Ctrl+Alt+Shift+Cmd presos no sistema.
+        if let Some(ex) = executor.as_mut() {
+            let _ = ex.shortcut_released();
         }
     }
 }

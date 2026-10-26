@@ -272,11 +272,17 @@ fn flatten(action: &CustomAction, os: Os, top: bool, out: &mut Vec<Op>) -> Resul
 pub fn plan(action: &CustomAction, os: Os) -> Result<Vec<Op>, Error> {
     let mut out = Vec::new();
     flatten(action, os, true, &mut out)?;
-    let waited: u32 = out
+    let waited: u64 = out
         .iter()
-        .map(|op| if let Op::Wait(ms) = op { *ms } else { 0 })
+        .map(|op| {
+            if let Op::Wait(ms) = op {
+                u64::from(*ms)
+            } else {
+                0
+            }
+        })
         .sum();
-    if waited > MAX_WAIT_MS {
+    if waited > u64::from(MAX_WAIT_MS) {
         return Err(Error::Invalid(format!(
             "pausas somam {waited} ms, o limite é {MAX_WAIT_MS} ms"
         )));
@@ -394,6 +400,17 @@ mod tests {
         let mods = [HostKey::Shift, HostKey::Char('x')];
         assert_eq!(modifiers_to_press(&mods, true), vec![HostKey::Char('x')]);
         assert_eq!(modifiers_to_press(&mods, false), mods.to_vec());
+    }
+
+    #[test]
+    fn huge_waits_do_not_wrap_around_the_limit() {
+        let a = CustomAction::Sequence {
+            steps: vec![
+                CustomAction::Wait { ms: 2_147_483_648 },
+                CustomAction::Wait { ms: 2_147_483_648 },
+            ],
+        };
+        assert!(plan(&a, Os::MacOs).is_err());
     }
 
     #[test]
