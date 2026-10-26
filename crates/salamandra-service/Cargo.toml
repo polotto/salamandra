@@ -12,5 +12,6 @@ path = "src/main.rs"
 
 [dependencies]
 enigo = "0.6"
-salamandra-core = { path = "../salamandra-core" }
+salamandra-core = { path = "../salamandra-core", features = ["serde"] }
+serde_json = "1.0.154"
 salamandra-hid = { path = "../salamandra-hid" }
