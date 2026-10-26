@@ -2710,6 +2710,7 @@ dependencies = [
  "enigo",
  "salamandra-core",
  "salamandra-hid",
+ "serde_json",
 ]
 
 [[package]]

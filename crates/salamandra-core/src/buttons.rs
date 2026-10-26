@@ -94,7 +94,7 @@ impl Special {
 
 /// Atalhos BASIC e ADVANCED (`8E 01 FF <id>`). O mouse só avisa o PC; quem
 /// executa é o programa no PC (`FUN_00410be0` do oficial). Ver `host_action`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum Shortcut {

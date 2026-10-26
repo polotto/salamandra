@@ -3,6 +3,7 @@
 //! Sem I/O: o transporte entra pelo trait [`Transport`].
 
 pub mod buttons;
+pub mod custom;
 pub mod defaults;
 pub mod events;
 pub mod fake;
