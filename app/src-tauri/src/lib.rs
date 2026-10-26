@@ -279,6 +279,48 @@ fn set_macro_names(app: tauri::AppHandle, names: Vec<String>) -> Result<(), Stri
     std::fs::write(macro_names_path(&app)?, json).map_err(|e| e.to_string())
 }
 
+fn custom_actions_path(app: &tauri::AppHandle) -> Result<std::path::PathBuf, String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir.join("custom-actions.json"))
+}
+
+/// Ações customizadas e, se o arquivo estiver ruim, o motivo: a tela abre vazia
+/// e deixa o usuário regravar em vez de travar.
+#[derive(Serialize)]
+struct CustomActionsFile {
+    actions: salamandra_core::custom::CustomActions,
+    load_error: Option<String>,
+}
+
+#[tauri::command]
+fn custom_actions(app: tauri::AppHandle) -> Result<CustomActionsFile, String> {
+    let path = custom_actions_path(&app)?;
+    let (actions, load_error) = match salamandra_service::load_custom_actions(&path) {
+        Ok(a) => (a, None),
+        Err(e) => (None, Some(e.to_string())),
+    };
+    Ok(CustomActionsFile {
+        actions: actions.unwrap_or_else(salamandra_core::custom::CustomActions::new),
+        load_error,
+    })
+}
+
+/// Valida, grava no arquivo e só então passa a valer no serviço.
+#[tauri::command]
+fn set_custom_actions(
+    app: tauri::AppHandle,
+    actions: salamandra_core::custom::CustomActions,
+) -> Result<(), String> {
+    let path = custom_actions_path(&app)?;
+    actions
+        .validate(salamandra_core::events::Os::current())
+        .map_err(|e| e.to_string())?;
+    let json = serde_json::to_string_pretty(&actions).map_err(|e| e.to_string())?;
+    std::fs::write(path, json).map_err(|e| e.to_string())?;
+    salamandra_service::set_custom_actions(Some(actions)).map_err(|e| e.to_string())
+}
+
 /// Nomes das teclas (uso HID), a mesma tabela do CLI.
 #[tauri::command]
 fn key_names() -> Vec<(String, u8)> {
@@ -419,6 +461,13 @@ pub fn run() {
         .manage(AppState::default())
         .setup(|app| {
             setup_tray(app)?;
+            // Ações customizadas salvas valem desde a abertura. Arquivo ruim é mostrado
+            // na aba Ações, que abre vazia e deixa regravar.
+            if let Ok(path) = custom_actions_path(app.handle()) {
+                if let Ok(actions) = salamandra_service::load_custom_actions(&path) {
+                    let _ = salamandra_service::set_custom_actions(actions);
+                }
+            }
             let handle = app.handle().clone();
             std::thread::spawn(move || {
                 let errors = handle.clone();
@@ -456,6 +505,8 @@ pub fn run() {
             key_names,
             macro_names,
             set_macro_names,
+            custom_actions,
+            set_custom_actions,
             export_profile,
             import_profile,
             reset_all,

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { shortcuts } from "./shortcuts";
   import type { ButtonAction, FireTarget, Shortcut, Special } from "./types";
   import { t } from "./i18n.svelte";
   import { keys } from "./keys.svelte";
@@ -57,30 +58,6 @@
     ["LedModeSwitch", "Trocar modo do LED"],
   ];
 
-  const shortcuts: [Shortcut, string][] = [
-    ["Cut", "Recortar"],
-    ["Copy", "Copiar"],
-    ["Paste", "Colar"],
-    ["SelectAll", "Selecionar tudo"],
-    ["Find", "Buscar"],
-    ["New", "Novo"],
-    ["Print", "Imprimir"],
-    ["Save", "Salvar"],
-    ["SwitchWindow", "Trocar janela"],
-    ["CloseWindow", "Fechar janela"],
-    ["OpenFileManager", "Abrir gerenciador de arquivos"],
-    ["Run", "Executar"],
-    ["ShowDesktop", "Mostrar mesa"],
-    ["Lock", "Bloquear"],
-    ["BrowserHome", "Navegador: início"],
-    ["BrowserBack", "Navegador: voltar"],
-    ["BrowserForward", "Navegador: avançar"],
-    ["BrowserStop", "Navegador: parar"],
-    ["BrowserRefresh", "Navegador: recarregar"],
-    ["BrowserSearch", "Navegador: buscar"],
-    ["BrowserFavorites", "Navegador: favoritos"],
-    ["Mail", "E-mail"],
-  ];
 
   const modifiers: [number, string][] = [
     [1, "Ctrl"],

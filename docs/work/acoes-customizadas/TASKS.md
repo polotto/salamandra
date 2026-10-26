@@ -27,6 +27,6 @@ O que a engenharia reversa do BTT 5.536 mostrou (só nomes de ação e fatos):
 - [ ] A.3 teste no mouse real (Mission Control e Hyper), com confirmação humana
 
 ## Trilha B: interface
-- [ ] B.1 comandos Tauri para ler e gravar `custom-actions.json`
-- [ ] B.2 tela "Ações" no app (lista por atalho, editor de combo, escolha de ação pronta)
+- [x] B.1 comandos Tauri para ler e gravar `custom-actions.json`
+- [x] B.2 tela "Ações" no app (lista por atalho, editor de combo, escolha de ação pronta)
 - [x] B.3 doc pública en e pt-BR (`docs/custom-actions.md`)

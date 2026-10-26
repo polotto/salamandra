@@ -120,3 +120,22 @@ export interface ConnectedMouse {
   id: string;
   name: string;
 }
+
+export type Modifier = "Ctrl" | "Shift" | "Alt" | "Cmd";
+export type Builtin = "MissionControl" | "Launchpad" | "ShowDesktop";
+
+export type CustomAction =
+  | { type: "Keys"; modifiers: Modifier[]; key: string }
+  | { type: "Builtin"; name: Builtin }
+  | { type: "Hyper" }
+  | { type: "OpenApp"; name: string }
+  | { type: "OpenUrl"; url: string }
+  | { type: "Command"; argv: string[] }
+  | { type: "Wait"; ms: number }
+  | { type: "Sequence"; steps: CustomAction[] };
+
+export interface CustomActions {
+  format: string;
+  version: number;
+  bindings: Partial<Record<Shortcut, CustomAction>>;
+}

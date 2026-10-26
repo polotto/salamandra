@@ -11,7 +11,9 @@ Colar, Mostrar a área de trabalho...). Grave um deles num botão na aba
 **Botões** e ligue-o a uma ação customizada no `custom-actions.json`. O serviço
 em segundo plano executa a sua ação no lugar da embutida.
 
-Rodar o serviço com o arquivo:
+No app, use a aba **Ações**: escolha uma ação por atalho e salve. O arquivo fica na pasta de configuração do app (`custom-actions.json`) e vale na hora. Sequências se editam no arquivo.
+
+Para rodar só o serviço com um arquivo:
 
 ```
 SALAMANDRA_ACTIONS=custom-actions.json ./target/release/salamandra-service

@@ -3,7 +3,7 @@ import { ask, open, save } from "@tauri-apps/plugin-dialog";
 import type { ConnectedMouse, DeviceEvent, MacroEvent, ModelInfo, Profile } from "./types";
 import { t } from "./i18n.svelte";
 
-export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "about" };
+export type Page = { kind: "profile"; index: number } | { kind: "macros" } | { kind: "actions" } | { kind: "about" };
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);

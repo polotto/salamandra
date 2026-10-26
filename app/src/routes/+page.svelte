@@ -6,6 +6,7 @@
   import { i18n, t } from "$lib/i18n.svelte";
   import ProfileEditor from "$lib/ProfileEditor.svelte";
   import MacrosView from "$lib/MacrosView.svelte";
+  import ActionsView from "$lib/ActionsView.svelte";
   import { installNativeFeel } from "$lib/nativeFeel";
   import "../app.css";
 
@@ -75,6 +76,9 @@
     <button class="item" class:selected={app.page.kind === "macros"} onclick={() => (app.page = { kind: "macros" })}>
       {t("Macros")}
     </button>
+    <button class="item" class:selected={app.page.kind === "actions"} onclick={() => (app.page = { kind: "actions" })}>
+      {t("Ações")}
+    </button>
     <button class="item" class:selected={app.page.kind === "about"} onclick={() => (app.page = { kind: "about" })}>
       {t("Sobre")}
     </button>
@@ -126,6 +130,9 @@
     {:else if app.page.kind === "macros"}
       <header class="page-header"><h1>{t("Macros")}</h1></header>
       <MacrosView />
+    {:else if app.page.kind === "actions"}
+      <header class="page-header"><h1>{t("Ações")}</h1></header>
+      <ActionsView />
     {:else}
       <header class="page-header"><h1>{t("Sobre")}</h1></header>
       <div class="about">
