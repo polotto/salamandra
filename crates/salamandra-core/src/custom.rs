@@ -14,6 +14,7 @@ use crate::Error;
 pub const FORMAT: &str = "salamandra-actions";
 pub const VERSION: u32 = 1;
 const MAX_STEPS: usize = 64;
+/// Soma das pausas de uma sequência: o serviço espera na mesma thread que escuta o mouse.
 const MAX_WAIT_MS: u32 = 10_000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -116,6 +117,29 @@ pub enum Op {
 
 /// Teclas do Hyper, na ordem em que são apertadas.
 pub const HYPER: [HostKey; 4] = [HostKey::Ctrl, HostKey::Alt, HostKey::Shift, HostKey::Meta];
+
+/// Teclas a apertar (ou soltar) para o Hyper ir para `press`, ou `None` se já está assim.
+/// Solta na ordem inversa da que apertou.
+pub fn hyper_transition(down: bool, press: bool) -> Option<Vec<HostKey>> {
+    if down == press {
+        return None;
+    }
+    let mut keys = HYPER.to_vec();
+    if !press {
+        keys.reverse();
+    }
+    Some(keys)
+}
+
+/// Modificadores que ainda precisam ser apertados: com o Hyper segurado, os
+/// quatro já estão apertados (soltá-los no fim da ação quebraria o Hyper).
+pub fn modifiers_to_press(modifiers: &[HostKey], hyper_down: bool) -> Vec<HostKey> {
+    modifiers
+        .iter()
+        .copied()
+        .filter(|m| !(hyper_down && HYPER.contains(m)))
+        .collect()
+}
 
 /// Nome de tecla do JSON: uma letra, dígito ou símbolo, `f1`..`f12` ou um nome.
 pub fn parse_key(name: &str) -> Option<HostKey> {
@@ -220,8 +244,10 @@ fn flatten(action: &CustomAction, os: Os, top: bool, out: &mut Vec<Op>) -> Resul
             return Err(Error::Invalid("comando vazio".into()))
         }
         CustomAction::Command { argv } => out.push(Op::Spawn(argv.clone())),
-        CustomAction::Wait { ms } if *ms > MAX_WAIT_MS => {
-            return Err(Error::Invalid(format!("pausa acima de {MAX_WAIT_MS} ms")))
+        CustomAction::Wait { .. } if top => {
+            return Err(Error::Invalid(
+                "pausa só vale dentro de uma sequência".into(),
+            ))
         }
         CustomAction::Wait { ms } => out.push(Op::Wait(*ms)),
         CustomAction::Sequence { .. } if !top => {
@@ -245,6 +271,15 @@ fn flatten(action: &CustomAction, os: Os, top: bool, out: &mut Vec<Op>) -> Resul
 pub fn plan(action: &CustomAction, os: Os) -> Result<Vec<Op>, Error> {
     let mut out = Vec::new();
     flatten(action, os, true, &mut out)?;
+    let waited: u32 = out
+        .iter()
+        .map(|op| if let Op::Wait(ms) = op { *ms } else { 0 })
+        .sum();
+    if waited > MAX_WAIT_MS {
+        return Err(Error::Invalid(format!(
+            "pausas somam {waited} ms, o limite é {MAX_WAIT_MS} ms"
+        )));
+    }
     Ok(out)
 }
 
@@ -267,6 +302,38 @@ mod tests {
         assert_eq!(parse_key("Space"), Some(HostKey::Char(' ')));
         assert_eq!(parse_key("pagedown"), Some(HostKey::PageDown));
         assert_eq!(parse_key("banana"), None);
+    }
+
+    #[test]
+    fn every_kind_of_action_plans_on_every_system() {
+        let simple = [
+            keys_action(&[Modifier::Ctrl], "c"),
+            CustomAction::Builtin {
+                name: Builtin::ShowDesktop,
+            },
+            CustomAction::OpenUrl {
+                url: "https://x.com/?a=1&b=2".into(),
+            },
+            CustomAction::OpenApp {
+                name: "Notes".into(),
+            },
+            CustomAction::Command {
+                argv: vec!["echo".into(), "oi".into()],
+            },
+        ];
+        for os in [Os::Windows, Os::MacOs, Os::Linux] {
+            for a in &simple {
+                assert_eq!(plan(a, os).unwrap().len(), 1, "{a:?} no {os:?}");
+            }
+        }
+        assert_eq!(
+            plan(&simple[3], Os::MacOs).unwrap(),
+            vec![Op::Spawn(vec!["open".into(), "-a".into(), "Notes".into()])]
+        );
+        assert_eq!(
+            plan(&simple[3], Os::Linux).unwrap(),
+            vec![Op::Open("Notes".into())]
+        );
     }
 
     #[test]
@@ -312,6 +379,23 @@ mod tests {
     }
 
     #[test]
+    fn hyper_state_changes_only_on_a_real_transition() {
+        assert_eq!(hyper_transition(false, true), Some(HYPER.to_vec()));
+        let up = hyper_transition(true, false).unwrap();
+        assert_eq!(up.first(), Some(&HostKey::Meta));
+        assert_eq!(up.last(), Some(&HostKey::Ctrl));
+        assert_eq!(hyper_transition(true, true), None);
+        assert_eq!(hyper_transition(false, false), None);
+    }
+
+    #[test]
+    fn held_hyper_keeps_its_modifiers_out_of_the_press_list() {
+        let mods = [HostKey::Shift, HostKey::Char('x')];
+        assert_eq!(modifiers_to_press(&mods, true), vec![HostKey::Char('x')]);
+        assert_eq!(modifiers_to_press(&mods, false), mods.to_vec());
+    }
+
+    #[test]
     fn a_sequence_runs_in_order_with_waits() {
         let a = CustomAction::Sequence {
             steps: vec![
@@ -329,7 +413,14 @@ mod tests {
     fn bad_actions_are_refused_with_a_reason() {
         let os = Os::MacOs;
         assert!(plan(&keys_action(&[], "banana"), os).is_err());
-        assert!(plan(&CustomAction::Wait { ms: 60_000 }, os).is_err());
+        assert!(plan(&CustomAction::Wait { ms: 100 }, os).is_err());
+        let slow = CustomAction::Sequence {
+            steps: vec![
+                CustomAction::Wait { ms: 6_000 },
+                CustomAction::Wait { ms: 6_000 },
+            ],
+        };
+        assert!(plan(&slow, os).is_err());
         assert!(plan(&CustomAction::Command { argv: vec![] }, os).is_err());
         assert!(plan(&CustomAction::OpenUrl { url: " ".into() }, os).is_err());
         assert!(plan(&CustomAction::Sequence { steps: vec![] }, os).is_err());

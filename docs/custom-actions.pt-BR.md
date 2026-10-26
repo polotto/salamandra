@@ -50,7 +50,7 @@ As chaves de `bindings` são os nomes dos atalhos: `Cut`, `Copy`, `Paste`,
 | `OpenApp` | `name` | Abre um app (`open -a` no macOS) |
 | `OpenUrl` | `url` | Abre com o programa padrão |
 | `Command` | `argv` | Roda um programa com argumentos, sem shell |
-| `Wait` | `ms` (até 10000) | Pausa, só dentro de uma `Sequence` |
+| `Wait` | `ms` | Pausa, só dentro de uma `Sequence` (10 s no total) |
 | `Sequence` | `steps` (1 a 64) | Roda os passos em ordem. Sem aninhar e sem `Hyper` |
 
 `key` aceita um caractere, `f1` a `f12`, `space`, `tab`, `escape`, `enter`,
@@ -67,5 +67,6 @@ botão é solto ou o mouse desconecta.
   gravada no mouse não chegam.
 - O fim do Hyper usa o aviso genérico de "solto" do mouse. Segurar dois botões
   de atalho ao mesmo tempo não foi testado no físico.
+- No Windows, o Hyper apertado e solto sem outra tecla dispara o atalho da tecla Office.
 - O macOS exige a permissão de Acessibilidade. O Linux funciona em X11, não em
   Wayland.

@@ -7,7 +7,11 @@ fn main() {
     // `SALAMANDRA_ACTIONS` aponta para o custom-actions.json (ver docs/custom-actions.md).
     if let Ok(path) = std::env::var("SALAMANDRA_ACTIONS") {
         match salamandra_service::load_custom_actions(std::path::Path::new(&path)) {
-            Ok(actions) => salamandra_service::set_custom_actions(actions),
+            Ok(actions) => {
+                if let Err(e) = salamandra_service::set_custom_actions(actions) {
+                    eprintln!("erro: {e}");
+                }
+            }
             Err(e) => eprintln!("erro: {e}"),
         }
     }

@@ -50,7 +50,7 @@ Keys of `bindings` are the shortcut names: `Cut`, `Copy`, `Paste`, `SelectAll`,
 | `OpenApp` | `name` | Opens an app (`open -a` on macOS) |
 | `OpenUrl` | `url` | Opens with the default program |
 | `Command` | `argv` | Runs a program with arguments, no shell |
-| `Wait` | `ms` (up to 10000) | Pause, only inside a `Sequence` |
+| `Wait` | `ms` | Pause, only inside a `Sequence` (10 s total) |
 | `Sequence` | `steps` (1 to 64) | Runs the steps in order. No nesting, no `Hyper` |
 
 `key` accepts a single character, `f1` to `f12`, `space`, `tab`, `escape`,
@@ -67,4 +67,5 @@ released or the mouse disconnects.
   written to the mouse never do.
 - The Hyper release uses the mouse's generic "released" notice. Holding two
   shortcut buttons at once is untested on hardware.
+- On Windows, Hyper pressed and released with no other key triggers the Office key shortcut.
 - macOS needs the Accessibility permission. Linux works on X11, not Wayland.

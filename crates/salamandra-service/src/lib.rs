@@ -20,11 +20,16 @@ use salamandra_hid::HidTransport;
 /// Ações customizadas em uso. O app troca ao gravar; o serviço lê a cada atalho.
 static CUSTOM: RwLock<Option<CustomActions>> = RwLock::new(None);
 
-/// Troca as ações customizadas (`None` volta aos atalhos embutidos).
-pub fn set_custom_actions(actions: Option<CustomActions>) {
+/// Troca as ações customizadas (`None` volta aos atalhos embutidos). Recusa
+/// ação que não roda neste sistema, sem mexer nas atuais.
+pub fn set_custom_actions(actions: Option<CustomActions>) -> Result<(), Error> {
+    if let Some(a) = &actions {
+        a.validate(Os::current())?;
+    }
     if let Ok(mut guard) = CUSTOM.write() {
         *guard = actions;
     }
+    Ok(())
 }
 
 /// Lê e valida `custom-actions.json`. Arquivo ausente não é erro: `Ok(None)`.
@@ -93,15 +98,10 @@ impl Executor {
 
     fn hyper(&mut self, direction: Direction) -> Result<(), Error> {
         let press = direction == Direction::Press;
-        if press == self.hyper_down {
+        let Some(order) = custom::hyper_transition(self.hyper_down, press) else {
             return Ok(());
-        }
-        self.hyper_down = press;
-        let order: Vec<HostKey> = if press {
-            custom::HYPER.to_vec()
-        } else {
-            custom::HYPER.iter().rev().copied().collect()
         };
+        self.hyper_down = press;
         for k in order.iter().filter_map(|k| to_enigo(*k)) {
             self.enigo
                 .key(k, direction)
@@ -113,9 +113,8 @@ impl Executor {
     fn keys(&mut self, modifiers: &[HostKey], key: HostKey) -> Result<(), Error> {
         let fail = |e: enigo::InputError| Error::Io(format!("falha ao simular tecla: {e}"));
         // Com o Hyper segurado, os quatro modificadores já estão apertados.
-        let mods: Vec<Key> = modifiers
+        let mods: Vec<Key> = custom::modifiers_to_press(modifiers, self.hyper_down)
             .iter()
-            .filter(|m| !(self.hyper_down && custom::HYPER.contains(m)))
             .filter_map(|m| to_enigo(*m))
             .collect();
         let Some(key) = to_enigo(key) else {
@@ -153,7 +152,8 @@ fn open(target: &str) -> Result<(), Error> {
     match Os::current() {
         Os::MacOs => spawn("open", &[target]),
         Os::Linux => spawn("xdg-open", &[target]),
-        Os::Windows => spawn("cmd", &["/C", "start", "", target]),
+        // Sem cmd: ele quebra URL com & (a=1&b=2).
+        Os::Windows => spawn("rundll32", &["url.dll,FileProtocolHandler", target]),
     }
 }
 
@@ -348,10 +348,10 @@ mod tests {
         let mut file = CustomActions::new();
         file.bindings
             .insert(Shortcut::Mail, custom::CustomAction::Hyper);
-        set_custom_actions(Some(file));
+        set_custom_actions(Some(file)).unwrap();
         assert_eq!(custom_for(Shortcut::Mail), Some(vec![Op::HyperDown]));
         assert_eq!(custom_for(Shortcut::Copy), None);
-        set_custom_actions(None);
+        set_custom_actions(None).unwrap();
         assert_eq!(custom_for(Shortcut::Mail), None);
     }
 
