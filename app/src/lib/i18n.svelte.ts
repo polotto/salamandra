@@ -132,6 +132,7 @@ const en: Record<string, string> = {
   "Taxa de polling": "Polling rate",
   "Tecla": "Key",
   "Tiro rápido": "Rapid fire",
+  "Botão da roda": "Wheel button",
   "Trocar janela": "Switch window",
   "Trocar modo do LED": "Switch LED mode",
   "Trocar perfil": "Switch profile",

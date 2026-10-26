@@ -22,6 +22,25 @@ Versão de teste (pré-release). Baixe o instalador do seu sistema em
 [Releases](https://github.com/polotto/salamandra/releases) e veja
 [Como instalar](#como-instalar).
 
+## Imagens
+
+O app, a linha de comando e o servidor MCP.
+
+<table>
+<tr><td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/app-dpi-dark-pt.png"><img src="docs/screenshots/app-dpi-light-pt.png" alt="Níveis de DPI" width="100%"></picture></td><td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/app-lighting-dark-pt.png"><img src="docs/screenshots/app-lighting-light-pt.png" alt="Iluminação" width="100%"></picture></td></tr>
+<tr><td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/app-buttons-dark-pt.png"><img src="docs/screenshots/app-buttons-light-pt.png" alt="Botões" width="100%"></picture></td><td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/app-macros-dark-pt.png"><img src="docs/screenshots/app-macros-light-pt.png" alt="Macros" width="100%"></picture></td></tr>
+</table>
+
+Os prints do app usam dados de exemplo em um mouse simulado. Eles seguem o seu tema claro ou escuro.
+
+<p align="center"><img src="docs/screenshots/cli-show.png" alt="Saída do salamandra show em um terminal" width="70%"></p>
+
+A linha de comando, em um M901-1 real (`salamandra show 1`).
+
+<p align="center"><img src="docs/screenshots/mcp-tools.png" alt="Lista de ferramentas do servidor MCP" width="70%"></p>
+
+As ferramentas do servidor MCP (`salamandra-mcp`), que qualquer cliente MCP pode chamar.
+
 ## Compatibilidade
 
 ### Mouses
